@@ -240,40 +240,194 @@
                 </div>
             </div>
 
-            <!-- Detailed Table -->
+            <!-- Detailed Table - Redesigned for better UX -->
             <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
                 <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
-                    <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
-                        <i class="fas fa-table text-primary-600 mr-3"></i>
-                        Detalle por Periodo
-                    </h3>
-                    <p class="text-secondary-600 mt-2">Tabla completa con el desglose de cada periodo de inversión</p>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                                <i class="fas fa-table text-primary-600 mr-3"></i>
+                                Detalle por Periodo
+                            </h3>
+                            <p class="text-secondary-600 mt-2">Resumen inteligente de periodos clave de inversión</p>
+                        </div>
+                        <button id="toggleTableBtn"
+                                class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium flex items-center">
+                            <i class="fas fa-eye mr-2"></i>
+                            <span id="toggleText">Ver Todos</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-secondary-200">
-                        <thead class="bg-secondary-100">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Periodo</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Saldo Inicial</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Aportes</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Interés</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Saldo Final</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Aportes Acumulados</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-secondary-200">
-                            {% for _, row in resultado.dataframe.iterrows() %}
-                                <tr class="hover:bg-secondary-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">{{ row['Periodo'] }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${{ "%.2f"|format(row['Saldo Inicial']) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${{ "%.2f"|format(row['Aportes']) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">${{ "%.2f"|format(row['Interés']) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary-600">${{ "%.2f"|format(row['Saldo Final']) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${{ "%.2f"|format(row['Aportes Acumulados']) }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+
+                <!-- Summary View (Default) -->
+                <div id="summaryView" class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <!-- Period Highlights -->
+                        <div class="bg-gradient-to-br from-primary-50 to-primary-100 p-6 rounded-xl border border-primary-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-play text-primary-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-primary-900">Inicio</h4>
+                                    <p class="text-sm text-primary-700">Periodo 1</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-primary-700">Capital:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[0]['Saldo Final']) }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-primary-700">Aportes:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[0]['Aportes Acumulados']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-chart-line text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-green-900">Mitad del Periodo</h4>
+                                    <p class="text-sm text-green-700">Periodo {{ (resultado.dataframe.shape[0] // 2) + 1 }}</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-green-700">Capital:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[resultado.dataframe.shape[0] // 2]['Saldo Final']) }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-green-700">Aportes:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[resultado.dataframe.shape[0] // 2]['Aportes Acumulados']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-trophy text-yellow-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-yellow-900">Final</h4>
+                                    <p class="text-sm text-yellow-700">Periodo {{ resultado.dataframe.shape[0] }}</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-yellow-700">Capital:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[-1]['Saldo Final']) }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-yellow-700">Aportes:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[-1]['Aportes Acumulados']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Milestones Table -->
+                    <div class="bg-secondary-50 rounded-xl p-6">
+                        <h4 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center">
+                            <i class="fas fa-calendar-check text-primary-600 mr-2"></i>
+                            Hitos Principales
+                        </h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="border-b border-secondary-200">
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Periodo</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Capital</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Aportes</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Interés</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-secondary-200">
+                                    {% set total_rows = resultado.dataframe.shape[0] %}
+                                    {% set step = ((total_rows - 1) // 4) %}
+                                    {% if step < 1 %}
+                                        {% set step = 1 %}
+                                    {% endif %}
+                                    {% for i in range(0, total_rows, step) %}
+                                        {% if i < total_rows %}
+                                            {% set row = resultado.dataframe.iloc[i] %}
+                                            <tr class="hover:bg-white transition-colors">
+                                                <td class="px-4 py-3 text-sm font-medium text-secondary-900">{{ row['Periodo'] }}</td>
+                                                <td class="px-4 py-3 text-sm font-bold text-primary-600">${{ "%.2f"|format(row['Saldo Final']) }}</td>
+                                                <td class="px-4 py-3 text-sm text-secondary-700">${{ "%.2f"|format(row['Aportes Acumulados']) }}</td>
+                                                <td class="px-4 py-3 text-sm text-green-600 font-medium">${{ "%.2f"|format(row['Interés']) }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if resultado.dataframe.shape[0] > 0 %}
+                                        {% set last_row = resultado.dataframe.iloc[-1] %}
+                                        <tr class="hover:bg-white transition-colors bg-primary-50">
+                                            <td class="px-4 py-3 text-sm font-bold text-primary-900">{{ last_row['Periodo'] }}</td>
+                                            <td class="px-4 py-3 text-sm font-bold text-primary-600">${{ "%.2f"|format(last_row['Saldo Final']) }}</td>
+                                            <td class="px-4 py-3 text-sm font-bold text-primary-900">${{ "%.2f"|format(last_row['Aportes Acumulados']) }}</td>
+                                            <td class="px-4 py-3 text-sm font-bold text-green-600">${{ "%.2f"|format(last_row['Interés']) }}</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <p class="text-sm text-secondary-600">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                {% if resultado.dataframe.shape[0] <= 5 %}
+                                    Mostrando {{ resultado.dataframe.shape[0] }} periodos clave de {{ resultado.dataframe.shape[0] }} totales
+                                {% else %}
+                                    Mostrando 5 periodos clave de {{ resultado.dataframe.shape[0] }} totales
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Table View (Hidden by default) -->
+                <div id="fullTableView" class="hidden">
+                    <div class="p-8 border-t border-secondary-200">
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-lg font-semibold text-secondary-900 flex items-center">
+                                <i class="fas fa-list text-primary-600 mr-2"></i>
+                                Todos los Periodos
+                            </h4>
+                            <div class="text-sm text-secondary-600">
+                                Total: {{ resultado.dataframe.shape[0] }} periodos
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto max-h-96 overflow-y-auto border border-secondary-200 rounded-lg">
+                            <table class="min-w-full divide-y divide-secondary-200">
+                                <thead class="bg-secondary-100 sticky top-0">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Periodo</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Saldo Inicial</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Aportes</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Interés</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Saldo Final</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Aportes Acumulados</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-secondary-200">
+                                    {% for _, row in resultado.dataframe.iterrows() %}
+                                        <tr class="hover:bg-secondary-50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">{{ row['Periodo'] }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${{ "%.2f"|format(row['Saldo Inicial']) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${{ "%.2f"|format(row['Aportes']) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">${{ "%.2f"|format(row['Interés']) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary-600">${{ "%.2f"|format(row['Saldo Final']) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${{ "%.2f"|format(row['Aportes Acumulados']) }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -311,6 +465,32 @@
             }
         });
     });
+
+    // Toggle table view functionality
+    const toggleTableBtn = document.getElementById('toggleTableBtn');
+    const toggleText = document.getElementById('toggleText');
+    const summaryView = document.getElementById('summaryView');
+    const fullTableView = document.getElementById('fullTableView');
+
+    if (toggleTableBtn) {
+        toggleTableBtn.addEventListener('click', function() {
+            const isExpanded = !fullTableView.classList.contains('hidden');
+
+            if (isExpanded) {
+                // Switch to summary view
+                summaryView.classList.remove('hidden');
+                fullTableView.classList.add('hidden');
+                toggleText.textContent = 'Ver Todos';
+                toggleTableBtn.innerHTML = '<i class="fas fa-eye mr-2"></i><span id="toggleText">Ver Todos</span>';
+            } else {
+                // Switch to full table view
+                summaryView.classList.add('hidden');
+                fullTableView.classList.remove('hidden');
+                toggleText.textContent = 'Ver Resumen';
+                toggleTableBtn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i><span id="toggleText">Ver Resumen</span>';
+            }
+        });
+    }
 </script>
 
 <script>
