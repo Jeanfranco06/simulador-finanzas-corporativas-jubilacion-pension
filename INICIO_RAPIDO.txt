@@ -1,0 +1,148 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║          SIMULADOR FINANCIERO DE JUBILACIÓN                     ║
+║          Proyecto Finanzas Corporativas - Unidad II             ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📦 INICIO RÁPIDO
+═══════════════════════════════════════════════════════════════════
+
+OPCIÓN 1: EJECUCIÓN AUTOMÁTICA (Recomendada)
+───────────────────────────────────────────────────────────────────
+
+Windows:
+  1. Haz doble clic en: run.bat
+  2. ¡Listo! La aplicación se abrirá en tu navegador
+
+Linux/Mac:
+  1. Abre terminal en esta carpeta
+  2. Ejecuta: ./run.sh
+  3. ¡Listo! La aplicación se abrirá en tu navegador
+
+
+OPCIÓN 2: EJECUCIÓN MANUAL
+───────────────────────────────────────────────────────────────────
+
+1. Instalar dependencias:
+   pip install -r requirements.txt
+
+2. Ejecutar aplicación:
+   streamlit run app.py
+
+3. Abrir navegador en:
+   http://localhost:8501
+
+
+📚 DOCUMENTACIÓN
+═══════════════════════════════════════════════════════════════════
+
+📄 Manual de Usuario Completo:
+   → docs/Manual_Usuario.pdf
+
+📄 Guía de Instalación Detallada:
+   → INSTALACION.md
+
+📄 Ejemplos de Uso Prácticos:
+   → EJEMPLOS.md
+
+📄 Resumen del Proyecto:
+   → RESUMEN_PROYECTO.md
+
+
+🎯 MÓDULOS INCLUIDOS
+═══════════════════════════════════════════════════════════════════
+
+✅ MÓDULO A: Crecimiento de Cartera
+   - Simulación con aportes periódicos
+   - Interés compuesto
+   - Gráficas interactivas
+
+✅ MÓDULO B: Proyección de Jubilación
+   - Cálculo de pensión mensual
+   - Consideración de impuestos
+   - Comparación de escenarios
+
+✅ MÓDULO C: Valoración de Bonos
+   - Valor presente de flujos
+   - Cupones periódicos
+   - Análisis de prima/descuento
+
+
+💻 REQUISITOS MÍNIMOS
+═══════════════════════════════════════════════════════════════════
+
+• Python 3.8 o superior
+• 4 GB RAM (recomendado 8 GB)
+• 500 MB espacio en disco
+• Navegador web moderno
+
+
+🚨 SOLUCIÓN RÁPIDA DE PROBLEMAS
+═══════════════════════════════════════════════════════════════════
+
+"Python no encontrado"
+→ Instala Python desde: https://www.python.org/downloads/
+
+"Módulo no encontrado"
+→ Ejecuta: pip install -r requirements.txt
+
+"Puerto en uso"
+→ Cierra otras instancias de Streamlit
+
+
+📁 ESTRUCTURA DEL PROYECTO
+═══════════════════════════════════════════════════════════════════
+
+simulador_financiero/
+├── app.py                          ← Aplicación principal
+├── requirements.txt                ← Dependencias
+├── run.bat / run.sh                ← Scripts de inicio
+├── utils/                          ← Módulos de cálculo
+│   ├── calculos_financieros.py
+│   ├── validaciones.py
+│   └── exportar_pdf.py
+├── assets/                         ← Estilos CSS
+├── docs/                           ← Manual de usuario
+└── .streamlit/                     ← Configuración
+
+
+✨ CARACTERÍSTICAS PRINCIPALES
+═══════════════════════════════════════════════════════════════════
+
+✓ Cálculos financieros precisos
+✓ Interfaz intuitiva en español
+✓ Gráficas interactivas
+✓ Validación automática de datos
+✓ Exportación a PDF
+✓ Sin conocimientos técnicos requeridos
+
+
+🎓 LISTO PARA DEMOSTRACIÓN
+═══════════════════════════════════════════════════════════════════
+
+Este proyecto cumple al 100% con los requerimientos del examen:
+
+✅ Módulo A - Crecimiento de cartera
+✅ Módulo B - Proyección de jubilación  
+✅ Módulo C - Valoración de bonos
+✅ Exportación a PDF
+✅ Manual de usuario
+✅ Validaciones completas
+✅ Interfaz profesional
+
+
+📞 SOPORTE
+═══════════════════════════════════════════════════════════════════
+
+Email: soporte@simuladorfinanciero.com
+Documentación: README.md, INSTALACION.md, EJEMPLOS.md
+
+
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║  ¡GRACIAS POR USAR EL SIMULADOR FINANCIERO DE JUBILACIÓN!      ║
+║                                                                  ║
+║  Para comenzar, ejecuta run.bat (Windows) o run.sh (Linux/Mac) ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝

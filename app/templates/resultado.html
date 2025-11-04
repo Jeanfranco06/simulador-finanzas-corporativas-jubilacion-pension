@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Resultados - Simulador Financiero{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-gray-800 text-white px-6 py-4">
+            <h2 class="text-2xl font-bold flex items-center">
+                <i class="fas fa-chart-bar mr-2"></i>
+                Resultados Consolidados
+            </h2>
+        </div>
+        <div class="p-6">
+            <p class="text-gray-700 mb-6">
+                Vista completa de todos los cálculos realizados.
+            </p>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                    <div>
+                        <strong class="text-blue-800">Nota:</strong>
+                        <span class="text-blue-700">Esta página mostrará un resumen de todos los módulos cuando estén completados.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Espacio para resultados consolidados -->
+            <div id="resultados-consolidados" class="text-center py-12">
+                <div class="text-gray-500">
+                    <i class="fas fa-chart-line text-6xl mb-4"></i>
+                    <p class="text-lg">
+                        Completa los módulos A, B y C para ver los resultados consolidados aquí.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="flex flex-wrap justify-center gap-4 mt-8">
+                <a href="{{ url_for('main.cartera') }}"
+                   class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    <i class="fas fa-wallet mr-2"></i> Módulo A
+                </a>
+                <a href="{{ url_for('main.jubilacion') }}"
+                   class="inline-flex items-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                    <i class="fas fa-home mr-2"></i> Módulo B
+                </a>
+                <a href="{{ url_for('main.bonos') }}"
+                   class="inline-flex items-center bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium">
+                    <i class="fas fa-coins mr-2"></i> Módulo C
+                </a>
+                <button onclick="window.print()"
+                        class="inline-flex items-center bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                    <i class="fas fa-print mr-2"></i> Imprimir Todo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

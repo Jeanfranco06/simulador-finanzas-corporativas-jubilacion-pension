@@ -1,0 +1,90 @@
+/* Estilos personalizados para el Simulador Financiero */
+
+/* Ocultar elementos de Streamlit */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+
+/* Estilo para el contenedor principal */
+.main {
+    padding: 2rem;
+}
+
+/* Estilo para tarjetas de métricas */
+.metric-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem;
+    border-radius: 10px;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para botones */
+.stButton>button {
+    width: 100%;
+    background: linear-gradient(90deg, #1f4788 0%, #2e5c9a 100%);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+}
+
+.stButton>button:hover {
+    background: linear-gradient(90deg, #2e5c9a 0%, #1f4788 100%);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilo para pestañas */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 10px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background-color: #f0f2f6;
+    border-radius: 5px 5px 0 0;
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(90deg, #1f4788 0%, #2e5c9a 100%);
+    color: white;
+}
+
+/* Estilo para expanders */
+.streamlit-expanderHeader {
+    background-color: #f0f2f6;
+    border-radius: 5px;
+    font-weight: 600;
+}
+
+/* Estilo para inputs numéricos */
+.stNumberInput>div>div>input {
+    border-radius: 5px;
+    border: 2px solid #e0e0e0;
+}
+
+.stNumberInput>div>div>input:focus {
+    border-color: #1f4788;
+    box-shadow: 0 0 0 0.2rem rgba(31, 71, 136, 0.25);
+}
+
+/* Estilo para selectbox */
+.stSelectbox>div>div {
+    border-radius: 5px;
+}
+
+/* Mensajes de ayuda */
+.help-text {
+    background-color: #e3f2fd;
+    padding: 1rem;
+    border-radius: 5px;
+    border-left: 4px solid #1f4788;
+    margin: 1rem 0;
+}
+
+/* Estilo para dataframes */
+.dataframe {
+    border-radius: 5px;
+    overflow: hidden;
+}

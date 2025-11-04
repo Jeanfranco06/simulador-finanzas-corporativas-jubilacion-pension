@@ -1,0 +1,10 @@
+Flask==2.3.3
+Flask-WTF==1.2.1
+WTForms==3.1.2
+pandas==2.2.0
+numpy==1.26.3
+matplotlib==3.8.2
+plotly==5.18.0
+reportlab==4.0.9
+Pillow==10.2.0
+python-dotenv==1.0.0

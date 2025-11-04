@@ -1,0 +1,135 @@
+/* Custom styles for the Financial Simulator with Tailwind */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Form enhancements */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 400px;
+    width: 100%;
+}
+
+/* Loading animation */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Custom focus styles */
+.focus-ring:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+/* Table enhancements */
+.table-hover tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Print styles */
+@media print {
+    nav, .btn, footer, .hidden-print {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+    }
+
+    .shadow-md {
+        box-shadow: none !important;
+        border: 1px solid #e5e7eb !important;
+    }
+}
+
+/* Mobile menu animation */
+.mobile-menu-enter {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-out;
+}
+
+.mobile-menu-enter-active {
+    transform: translateX(0);
+}
+
+/* Custom utilities */
+.text-balance {
+    text-wrap: balance;
+}
+
+.prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+
+.prose-custom h1, .prose-custom h2, .prose-custom h3 {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+/* Gradient backgrounds for cards */
+.gradient-blue {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-green {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-purple {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}

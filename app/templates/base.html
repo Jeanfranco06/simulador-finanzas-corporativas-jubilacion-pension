@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Simulador Financiero de Jubilación{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{{ url_for('main.index') }}" class="flex items-center text-white font-bold text-xl">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        Simulador Financiero
+                    </a>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="{{ url_for('main.index') }}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                        <i class="fas fa-home mr-1"></i> Inicio
+                    </a>
+                    <a href="{{ url_for('main.cartera') }}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                        <i class="fas fa-wallet mr-1"></i> Cartera
+                    </a>
+                    <a href="{{ url_for('main.jubilacion') }}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                        <i class="fas fa-home mr-1"></i> Jubilación
+                    </a>
+                    <a href="{{ url_for('main.bonos') }}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                        <i class="fas fa-coins mr-1"></i> Bonos
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button type="button" class="text-white hover:bg-blue-700 p-2 rounded-md" id="mobile-menu-button">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div class="md:hidden hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 bg-blue-700">
+                    <a href="{{ url_for('main.index') }}" class="text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-home mr-2"></i> Inicio
+                    </a>
+                    <a href="{{ url_for('main.cartera') }}" class="text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-wallet mr-2"></i> Cartera
+                    </a>
+                    <a href="{{ url_for('main.jubilacion') }}" class="text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-home mr-2"></i> Jubilación
+                    </a>
+                    <a href="{{ url_for('main.bonos') }}" class="text-white hover:bg-blue-800 block px-3 py-2 rounded-md text-base font-medium">
+                        <i class="fas fa-coins mr-2"></i> Bonos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded-md {% if category == 'error' %}bg-red-100 border border-red-400 text-red-700{% else %}bg-green-100 border border-green-400 text-green-700{% endif %}">
+                        {{ message }}
+                        <button type="button" class="float-right text-gray-500 hover:text-gray-700" onclick="this.parentElement.style.display='none'">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 mt-12">
+        <div class="max-w-7xl mx-auto py-4 px-4 text-center">
+            <p>&copy; 2025 Simulador Financiero - Proyecto Finanzas Corporativas</p>
+        </div>
+    </footer>
+
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/graficas.js') }}"></script>
+
+    <!-- Mobile menu toggle -->
+    <script>
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
