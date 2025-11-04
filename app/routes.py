@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from .forms import CarteraForm, JubilacionForm, BonosForm
 from .models import calcular_cartera, calcular_jubilacion, calcular_bonos
 
@@ -30,6 +30,9 @@ def cartera():
 
         try:
             resultado = calcular_cartera(datos)
+            # Store results in session for use by other modules (exclude DataFrame)
+            session['cartera_resumen'] = resultado['resumen']
+            session['cartera_datos'] = datos
         except Exception as e:
             flash(f'Error en el cálculo: {str(e)}', 'error')
 
@@ -40,8 +43,13 @@ def jubilacion():
     """Módulo B: Proyección de Jubilación"""
     form = JubilacionForm()
     resultado = None
+    modulo_a_completado = 'cartera_resumen' in session
 
     if form.validate_on_submit():
+        if not modulo_a_completado:
+            flash('Debes completar primero el Módulo A (Crecimiento de Cartera)', 'error')
+            return redirect(url_for('main.jubilacion'))
+
         # Process form data
         datos = {
             'tipo_retiro': form.tipo_retiro.data,
@@ -53,10 +61,12 @@ def jubilacion():
 
         try:
             resultado = calcular_jubilacion(datos)
+            # Store results in session
+            session['jubilacion_resultado'] = resultado
         except Exception as e:
             flash(f'Error en el cálculo: {str(e)}', 'error')
 
-    return render_template('jubilacion.html', form=form, resultado=resultado)
+    return render_template('jubilacion.html', form=form, resultado=resultado, modulo_a_completado=modulo_a_completado)
 
 @main.route('/bonos', methods=['GET', 'POST'])
 def bonos():
