@@ -3,211 +3,384 @@
 {% block title %}Módulo C - Valoración de Bonos{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto">
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="bg-purple-600 text-white px-6 py-4">
-            <h2 class="text-2xl font-bold flex items-center">
-                <i class="fas fa-coins mr-2"></i>
-                Módulo C: Valoración de Bonos
-            </h2>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-700 mb-6">
-                Calcula el valor presente de un bono con cupones periódicos.
-                Todos los valores están en dólares estadounidenses (USD).
+<!-- Header Section -->
+<div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-16">
+        <div class="text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/10 rounded-full mb-6">
+                <i class="fas fa-coins text-3xl"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                Valoración de Bonos
+            </h1>
+            <p class="text-xl text-purple-100 max-w-2xl mx-auto">
+                Calcula el valor presente de un bono con cupones periódicos
             </p>
+            <div class="mt-6 inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                <i class="fas fa-dollar-sign mr-2"></i>
+                <span class="font-medium">Todos los cálculos en USD</span>
+            </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Formulario -->
-            <form method="POST" class="space-y-6 mb-8">
-                {{ form.hidden_tag() }}
+<div class="max-w-6xl mx-auto -mt-8 relative z-10">
+    <!-- Input Form Card -->
+    <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden mb-8">
+        <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+            <h2 class="text-2xl font-bold text-secondary-900 flex items-center">
+                <i class="fas fa-calculator text-purple-600 mr-3"></i>
+                Parámetros de Valoración
+            </h2>
+            <p class="text-secondary-600 mt-2">Ingresa los datos para calcular el valor presente del bono</p>
+        </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Características del Bono -->
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Características
-                            del Bono</h3>
+        <form method="POST" class="p-8">
+            {{ form.hidden_tag() }}
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Valor Nominal (USD)</label>
-                            {{ form.valor_nominal(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
-                            focus:border-purple-500 focus:ring-purple-500") }}
-                            {% if form.valor_nominal.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.valor_nominal.errors[0] }}</p>
-                            {% endif %}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Bond Characteristics -->
+                <div class="space-y-6">
+                    <div class="bg-secondary-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center">
+                            <i class="fas fa-file-invoice-dollar text-purple-600 mr-2"></i>
+                            Características del Bono
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-2">
+                                    <i class="fas fa-dollar-sign mr-1"></i>Valor Nominal (USD)
+                                </label>
+                                {{ form.valor_nominal(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors", placeholder="Ej: 1000.00") }}
+                                {% if form.valor_nominal.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.valor_nominal.errors[0] }}
+                                    </p>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-2">
+                                    <i class="fas fa-percentage mr-1"></i>Tasa Cupón Anual (%)
+                                </label>
+                                {{ form.tasa_cupon(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors", placeholder="Ej: 5.0") }}
+                                {% if form.tasa_cupon.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.tasa_cupon.errors[0] }}
+                                    </p>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-2">
+                                    <i class="fas fa-calendar-alt mr-1"></i>Frecuencia de Pago de Cupones
+                                </label>
+                                {{ form.frecuencia_pago(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors") }}
+                            </div>
                         </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tasa Cupón Anual (%)</label>
-                            {{ form.tasa_cupon(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
-                            focus:border-purple-500 focus:ring-purple-500") }}
-                            {% if form.tasa_cupon.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.tasa_cupon.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Frecuencia de Pago de
-                                Cupones</label>
-                            {{ form.frecuencia_pago(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
-                            focus:border-purple-500 focus:ring-purple-500") }}
-                        </div>
-                    </div>
-
-                    <!-- Condiciones de Mercado -->
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Condiciones de
-                            Mercado</h3>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Plazo al Vencimiento
-                                (Años)</label>
-                            {{ form.años_bono(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
-                            focus:border-purple-500 focus:ring-purple-500") }}
-                            {% if form.años_bono.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.años_bono.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tasa de Retorno Esperada - TEA
-                                (%)</label>
-                            {{ form.tea_retorno(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
-                            focus:border-purple-500 focus:ring-purple-500") }}
-                            {% if form.tea_retorno.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.tea_retorno.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-center">
-                    {{ form.submit(class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700
-                    transition-colors font-medium") }}
-                </div>
-            </form>
-
-            <!-- Resultados -->
-            {% if resultado %}
-            <hr class="my-8">
-            <h3 class="text-xl font-semibold text-gray-800 mb-6">Resultados de la Valoración</h3>
-
-            <!-- Métricas principales -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-purple-600">${{
-                            "%.2f"|format(resultado.resumen.valor_presente_total) }}</div>
-                        <div class="text-sm text-gray-600">Valor Presente</div>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-blue-600">${{ "%.2f"|format(resultado.resumen.valor_nominal)
-                            }}</div>
-                        <div class="text-sm text-gray-600">Valor Nominal</div>
-                    </div>
-                </div>
+                <!-- Market Conditions -->
+                <div class="space-y-6">
+                    <div class="bg-secondary-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center">
+                            <i class="fas fa-chart-line text-purple-600 mr-2"></i>
+                            Condiciones de Mercado
+                        </h3>
 
-                <div class="bg-gradient-to-r
-                        {% if resultado.resumen.estado == 'Prima' %}from-green-50 to-green-100 border-green-200
-                        {% elif resultado.resumen.estado == 'Descuento' %}from-red-50 to-red-100 border-red-200
-                        {% else %}from-yellow-50 to-yellow-100 border-yellow-200{% endif %}
-                        p-4 rounded-lg border">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold
-                                {% if resultado.resumen.estado == 'Prima' %}text-green-600
-                                {% elif resultado.resumen.estado == 'Descuento' %}text-red-600
-                                {% else %}text-yellow-600{% endif %}">
-                            {{ resultado.resumen.estado }}
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-2">
+                                    <i class="fas fa-clock mr-1"></i>Plazo al Vencimiento (Años)
+                                </label>
+                                {{ form.años_bono(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors", placeholder="Ej: 5") }}
+                                {% if form.años_bono.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.años_bono.errors[0] }}
+                                    </p>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-2">
+                                    <i class="fas fa-target mr-1"></i>Tasa de Retorno Esperada - TEA (%)
+                                </label>
+                                {{ form.tea_retorno(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors", placeholder="Ej: 6.0") }}
+                                {% if form.tea_retorno.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.tea_retorno.errors[0] }}
+                                    </p>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="text-sm text-gray-600">Estado del Bono</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Interpretación -->
-            <div class="mb-8 p-4 rounded-lg
-                    {% if resultado.resumen.estado == 'Prima' %}bg-green-50 border border-green-200
-                    {% elif resultado.resumen.estado == 'Descuento' %}bg-red-50 border border-red-200
-                    {% else %}bg-yellow-50 border border-yellow-200{% endif %}">
-                <div class="flex items-center mb-2">
-                    <i class="fas
-                            {% if resultado.resumen.estado == 'Prima' %}fa-arrow-up text-green-600
-                            {% elif resultado.resumen.estado == 'Descuento' %}fa-arrow-down text-red-600
-                            {% else %}fa-equals text-yellow-600{% endif %} mr-2"></i>
-                    <h4 class="font-semibold
-                            {% if resultado.resumen.estado == 'Prima' %}text-green-800
-                            {% elif resultado.resumen.estado == 'Descuento' %}text-red-800
-                            {% else %}text-yellow-800{% endif %}">
-                        Bono cotiza con {{ resultado.resumen.estado|upper }}
-                    </h4>
-                </div>
-                <p class="text-gray-700">
-                    {% if resultado.resumen.estado == 'Prima' %}
-                    El bono tiene un valor presente mayor al nominal porque la tasa cupón ({{
-                    "%.2f"|format(resultado.resumen.tasa_cupon) }}%)
-                    es mayor a la tasa de retorno requerida ({{ "%.2f"|format(resultado.resumen.tea_retorno) }}%).
-                    {% elif resultado.resumen.estado == 'Descuento' %}
-                    El bono tiene un valor presente menor al nominal porque la tasa cupón ({{
-                    "%.2f"|format(resultado.resumen.tasa_cupon) }}%)
-                    es menor a la tasa de retorno requerida ({{ "%.2f"|format(resultado.resumen.tea_retorno) }}%).
-                    {% else %}
-                    El bono tiene un valor presente igual al nominal porque las tasas son equivalentes.
-                    {% endif %}
-                </p>
-            </div>
-
-            <!-- Gráfica -->
-            <div class="mb-8">
-                <h4 class="text-lg font-semibold text-gray-800 mb-4">Flujos del Bono</h4>
-                <div class="bg-white p-4 rounded-lg border border-gray-200">
-                    <canvas id="graficaBonos" width="400" height="200"
-                        data-chart-data="{{ resultado.dataframe.to_dict('records') | tojson }}"></canvas>
-                </div>
-            </div>
-
-            <!-- Tabla de flujos -->
-            <div class="mb-6">
-                <h4 class="text-lg font-semibold text-gray-800 mb-4">Tabla de Flujos</h4>
-                <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Periodo</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Flujo (USD)</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Valor Presente (USD)</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            {% for _, row in resultado.dataframe.iterrows() %}
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Periodo'] }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{
-                                    "%.2f"|format(row['Flujo (USD)']) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{
-                                    "%.2f"|format(row['Valor Presente (USD)']) }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Botones de acción -->
-            <div class="text-center">
-                <button onclick="window.print()"
-                    class="inline-flex items-center bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
-                    <i class="fas fa-print mr-2"></i> Imprimir
+            <div class="mt-8 text-center">
+                <button type="submit" class="bg-purple-600 text-white px-12 py-4 rounded-xl hover:bg-purple-700 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 inline-flex items-center">
+                    <i class="fas fa-search-dollar mr-3"></i>
+                    {{ form.submit.label.text }}
+                    <i class="fas fa-search-dollar ml-3"></i>
                 </button>
             </div>
-            {% endif %}
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    {% if resultado %}
+        <div class="space-y-8">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-search-dollar text-purple-600 text-xl"></i>
+                        </div>
+                        <span class="text-xs font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded-full">VALOR PRESENTE</span>
+                    </div>
+                    <div class="text-2xl font-bold text-purple-900 mb-1">${{ "%.2f"|format(resultado.resumen.valor_presente_total) }}</div>
+                    <div class="text-sm text-purple-700 font-medium">Valor Actual del Bono</div>
+                </div>
+
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">VALOR NOMINAL</span>
+                    </div>
+                    <div class="text-2xl font-bold text-blue-900 mb-1">${{ "%.2f"|format(resultado.resumen.valor_nominal) }}</div>
+                    <div class="text-sm text-blue-700 font-medium">Valor Facial</div>
+                </div>
+
+                <div class="bg-gradient-to-br
+                    {% if resultado.resumen.estado == 'Prima' %}from-green-50 to-green-100 border-green-200
+                    {% elif resultado.resumen.estado == 'Descuento' %}from-red-50 to-red-100 border-red-200
+                    {% else %}from-yellow-50 to-yellow-100 border-yellow-200{% endif %}
+                    p-6 rounded-xl border shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12
+                            {% if resultado.resumen.estado == 'Prima' %}bg-green-100
+                            {% elif resultado.resumen.estado == 'Descuento' %}bg-red-100
+                            {% else %}bg-yellow-100{% endif %}
+                            rounded-lg flex items-center justify-center">
+                            <i class="fas
+                                {% if resultado.resumen.estado == 'Prima' %}fa-arrow-up text-green-600
+                                {% elif resultado.resumen.estado == 'Descuento' %}fa-arrow-down text-red-600
+                                {% else %}fa-equals text-yellow-600{% endif %}
+                                text-xl"></i>
+                        </div>
+                        <span class="text-xs font-medium
+                            {% if resultado.resumen.estado == 'Prima' %}text-green-600 bg-green-100
+                            {% elif resultado.resumen.estado == 'Descuento' %}text-red-600 bg-red-100
+                            {% else %}text-yellow-600 bg-yellow-100{% endif %}
+                            px-2 py-1 rounded-full">ESTADO</span>
+                    </div>
+                    <div class="text-2xl font-bold
+                        {% if resultado.resumen.estado == 'Prima' %}text-green-900
+                        {% elif resultado.resumen.estado == 'Descuento' %}text-red-900
+                        {% else %}text-yellow-900{% endif %}
+                        mb-1">{{ resultado.resumen.estado }}</div>
+                    <div class="text-sm
+                        {% if resultado.resumen.estado == 'Prima' %}text-green-700
+                        {% elif resultado.resumen.estado == 'Descuento' %}text-red-700
+                        {% else %}text-yellow-700{% endif %}
+                        font-medium">Cotización del Bono</div>
+                </div>
+
+                <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-xl border border-indigo-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-indigo-600 text-xl"></i>
+                        </div>
+                        <span class="text-xs font-medium text-indigo-600 bg-indigo-100 px-2 py-1 rounded-full">DIFERENCIA</span>
+                    </div>
+                    <div class="text-2xl font-bold text-indigo-900 mb-1">${{ "%.2f"|format(resultado.resumen.diferencia) }}</div>
+                    <div class="text-sm text-indigo-700 font-medium">Prima/Descuento</div>
+                </div>
+            </div>
+
+            <!-- Bond Analysis -->
+            <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                    <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                        <i class="fas fa-chart-bar text-purple-600 mr-3"></i>
+                        Análisis del Bono
+                    </h3>
+                    <p class="text-secondary-600 mt-2">Interpretación detallada de la valoración</p>
+                </div>
+                <div class="p-8">
+                    <!-- Bond Status Interpretation -->
+                    <div class="mb-8 p-6 rounded-xl
+                        {% if resultado.resumen.estado == 'Prima' %}bg-green-50 border border-green-200
+                        {% elif resultado.resumen.estado == 'Descuento' %}bg-red-50 border border-red-200
+                        {% else %}bg-yellow-50 border border-yellow-200{% endif %}">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12
+                                {% if resultado.resumen.estado == 'Prima' %}bg-green-100
+                                {% elif resultado.resumen.estado == 'Descuento' %}bg-red-100
+                                {% else %}bg-yellow-100{% endif %}
+                                rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas
+                                    {% if resultado.resumen.estado == 'Prima' %}fa-arrow-up text-green-600
+                                    {% elif resultado.resumen.estado == 'Descuento' %}fa-arrow-down text-red-600
+                                    {% else %}fa-equals text-yellow-600{% endif %}
+                                    text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold
+                                    {% if resultado.resumen.estado == 'Prima' %}text-green-800
+                                    {% elif resultado.resumen.estado == 'Descuento' %}text-red-800
+                                    {% else %}text-yellow-800{% endif %}">
+                                    Bono cotiza con {{ resultado.resumen.estado|upper }}
+                                </h4>
+                                <p class="text-sm
+                                    {% if resultado.resumen.estado == 'Prima' %}text-green-700
+                                    {% elif resultado.resumen.estado == 'Descuento' %}text-red-700
+                                    {% else %}text-yellow-700{% endif %}">
+                                    Análisis de la relación entre tasas cupón y de mercado
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-gray-700 leading-relaxed">
+                            {% if resultado.resumen.estado == 'Prima' %}
+                            <p class="mb-3">El bono tiene un <strong>valor presente mayor al nominal</strong> porque la tasa cupón
+                                (<span class="font-semibold text-green-700">{{ "%.2f"|format(resultado.resumen.tasa_cupon) }}%</span>)
+                                es <strong>mayor</strong> a la tasa de retorno requerida
+                                (<span class="font-semibold text-green-700">{{ "%.2f"|format(resultado.resumen.tea_retorno) }}%</span>).</p>
+                            <p>Esto significa que los inversionistas están dispuestos a pagar una <strong>prima</strong> sobre el valor nominal
+                                para obtener los cupones más atractivos que ofrece este bono.</p>
+                            {% elif resultado.resumen.estado == 'Descuento' %}
+                            <p class="mb-3">El bono tiene un <strong>valor presente menor al nominal</strong> porque la tasa cupón
+                                (<span class="font-semibold text-red-700">{{ "%.2f"|format(resultado.resumen.tasa_cupon) }}%</span>)
+                                es <strong>menor</strong> a la tasa de retorno requerida
+                                (<span class="font-semibold text-red-700">{{ "%.2f"|format(resultado.resumen.tea_retorno) }}%</span>).</p>
+                            <p>Esto significa que el bono se negocia con <strong>descuento</strong> para compensar la tasa de cupón menos atractiva
+                                en comparación con las condiciones actuales del mercado.</p>
+                            {% else %}
+                            <p class="mb-3">El bono tiene un <strong>valor presente igual al nominal</strong> porque las tasas son equivalentes.</p>
+                            <p>La tasa cupón ({{ "%.2f"|format(resultado.resumen.tasa_cupon) }}%) coincide exactamente con la tasa de retorno
+                                requerida ({{ "%.2f"|format(resultado.resumen.tea_retorno) }}%), resultando en una valoración <strong>par</strong>.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Bond Details -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <!-- Bond Characteristics Summary -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                            <h4 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-file-invoice-dollar text-blue-600 mr-2"></i>
+                                Características del Bono
+                            </h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between items-center py-2 border-b border-blue-100">
+                                    <span class="text-blue-700 font-medium">Valor Nominal:</span>
+                                    <span class="font-semibold text-blue-900">${{ "%.2f"|format(resultado.resumen.valor_nominal) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-blue-100">
+                                    <span class="text-blue-700 font-medium">Tasa Cupón:</span>
+                                    <span class="font-semibold text-blue-900">{{ "%.2f"|format(resultado.resumen.tasa_cupon) }}%</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2">
+                                    <span class="text-blue-700 font-medium">Tasa Mercado:</span>
+                                    <span class="font-semibold text-blue-900">{{ "%.2f"|format(resultado.resumen.tea_retorno) }}%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Valuation Summary -->
+                        <div class="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                            <h4 class="text-lg font-semibold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-calculator text-purple-600 mr-2"></i>
+                                Resumen de Valoración
+                            </h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between items-center py-2 border-b border-purple-100">
+                                    <span class="text-purple-700 font-medium">Valor Presente:</span>
+                                    <span class="font-semibold text-purple-900">${{ "%.2f"|format(resultado.resumen.valor_presente_total) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-purple-100">
+                                    <span class="text-purple-700 font-medium">Estado:</span>
+                                    <span class="font-semibold
+                                        {% if resultado.resumen.estado == 'Prima' %}text-green-700
+                                        {% elif resultado.resumen.estado == 'Descuento' %}text-red-700
+                                        {% else %}text-yellow-700{% endif %}">
+                                        {{ resultado.resumen.estado }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center py-2">
+                                    <span class="text-purple-700 font-medium">Diferencia:</span>
+                                    <span class="font-semibold text-purple-900">${{ "%.2f"|format(resultado.resumen.diferencia) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash Flows Chart -->
+            <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                    <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                        <i class="fas fa-chart-area text-purple-600 mr-3"></i>
+                        Flujos de Efectivo
+                    </h3>
+                    <p class="text-secondary-600 mt-2">Visualización de los pagos del bono a lo largo del tiempo</p>
+                </div>
+                <div class="p-8">
+                    <div class="bg-secondary-50 rounded-xl p-6">
+                        <canvas id="graficaBonos" height="300" class="w-full"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash Flows Table -->
+            <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                    <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                        <i class="fas fa-table text-purple-600 mr-3"></i>
+                        Tabla de Flujos
+                    </h3>
+                    <p class="text-secondary-600 mt-2">Detalle completo de pagos e intereses descontados</p>
+                </div>
+                <div class="p-8">
+                    <div class="overflow-x-auto max-h-96 overflow-y-auto border border-secondary-200 rounded-lg">
+                        <table class="min-w-full divide-y divide-secondary-200">
+                            <thead class="bg-secondary-100 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Periodo</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Flujo (USD)</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Valor Presente (USD)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-secondary-200">
+                                {% for _, row in resultado.dataframe.iterrows() %}
+                                    <tr class="hover:bg-secondary-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">{{ row['Periodo'] }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${{ "%.2f"|format(row['Flujo (USD)']) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">${{ "%.2f"|format(row['Valor Presente (USD)']) }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="window.print()"
+                        class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
+                    <i class="fas fa-print mr-3"></i>
+                    Imprimir Reporte
+                </button>
+            </div>
+        </div>
+    {% endif %}
         </div>
     </div>
 </div>
@@ -260,93 +433,247 @@
     }
 
     function updateBonosResults(resultado) {
-        // Create results HTML
+        // Create results HTML with modern design
         const resultsHTML = `
             <div class="space-y-8" id="results-section">
-                <hr class="my-8">
-                <h3 class="text-xl font-semibold text-gray-800 mb-6">Resultados de la Valoración</h3>
-
-                <!-- Métricas principales -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-purple-600">$${resultado.resumen.valor_presente_total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                            <div class="text-sm text-gray-600">Valor Presente</div>
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-search-dollar text-purple-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded-full">VALOR PRESENTE</span>
                         </div>
+                        <div class="text-2xl font-bold text-purple-900 mb-1">$${resultado.resumen.valor_presente_total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="text-sm text-purple-700 font-medium">Valor Actual del Bono</div>
                     </div>
 
-                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-blue-600">$${resultado.resumen.valor_nominal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                            <div class="text-sm text-gray-600">Valor Nominal</div>
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-blue-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">VALOR NOMINAL</span>
                         </div>
+                        <div class="text-2xl font-bold text-blue-900 mb-1">$${resultado.resumen.valor_nominal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="text-sm text-blue-700 font-medium">Valor Facial</div>
                     </div>
 
-                    <div class="bg-gradient-to-r
+                    <div class="bg-gradient-to-br
                         ${resultado.resumen.estado === 'Prima' ? 'from-green-50 to-green-100 border-green-200' :
                           resultado.resumen.estado === 'Descuento' ? 'from-red-50 to-red-100 border-red-200' :
                           'from-yellow-50 to-yellow-100 border-yellow-200'}
-                        p-4 rounded-lg border">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold
-                                ${resultado.resumen.estado === 'Prima' ? 'text-green-600' :
-                                  resultado.resumen.estado === 'Descuento' ? 'text-red-600' :
-                                  'text-yellow-600'}">
-                                ${resultado.resumen.estado}
+                        p-6 rounded-xl border shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12
+                                ${resultado.resumen.estado === 'Prima' ? 'bg-green-100' :
+                                  resultado.resumen.estado === 'Descuento' ? 'bg-red-100' :
+                                  'bg-yellow-100'}
+                                rounded-lg flex items-center justify-center">
+                                <i class="fas
+                                    ${resultado.resumen.estado === 'Prima' ? 'fa-arrow-up text-green-600' :
+                                      resultado.resumen.estado === 'Descuento' ? 'fa-arrow-down text-red-600' :
+                                      'fa-equals text-yellow-600'}
+                                    text-xl"></i>
                             </div>
-                            <div class="text-sm text-gray-600">Estado del Bono</div>
+                            <span class="text-xs font-medium
+                                ${resultado.resumen.estado === 'Prima' ? 'text-green-600 bg-green-100' :
+                                  resultado.resumen.estado === 'Descuento' ? 'text-red-600 bg-red-100' :
+                                  'text-yellow-600 bg-yellow-100'}
+                                px-2 py-1 rounded-full">ESTADO</span>
+                        </div>
+                        <div class="text-2xl font-bold
+                            ${resultado.resumen.estado === 'Prima' ? 'text-green-900' :
+                              resultado.resumen.estado === 'Descuento' ? 'text-red-900' :
+                              'text-yellow-900'}
+                            mb-1">${resultado.resumen.estado}</div>
+                        <div class="text-sm
+                            ${resultado.resumen.estado === 'Prima' ? 'text-green-700' :
+                              resultado.resumen.estado === 'Descuento' ? 'text-red-700' :
+                              'text-yellow-700'}
+                            font-medium">Cotización del Bono</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-xl border border-indigo-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-indigo-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-indigo-600 bg-indigo-100 px-2 py-1 rounded-full">DIFERENCIA</span>
+                        </div>
+                        <div class="text-2xl font-bold text-indigo-900 mb-1">$${resultado.resumen.diferencia.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="text-sm text-indigo-700 font-medium">Prima/Descuento</div>
+                    </div>
+                </div>
+
+                <!-- Bond Analysis -->
+                <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                    <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                        <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                            <i class="fas fa-chart-bar text-purple-600 mr-3"></i>
+                            Análisis del Bono
+                        </h3>
+                        <p class="text-secondary-600 mt-2">Interpretación detallada de la valoración</p>
+                    </div>
+                    <div class="p-8">
+                        <!-- Bond Status Interpretation -->
+                        <div class="mb-8 p-6 rounded-xl
+                            ${resultado.resumen.estado === 'Prima' ? 'bg-green-50 border border-green-200' :
+                              resultado.resumen.estado === 'Descuento' ? 'bg-red-50 border border-red-200' :
+                              'bg-yellow-50 border border-yellow-200'}">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12
+                                    ${resultado.resumen.estado === 'Prima' ? 'bg-green-100' :
+                                      resultado.resumen.estado === 'Descuento' ? 'bg-red-100' :
+                                      'bg-yellow-100'}
+                                    rounded-lg flex items-center justify-center mr-4">
+                                    <i class="fas
+                                        ${resultado.resumen.estado === 'Prima' ? 'fa-arrow-up text-green-600' :
+                                          resultado.resumen.estado === 'Descuento' ? 'fa-arrow-down text-red-600' :
+                                          'fa-equals text-yellow-600'}
+                                        text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold
+                                        ${resultado.resumen.estado === 'Prima' ? 'text-green-800' :
+                                          resultado.resumen.estado === 'Descuento' ? 'text-red-800' :
+                                          'text-yellow-800'}">
+                                        Bono cotiza con ${resultado.resumen.estado.toUpperCase()}
+                                    </h4>
+                                    <p class="text-sm
+                                        ${resultado.resumen.estado === 'Prima' ? 'text-green-700' :
+                                          resultado.resumen.estado === 'Descuento' ? 'text-red-700' :
+                                          'text-yellow-700'}">
+                                        Análisis de la relación entre tasas cupón y de mercado
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-gray-700 leading-relaxed">
+                                ${resultado.resumen.estado === 'Prima' ?
+                                    `<p class="mb-3">El bono tiene un <strong>valor presente mayor al nominal</strong> porque la tasa cupón
+                                        (<span class="font-semibold text-green-700">${resultado.resumen.tasa_cupon.toFixed(2)}%</span>)
+                                        es <strong>mayor</strong> a la tasa de retorno requerida
+                                        (<span class="font-semibold text-green-700">${resultado.resumen.tea_retorno.toFixed(2)}%</span>).</p>
+                                    <p>Esto significa que los inversionistas están dispuestos a pagar una <strong>prima</strong> sobre el valor nominal
+                                        para obtener los cupones más atractivos que ofrece este bono.</p>` :
+                                  resultado.resumen.estado === 'Descuento' ?
+                                    `<p class="mb-3">El bono tiene un <strong>valor presente menor al nominal</strong> porque la tasa cupón
+                                        (<span class="font-semibold text-red-700">${resultado.resumen.tasa_cupon.toFixed(2)}%</span>)
+                                        es <strong>menor</strong> a la tasa de retorno requerida
+                                        (<span class="font-semibold text-red-700">${resultado.resumen.tea_retorno.toFixed(2)}%</span>).</p>
+                                    <p>Esto significa que el bono se negocia con <strong>descuento</strong> para compensar la tasa de cupón menos atractiva
+                                        en comparación con las condiciones actuales del mercado.</p>` :
+                                    `<p class="mb-3">El bono tiene un <strong>valor presente igual al nominal</strong> porque las tasas son equivalentes.</p>
+                                    <p>La tasa cupón (${resultado.resumen.tasa_cupon.toFixed(2)}%) coincide exactamente con la tasa de retorno
+                                        requerida (${resultado.resumen.tea_retorno.toFixed(2)}%), resultando en una valoración <strong>par</strong>.</p>`
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Bond Details -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                            <!-- Bond Characteristics Summary -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                                <h4 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                                    <i class="fas fa-file-invoice-dollar text-blue-600 mr-2"></i>
+                                    Características del Bono
+                                </h4>
+                                <div class="space-y-3 text-sm">
+                                    <div class="flex justify-between items-center py-2 border-b border-blue-100">
+                                        <span class="text-blue-700 font-medium">Valor Nominal:</span>
+                                        <span class="font-semibold text-blue-900">$${resultado.resumen.valor_nominal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2 border-b border-blue-100">
+                                        <span class="text-blue-700 font-medium">Tasa Cupón:</span>
+                                        <span class="font-semibold text-blue-900">${resultado.resumen.tasa_cupon.toFixed(2)}%</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2">
+                                        <span class="text-blue-700 font-medium">Tasa Mercado:</span>
+                                        <span class="font-semibold text-blue-900">${resultado.resumen.tea_retorno.toFixed(2)}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Valuation Summary -->
+                            <div class="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                                <h4 class="text-lg font-semibold text-purple-800 mb-4 flex items-center">
+                                    <i class="fas fa-calculator text-purple-600 mr-2"></i>
+                                    Resumen de Valoración
+                                </h4>
+                                <div class="space-y-3 text-sm">
+                                    <div class="flex justify-between items-center py-2 border-b border-purple-100">
+                                        <span class="text-purple-700 font-medium">Valor Presente:</span>
+                                        <span class="font-semibold text-purple-900">$${resultado.resumen.valor_presente_total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2 border-b border-purple-100">
+                                        <span class="text-purple-700 font-medium">Estado:</span>
+                                        <span class="font-semibold
+                                            ${resultado.resumen.estado === 'Prima' ? 'text-green-700' :
+                                              resultado.resumen.estado === 'Descuento' ? 'text-red-700' :
+                                              'text-yellow-700'}">
+                                            ${resultado.resumen.estado}
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2">
+                                        <span class="text-purple-700 font-medium">Diferencia:</span>
+                                        <span class="font-semibold text-purple-900">$${resultado.resumen.diferencia.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Interpretación -->
-                <div class="mb-8 p-4 rounded-lg
-                    ${resultado.resumen.estado === 'Prima' ? 'bg-green-50 border border-green-200' :
-                      resultado.resumen.estado === 'Descuento' ? 'bg-red-50 border border-red-200' :
-                      'bg-yellow-50 border border-yellow-200'}">
-                    <div class="flex items-center mb-2">
-                        <i class="fas
-                            ${resultado.resumen.estado === 'Prima' ? 'fa-arrow-up text-green-600' :
-                              resultado.resumen.estado === 'Descuento' ? 'fa-arrow-down text-red-600' :
-                              'fa-equals text-yellow-600'} mr-2"></i>
-                        <h4 class="font-semibold
-                            ${resultado.resumen.estado === 'Prima' ? 'text-green-800' :
-                              resultado.resumen.estado === 'Descuento' ? 'text-red-800' :
-                              'text-yellow-800'}">
-                            Bono cotiza con ${resultado.resumen.estado.toUpperCase()}
-                        </h4>
+                <!-- Cash Flows Chart -->
+                <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                    <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                        <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                            <i class="fas fa-chart-area text-purple-600 mr-3"></i>
+                            Flujos de Efectivo
+                        </h3>
+                        <p class="text-secondary-600 mt-2">Visualización de los pagos del bono a lo largo del tiempo</p>
                     </div>
-                    <p class="text-gray-700">
-                        ${resultado.resumen.estado === 'Prima' ?
-                            `El bono tiene un valor presente mayor al nominal porque la tasa cupón (${resultado.resumen.tasa_cupon.toFixed(2)}%) es mayor a la tasa de retorno requerida (${resultado.resumen.tea_retorno.toFixed(2)}%).` :
-                          resultado.resumen.estado === 'Descuento' ?
-                            `El bono tiene un valor presente menor al nominal porque la tasa cupón (${resultado.resumen.tasa_cupon.toFixed(2)}%) es menor a la tasa de retorno requerida (${resultado.resumen.tea_retorno.toFixed(2)}%).` :
-                            'El bono tiene un valor presente igual al nominal porque las tasas son equivalentes.'
-                        }
-                    </p>
-                </div>
-
-                <!-- Gráfica -->
-                <div class="mb-8">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Flujos del Bono</h4>
-                    <div class="bg-white p-4 rounded-lg border border-gray-200">
-                        <canvas id="graficaBonos" width="400" height="200"></canvas>
+                    <div class="p-8">
+                        <div class="bg-secondary-50 rounded-xl p-6">
+                            <canvas id="graficaBonos" height="300" class="w-full"></canvas>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Tabla de flujos -->
-                <div class="mb-6">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Tabla de Flujos</h4>
-                    <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
-                        ${resultado.dataframe_html}
+                <!-- Cash Flows Table -->
+                <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                    <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                        <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                            <i class="fas fa-table text-purple-600 mr-3"></i>
+                            Tabla de Flujos
+                        </h3>
+                        <p class="text-secondary-600 mt-2">Detalle completo de pagos e intereses descontados</p>
+                    </div>
+                    <div class="p-8">
+                        <div class="overflow-x-auto max-h-96 overflow-y-auto border border-secondary-200 rounded-lg">
+                            <table class="min-w-full divide-y divide-secondary-200">
+                                <thead class="bg-secondary-100 sticky top-0">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Periodo</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Flujo (USD)</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Valor Presente (USD)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-secondary-200">
+                                    ${resultado.dataframe_html}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Botones de acción -->
-                <div class="text-center">
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <button onclick="window.print()"
-                            class="inline-flex items-center bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
-                        <i class="fas fa-print mr-2"></i> Imprimir
+                            class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
+                        <i class="fas fa-print mr-3"></i>
+                        Imprimir Reporte
                     </button>
                 </div>
             </div>
@@ -362,14 +689,138 @@
         const formElement = document.querySelector('form');
         formElement.insertAdjacentHTML('afterend', resultsHTML);
 
-        // Initialize chart
+        // Set chart data globally and initialize chart
+        window.bonosChartData = resultado.dataframe;
         initializeBonosChart();
     }
 
     function initializeBonosChart() {
-        // This will be called after results are updated
-        // Chart initialization logic would go here
-        console.log('Chart should be initialized here');
+        // Get chart data from the results
+        const chartData = window.bonosChartData;
+        if (!chartData || chartData.length === 0) return;
+
+        const labels = chartData.map(row => `Periodo ${row['Periodo']}`);
+        const flujoData = chartData.map(row => row['Flujo (USD)']);
+        const valorPresenteData = chartData.map(row => row['Valor Presente (USD)']);
+
+        const ctx = document.getElementById('graficaBonos');
+        if (ctx) {
+            // Destroy existing chart if it exists
+            if (window.bonosChart) {
+                window.bonosChart.destroy();
+            }
+
+            window.bonosChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Flujo de Efectivo',
+                        data: flujoData,
+                        borderColor: 'rgb(147, 51, 234)',
+                        backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: 'rgb(147, 51, 234)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }, {
+                        label: 'Valor Presente',
+                        data: valorPresenteData,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: 'rgb(34, 197, 94)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Flujos de Efectivo del Bono',
+                            font: {
+                                size: 16,
+                                weight: 'bold',
+                                family: 'Inter'
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 20
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    family: 'Inter',
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                },
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                lineWidth: 1
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                lineWidth: 1
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    elements: {
+                        point: {
+                            hoverBorderWidth: 3
+                        }
+                    }
+                }
+            });
+        }
     }
 
     function showError(message) {

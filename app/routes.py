@@ -159,6 +159,36 @@ def generate_cartera_summary_html(dataframe):
 
     return html
 
+def generate_bonos_table_html(dataframe):
+    """Generate properly formatted HTML table for bonos results"""
+    html = '''
+    <table class="min-w-full divide-y divide-secondary-200">
+        <thead class="bg-secondary-100 sticky top-0">
+            <tr>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Periodo</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Flujo (USD)</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Valor Presente (USD)</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-secondary-200">
+    '''
+
+    for _, row in dataframe.iterrows():
+        html += f'''
+            <tr class="hover:bg-secondary-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">{int(row['Periodo'])}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${row['Flujo (USD)']:.2f}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">${row['Valor Presente (USD)']:.2f}</td>
+            </tr>
+        '''
+
+    html += '''
+        </tbody>
+    </table>
+    '''
+
+    return html
+
 @main.route('/')
 def index():
     """Home page"""
@@ -294,15 +324,14 @@ def bonos():
 
                 # Return JSON for AJAX requests
                 if is_ajax_request():
+                    # Generate properly formatted table HTML for bonds
+                    table_html = generate_bonos_table_html(resultado['dataframe'])
                     return jsonify({
                         'success': True,
                         'resultado': {
                             'resumen': resultado['resumen'],
-                            'dataframe_html': resultado['dataframe'].to_html(
-                                classes='min-w-full divide-y divide-gray-200',
-                                index=False,
-                                border=0
-                            )
+                            'dataframe': resultado['dataframe'].to_dict('records'),
+                            'dataframe_html': table_html
                         }
                     })
             except Exception as e:
