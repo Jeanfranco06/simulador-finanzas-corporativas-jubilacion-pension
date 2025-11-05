@@ -25,9 +25,13 @@ def calcular_cartera(datos):
     # Calculate years
     if datos['tipo_plazo'] == 'años':
         años = datos['años']
+        if años is None:
+            raise ValueError("Debe especificar el número de años cuando el tipo de plazo es 'años'")
         edad_retiro = edad_actual + años
     else:
         edad_retiro = datos['edad_retiro']
+        if edad_retiro is None:
+            raise ValueError("Debe especificar la edad de retiro cuando el tipo de plazo es 'edad'")
         años = edad_retiro - edad_actual
 
     # Calculate periods per year

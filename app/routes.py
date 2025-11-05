@@ -1,6 +1,8 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify, send_file
 from .forms import CarteraForm, JubilacionForm, BonosForm
 from .models import calcular_cartera, calcular_jubilacion, calcular_bonos
+from utils.pdf_generator import generar_pdf_cartera, generar_pdf_bono, generar_pdf_jubilacion
+from datetime import datetime
 
 main = Blueprint('main', __name__)
 
@@ -204,14 +206,18 @@ def cartera():
     if request.method == 'POST':
         if form.validate():
             # Process form data
+            tipo_plazo = form.tipo_plazo.data
+            años_data = form.años.data if hasattr(form.años, 'data') else None
+            edad_retiro_data = form.edad_retiro.data if hasattr(form.edad_retiro, 'data') else None
+
             datos = {
                 'edad_actual': form.edad_actual.data,
                 'monto_inicial': form.monto_inicial.data,
                 'aporte_periodico': form.aporte_periodico.data,
                 'frecuencia': form.frecuencia.data,
-                'tipo_plazo': form.tipo_plazo.data,
-                'años': form.años.data if form.tipo_plazo.data == 'años' else None,
-                'edad_retiro': form.edad_retiro.data if form.tipo_plazo.data == 'edad' else None,
+                'tipo_plazo': tipo_plazo,
+                'años': años_data if tipo_plazo == 'años' and años_data is not None else None,
+                'edad_retiro': edad_retiro_data if tipo_plazo == 'edad' and edad_retiro_data is not None else None,
                 'tea': form.tea.data
             }
 
@@ -321,6 +327,8 @@ def bonos():
 
             try:
                 resultado = calcular_bonos(datos)
+                # Store results in session for PDF download
+                session['bonos_resultado'] = resultado
 
                 # Return JSON for AJAX requests
                 if is_ajax_request():
@@ -352,3 +360,89 @@ def bonos():
 def resultado():
     """Mostrar resultados detallados"""
     return render_template('resultado.html')
+
+@main.route('/descargar-pdf/<modulo>')
+def descargar_pdf(modulo):
+    """Download PDF report for the specified module"""
+    try:
+        if modulo == 'cartera':
+            # Check if portfolio data exists in session
+            if 'cartera_resumen' not in session:
+                flash('Debes completar primero el Módulo A (Crecimiento de Cartera)', 'error')
+                return redirect(url_for('main.cartera'))
+
+            # Recalculate to get the dataframe
+            datos = session.get('cartera_datos', {})
+            resultado = calcular_cartera(datos)
+
+            # Merge original parameters with summary for PDF
+            resumen_completo = resultado['resumen'].copy()
+            resumen_completo.update({
+                'edad_actual': datos.get('edad_actual'),
+                'monto_inicial': datos.get('monto_inicial'),
+                'aporte_periodico': datos.get('aporte_periodico'),
+                'frecuencia': datos.get('frecuencia'),
+                'tipo_plazo': datos.get('tipo_plazo'),
+                'años': datos.get('años'),
+                'edad_retiro': datos.get('edad_retiro'),
+                'tea': datos.get('tea')
+            })
+
+            # Generate PDF with complete data
+            pdf_buffer = generar_pdf_cartera(resultado['dataframe'], resumen_completo)
+            pdf_buffer.seek(0)
+
+            return send_file(
+                pdf_buffer,
+                as_attachment=True,
+                download_name=f'reporte_cartera_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf',
+                mimetype='application/pdf'
+            )
+
+        elif modulo == 'bonos':
+            # Check if bond data exists in session
+            if 'bonos_resultado' not in session:
+                flash('Debes completar primero el Módulo C (Valoración de Bonos)', 'error')
+                return redirect(url_for('main.bonos'))
+
+            # Get data from session
+            resultado = session['bonos_resultado']
+
+            # Generate PDF
+            pdf_buffer = generar_pdf_bono(resultado['dataframe'], resultado['resumen'])
+            pdf_buffer.seek(0)
+
+            return send_file(
+                pdf_buffer,
+                as_attachment=True,
+                download_name=f'reporte_bonos_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf',
+                mimetype='application/pdf'
+            )
+
+        elif modulo == 'jubilacion':
+            # Check if retirement data exists in session
+            if 'jubilacion_resultado' not in session:
+                flash('Debes completar primero el Módulo B (Proyección de Jubilación)', 'error')
+                return redirect(url_for('main.jubilacion'))
+
+            # Get data from session
+            resultado = session['jubilacion_resultado']
+
+            # Generate PDF
+            pdf_buffer = generar_pdf_jubilacion(resultado)
+            pdf_buffer.seek(0)
+
+            return send_file(
+                pdf_buffer,
+                as_attachment=True,
+                download_name=f'reporte_jubilacion_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf',
+                mimetype='application/pdf'
+            )
+
+        else:
+            flash('Módulo no válido', 'error')
+            return redirect(url_for('main.index'))
+
+    except Exception as e:
+        flash(f'Error al generar el PDF: {str(e)}', 'error')
+        return redirect(url_for('main.index'))

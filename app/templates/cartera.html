@@ -52,7 +52,7 @@
                                 <label class="block text-sm font-medium text-secondary-700 mb-2">
                                     <i class="fas fa-birthday-cake mr-1"></i>Edad Actual
                                 </label>
-                                {{ form.edad_actual(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="Ej: 30") }}
+                                {{ form.edad_actual(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="18", max="100", placeholder="Ej: 30") }}
                                 {% if form.edad_actual.errors %}
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
                                         <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.edad_actual.errors[0] }}
@@ -78,7 +78,7 @@
                                 <label class="block text-sm font-medium text-secondary-700">
                                     <i class="fas fa-clock mr-1"></i>Plazo (Años)
                                 </label>
-                                {{ form.años(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="Ej: 35") }}
+                                {{ form.años(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="1", max="100", placeholder="Ej: 35") }}
                                 {% if form.años.errors %}
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
                                         <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.años.errors[0] }}
@@ -90,7 +90,7 @@
                                 <label class="block text-sm font-medium text-secondary-700">
                                     <i class="fas fa-home mr-1"></i>Edad de Jubilación
                                 </label>
-                                {{ form.edad_retiro(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="Ej: 65") }}
+                                {{ form.edad_retiro(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="18", max="120", placeholder="Ej: 65") }}
                                 {% if form.edad_retiro.errors %}
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
                                         <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.edad_retiro.errors[0] }}
@@ -114,24 +114,30 @@
                                 <label class="block text-sm font-medium text-secondary-700 mb-2">
                                     <i class="fas fa-piggy-bank mr-1"></i>Monto Inicial (USD)
                                 </label>
-                                {{ form.monto_inicial(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="Ej: 5000.00") }}
+                                {{ form.monto_inicial(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="0", step="0.01", placeholder="Ej: 5000.00") }}
                                 {% if form.monto_inicial.errors %}
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
                                         <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.monto_inicial.errors[0] }}
                                     </p>
                                 {% endif %}
+                                <p class="mt-1 text-xs text-secondary-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>Mínimo: $0.00 - Máximo: Sin límite
+                                </p>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-secondary-700 mb-2">
                                     <i class="fas fa-plus-circle mr-1"></i>Aporte Periódico (USD)
                                 </label>
-                                {{ form.aporte_periodico(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="Ej: 500.00") }}
+                                {{ form.aporte_periodico(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="0", step="0.01", placeholder="Ej: 500.00") }}
                                 {% if form.aporte_periodico.errors %}
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
                                         <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.aporte_periodico.errors[0] }}
                                     </p>
                                 {% endif %}
+                                <p class="mt-1 text-xs text-secondary-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>Mínimo: $0.00 - Máximo: Sin límite
+                                </p>
                             </div>
 
                             <div>
@@ -145,12 +151,15 @@
                                 <label class="block text-sm font-medium text-secondary-700 mb-2">
                                     <i class="fas fa-percentage mr-1"></i>TEA (%)
                                 </label>
-                                {{ form.tea(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="Ej: 8.0") }}
+                                {{ form.tea(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="0", max="50", step="0.01", placeholder="Ej: 8.0") }}
                                 {% if form.tea.errors %}
                                     <p class="mt-1 text-sm text-red-600 flex items-center">
                                         <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.tea.errors[0] }}
                                     </p>
                                 {% endif %}
+                                <p class="mt-1 text-xs text-secondary-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>Mínimo: 0.00% - Máximo: 50.00%
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -433,11 +442,11 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onclick="window.print()"
-                        class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
-                    <i class="fas fa-print mr-3"></i>
-                    Imprimir Reporte
-                </button>
+                <a href="{{ url_for('main.descargar_pdf', modulo='cartera') }}"
+                   class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl no-underline">
+                    <i class="fas fa-download mr-3"></i>
+                    Descargar Reporte PDF
+                </a>
                 <a href="{{ url_for('main.jubilacion') }}"
                    class="inline-flex items-center justify-center bg-green-600 text-white px-8 py-4 rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
                     <span>Continuar a Jubilación</span>
@@ -450,6 +459,354 @@
 
 {% block scripts %}
 <script>
+    // Enhanced real-time validation for portfolio growth form
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuration constants
+        const VALIDATION_CONFIG = {
+            MIN_TEA: 0.0,
+            MAX_TEA: 50.0,
+            REASONABLE_TEA_MIN: 1.0,
+            REASONABLE_TEA_MAX: 25.0,
+            MIN_RETIREMENT_AGE: 50,
+            MAX_RETIREMENT_AGE: 100
+        };
+
+        // Numeric input validation - prevent non-numeric characters
+        const numericInputs = document.querySelectorAll('.numeric-input');
+
+        numericInputs.forEach(input => {
+            // Prevent invalid characters on keypress
+            input.addEventListener('keypress', function(e) {
+                // Allow: backspace, delete, tab, escape, enter
+                if ([8, 9, 27, 13].includes(e.keyCode) ||
+                    // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z
+                    (e.ctrlKey === true && [65, 67, 86, 88, 90].includes(e.keyCode)) ||
+                    // Allow: home, end, left, right, arrows
+                    ([35, 36, 37, 38, 39, 40].includes(e.keyCode))) {
+                    // Let it happen, don't do anything
+                    return;
+                }
+
+                // Allow decimal point (.) for decimal inputs - check the actual character
+                if (e.key === '.' || e.key === ',') {
+                    // Check if there's already a decimal point or comma in the input
+                    if (this.value.includes('.') || this.value.includes(',')) {
+                        e.preventDefault();
+                    }
+                    return;
+                }
+
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Real-time validation on input
+            input.addEventListener('input', function(e) {
+                // Trigger comprehensive validation without modifying the input value
+                validateField(this);
+            });
+
+            // Clear validation styling on focus
+            input.addEventListener('focus', function() {
+                this.classList.remove('border-red-300', 'border-green-300', 'border-yellow-300');
+            });
+        });
+
+        // Real-time form validation feedback
+        const form = document.querySelector('form');
+        const inputs = form.querySelectorAll('input, select');
+
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                validateField(this);
+            });
+
+            // For radio buttons, validate on change
+            if (input.type === 'radio') {
+                input.addEventListener('change', function() {
+                    // Validate related fields when radio changes
+                    validatePlazoFields();
+                    validateCrossFieldDependencies();
+                });
+            }
+        });
+
+        // Comprehensive field validation function
+        function validateField(input) {
+            const fieldName = input.name;
+            const value = input.value.trim();
+            let isValid = true;
+            let errorMessage = '';
+
+            // Basic required field validation
+            if (input.hasAttribute('required') && !value) {
+                isValid = false;
+                errorMessage = 'Este campo es obligatorio';
+            }
+            // Numeric field validations
+            else if (input.type === 'number' && value) {
+                const numericValue = parseFloat(value);
+                const min = parseFloat(input.min);
+                const max = parseFloat(input.max);
+
+                if (isNaN(numericValue)) {
+                    isValid = false;
+                    errorMessage = 'Debe ingresar un número válido';
+                } else {
+                    // Range validations
+                    if (!isNaN(min) && numericValue < min) {
+                        isValid = false;
+                        errorMessage = `El valor mínimo es ${min}`;
+                    } else if (!isNaN(max) && numericValue > max) {
+                        isValid = false;
+                        errorMessage = `El valor máximo es ${max}`;
+                    }
+                    // Business logic validations
+                    else {
+                        switch(fieldName) {
+                            case 'edad_actual':
+                                if (numericValue < 18 || numericValue > 100) {
+                                    isValid = false;
+                                    errorMessage = 'La edad debe estar entre 18 y 100 años';
+                                }
+                                break;
+                            case 'años':
+                                if (numericValue < 1 || numericValue > 100) {
+                                    isValid = false;
+                                    errorMessage = 'El plazo debe estar entre 1 y 100 años';
+                                }
+                                break;
+                            case 'edad_retiro':
+                                if (numericValue < 18 || numericValue > 120) {
+                                    isValid = false;
+                                    errorMessage = 'La edad de jubilación debe estar entre 18 y 120 años';
+                                }
+                                break;
+                            case 'tea':
+                                if (numericValue < VALIDATION_CONFIG.MIN_TEA || numericValue > VALIDATION_CONFIG.MAX_TEA) {
+                                    isValid = false;
+                                    errorMessage = `La TEA debe estar entre ${VALIDATION_CONFIG.MIN_TEA}% y ${VALIDATION_CONFIG.MAX_TEA}%`;
+                                } else if (numericValue < VALIDATION_CONFIG.REASONABLE_TEA_MIN) {
+                                    isValid = false;
+                                    errorMessage = 'La TEA parece muy baja. Las tasas típicas están entre 3% y 15%';
+                                } else if (numericValue > VALIDATION_CONFIG.REASONABLE_TEA_MAX) {
+                                    isValid = false;
+                                    errorMessage = 'La TEA parece muy alta. Las tasas típicas están entre 3% y 15%';
+                                }
+                                break;
+                            case 'monto_inicial':
+                            case 'aporte_periodico':
+                                if (numericValue < 0) {
+                                    isValid = false;
+                                    errorMessage = 'El monto no puede ser negativo';
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+
+            // Investment amount validation
+            if (isValid && (fieldName === 'monto_inicial' || fieldName === 'aporte_periodico')) {
+                const montoInicial = parseFloat(document.querySelector('input[name="monto_inicial"]').value) || 0;
+                const aportePeriodico = parseFloat(document.querySelector('input[name="aporte_periodico"]').value) || 0;
+
+                if (montoInicial <= 0 && aportePeriodico <= 0) {
+                    isValid = false;
+                    errorMessage = 'Debe proporcionar un monto inicial o aportes periódicos mayores a 0';
+                }
+            }
+
+            // Update visual feedback
+            updateFieldVisualFeedback(input, isValid, errorMessage);
+
+            return isValid;
+        }
+
+        // Cross-field validation logic - returns warnings instead of blocking
+        function validateCrossFieldDependencies() {
+            const edadActual = parseFloat(document.querySelector('input[name="edad_actual"]').value) || 0;
+            const tipoPlazo = document.querySelector('input[name="tipo_plazo"]:checked')?.value;
+            const años = parseFloat(document.querySelector('input[name="años"]').value) || 0;
+            const edadRetiro = parseFloat(document.querySelector('input[name="edad_retiro"]').value) || 0;
+
+            let warningMessage = '';
+
+            if (tipoPlazo === 'edad' && edadRetiro && edadActual) {
+                if (edadRetiro <= edadActual) {
+                    warningMessage = 'La edad de jubilación debe ser mayor que la edad actual';
+                    // Clear any field errors and show as warning instead
+                    clearFieldError(document.querySelector('input[name="edad_retiro"]'));
+                } else {
+                    const edadRetiroCalculada = edadRetiro;
+                    if (edadRetiroCalculada < VALIDATION_CONFIG.MIN_RETIREMENT_AGE) {
+                        warningMessage = 'La edad de jubilación parece muy baja. Considere una edad más realista';
+                        clearFieldError(document.querySelector('input[name="edad_retiro"]'));
+                    } else if (edadRetiroCalculada > VALIDATION_CONFIG.MAX_RETIREMENT_AGE) {
+                        warningMessage = 'La edad de jubilación parece muy alta. Considere una edad más realista';
+                        clearFieldError(document.querySelector('input[name="edad_retiro"]'));
+                    } else {
+                        clearFieldError(document.querySelector('input[name="edad_retiro"]'));
+                    }
+                }
+            } else if (tipoPlazo === 'años' && años && edadActual) {
+                const edadRetiroCalculada = edadActual + años;
+                if (edadRetiroCalculada < VALIDATION_CONFIG.MIN_RETIREMENT_AGE) {
+                    warningMessage = 'La edad de jubilación calculada parece muy baja. Considere más años';
+                    clearFieldError(document.querySelector('input[name="años"]'));
+                } else if (edadRetiroCalculada > VALIDATION_CONFIG.MAX_RETIREMENT_AGE) {
+                    warningMessage = 'La edad de jubilación calculada parece muy alta. Considere menos años';
+                    clearFieldError(document.querySelector('input[name="años"]'));
+                } else {
+                    clearFieldError(document.querySelector('input[name="años"]'));
+                }
+            }
+
+            return warningMessage;
+        }
+
+        // Validate plazo-related fields
+        function validatePlazoFields() {
+            const tipoPlazo = document.querySelector('input[name="tipo_plazo"]:checked')?.value;
+            const añosField = document.getElementById('años_field');
+            const edadRetiroField = document.getElementById('edad_retiro_field');
+
+            if (tipoPlazo === 'años') {
+                añosField.style.display = 'block';
+                edadRetiroField.style.display = 'none';
+                // Validate años field if visible
+                const añosInput = document.querySelector('input[name="años"]');
+                if (añosInput) validateField(añosInput);
+            } else {
+                añosField.style.display = 'none';
+                edadRetiroField.style.display = 'block';
+                // Validate edad_retiro field if visible
+                const edadRetiroInput = document.querySelector('input[name="edad_retiro"]');
+                if (edadRetiroInput) validateField(edadRetiroInput);
+            }
+        }
+
+        // Update visual feedback for fields
+        function updateFieldVisualFeedback(input, isValid, errorMessage) {
+            // Remove all validation classes
+            input.classList.remove('border-red-300', 'border-green-300', 'border-yellow-300', 'focus:border-red-500', 'focus:ring-red-500');
+
+            if (errorMessage) {
+                showFieldError(input, errorMessage);
+            } else {
+                clearFieldError(input);
+                // Add success styling for valid inputs with values
+                if (input.value.trim() && isValid) {
+                    input.classList.add('border-green-300');
+                }
+            }
+        }
+
+        function showFieldError(input, message) {
+            // Remove existing error
+            clearFieldError(input);
+
+            // Add error styling
+            input.classList.add('border-red-300', 'focus:border-red-500', 'focus:ring-red-500');
+
+            // Create error message
+            const errorDiv = document.createElement('p');
+            errorDiv.className = 'mt-1 text-sm text-red-600 flex items-center error-message';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i>${message}`;
+
+            // Insert after input
+            input.parentNode.insertBefore(errorDiv, input.nextSibling);
+        }
+
+        function clearFieldError(input) {
+            // Remove error styling
+            input.classList.remove('border-red-300', 'focus:border-red-500', 'focus:ring-red-500');
+
+            // Remove error message
+            const errorMsg = input.parentNode.querySelector('.error-message');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        }
+
+        // Form submission validation - Show warnings but allow submission
+        form.addEventListener('submit', function(e) {
+            let hasErrors = false;
+
+            // Validate all individual fields
+            inputs.forEach(input => {
+                if (!validateField(input)) {
+                    hasErrors = true;
+                }
+            });
+
+            // Run cross-field validations
+            const crossFieldError = validateCrossFieldDependencies();
+            if (crossFieldError) {
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                // Show general warning message but don't prevent submission
+                showFormWarning('Se encontraron algunos valores que pueden no ser óptimos. El cálculo se realizará con los datos proporcionados.');
+                // Scroll to first warning
+                const firstError = document.querySelector('.error-message');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+
+        function showFormError(message) {
+            // Remove existing form errors
+            const existingError = document.querySelector('.form-error');
+            if (existingError) existingError.remove();
+
+            // Create error alert
+            const alertHTML = `
+                <div class="form-error p-4 rounded-xl shadow-sm border-l-4 border-red-500 bg-red-50 text-red-800 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                        <div class="flex-1">${message}</div>
+                        <button type="button" class="text-red-400 hover:text-red-600 ml-4" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Add error before form
+            form.insertAdjacentHTML('beforebegin', alertHTML);
+        }
+
+        function showFormWarning(message) {
+            // Remove existing form warnings
+            const existingWarning = document.querySelector('.form-warning');
+            if (existingWarning) existingWarning.remove();
+
+            // Create warning alert
+            const alertHTML = `
+                <div class="form-warning p-4 rounded-xl shadow-sm border-l-4 border-yellow-500 bg-yellow-50 text-yellow-800 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mr-3"></i>
+                        <div class="flex-1">${message}</div>
+                        <button type="button" class="text-yellow-400 hover:text-yellow-600 ml-4" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Add warning before form
+            form.insertAdjacentHTML('beforebegin', alertHTML);
+        }
+
+        // Initialize validations on page load
+        validatePlazoFields();
+    });
+
     // Toggle fields based on plazo type
     document.querySelectorAll('input[name="tipo_plazo"]').forEach(radio => {
         radio.addEventListener('change', function() {
@@ -627,11 +984,11 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button onclick="window.print()"
-                            class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
-                        <i class="fas fa-print mr-3"></i>
-                        Imprimir Reporte
-                    </button>
+                    <a href="/descargar-pdf/cartera"
+                       class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl no-underline">
+                        <i class="fas fa-download mr-3"></i>
+                        Descargar Reporte PDF
+                    </a>
                     <a href="/jubilacion"
                        class="inline-flex items-center justify-center bg-green-600 text-white px-8 py-4 rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
                         <span>Continuar a Jubilación</span>

@@ -371,14 +371,14 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onclick="window.print()"
-                        class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
-                    <i class="fas fa-print mr-3"></i>
-                    Imprimir Reporte
-                </button>
-            </div>
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ url_for('main.descargar_pdf', modulo='bonos') }}"
+                       class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl no-underline">
+                        <i class="fas fa-download mr-3"></i>
+                        Descargar Reporte PDF
+                    </a>
+                </div>
         </div>
     {% endif %}
         </div>
@@ -670,11 +670,11 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button onclick="window.print()"
-                            class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
-                        <i class="fas fa-print mr-3"></i>
-                        Imprimir Reporte
-                    </button>
+                    <a href="/descargar-pdf/bonos"
+                       class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl no-underline">
+                        <i class="fas fa-download mr-3"></i>
+                        Descargar Reporte PDF
+                    </a>
                 </div>
             </div>
         `;

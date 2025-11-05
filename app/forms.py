@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, IntegerField, SelectField, RadioField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, NumberRange, Optional
+from wtforms.validators import DataRequired, NumberRange, Optional, ValidationError
 from config import Config
 
 class CarteraForm(FlaskForm):
@@ -43,6 +43,24 @@ class CarteraForm(FlaskForm):
                     default=8.0)
 
     submit = SubmitField('Calcular Proyección')
+
+    def validate(self, extra_validators=None):
+        """Custom validation for the portfolio form - Allow any values for experimentation"""
+        if not super().validate(extra_validators):
+            return False
+
+        # Basic validation: ensure required fields are present
+        if self.tipo_plazo.data == 'años':
+            if self.años.data is None or self.años.data <= 0:
+                self.años.errors.append('Debe especificar un número válido de años.')
+                return False
+        elif self.tipo_plazo.data == 'edad':
+            if self.edad_retiro.data is None or self.edad_retiro.data <= 0:
+                self.edad_retiro.errors.append('Debe especificar una edad de jubilación válida.')
+                return False
+
+        # Allow any values for experimentation - no strict business logic validation
+        return True
 
 class JubilacionForm(FlaskForm):
     """Form for Módulo B: Proyección de Jubilación"""
