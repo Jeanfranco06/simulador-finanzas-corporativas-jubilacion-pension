@@ -158,11 +158,11 @@
             </div>
 
             <div class="mt-8 text-center">
-                {{ form.submit(class="bg-primary-600 text-white px-12 py-4 rounded-xl hover:bg-primary-700 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 inline-flex items-center") }}
-                <i class="fas fa-rocket ml-2"></i>
-                {{ form.submit.label.text }}
-                <i class="fas fa-rocket ml-2"></i>
-                {{ form.submit(class="hidden") }}
+                <button type="submit" class="bg-primary-600 text-white px-12 py-4 rounded-xl hover:bg-primary-700 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 inline-flex items-center">
+                    <i class="fas fa-rocket ml-2"></i>
+                    {{ form.submit.label.text }}
+                    <i class="fas fa-rocket ml-2"></i>
+                </button>
             </div>
         </form>
     </div>
@@ -466,45 +466,257 @@
         });
     });
 
-    // Toggle table view functionality
-    const toggleTableBtn = document.getElementById('toggleTableBtn');
-    const toggleText = document.getElementById('toggleText');
-    const summaryView = document.getElementById('summaryView');
-    const fullTableView = document.getElementById('fullTableView');
+    // AJAX form submission
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-    if (toggleTableBtn) {
-        toggleTableBtn.addEventListener('click', function() {
-            const isExpanded = !fullTableView.classList.contains('hidden');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
 
-            if (isExpanded) {
-                // Switch to summary view
-                summaryView.classList.remove('hidden');
-                fullTableView.classList.add('hidden');
-                toggleText.textContent = 'Ver Todos';
-                toggleTableBtn.innerHTML = '<i class="fas fa-eye mr-2"></i><span id="toggleText">Ver Todos</span>';
-            } else {
-                // Switch to full table view
-                summaryView.classList.add('hidden');
-                fullTableView.classList.remove('hidden');
-                toggleText.textContent = 'Ver Resumen';
-                toggleTableBtn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i><span id="toggleText">Ver Resumen</span>';
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Calculando...';
+
+            try {
+                const formData = new FormData(form);
+                const response = await fetch(window.location.pathname, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update results section
+                    updateCarteraResults(data.resultado);
+                    // Scroll to results
+                    document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    // Show error
+                    showError(data.error || 'Error en el cálculo');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión. Inténtalo de nuevo.');
+            } finally {
+                // Restore button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             }
         });
     }
-</script>
 
-<script>
-    // Initialize demo chart - shows Chart.js is working
-    document.addEventListener('DOMContentLoaded', function() {
+    function updateCarteraResults(resultado) {
+        // Update summary cards
+        const resumen = resultado.resumen;
+
+        // Create results HTML
+        const resultsHTML = `
+            <div class="space-y-8" id="results-section">
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-gradient-to-br from-primary-50 to-primary-100 p-6 rounded-xl border border-primary-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-trophy text-primary-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-primary-600 bg-primary-100 px-2 py-1 rounded-full">FINAL</span>
+                        </div>
+                        <div class="text-3xl font-bold text-primary-900 mb-1">$${resumen.capital_final.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="text-sm text-primary-700 font-medium">Capital Final</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 p-6 rounded-xl border border-cyan-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-coins text-cyan-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-cyan-600 bg-cyan-100 px-2 py-1 rounded-full">TOTAL</span>
+                        </div>
+                        <div class="text-3xl font-bold text-cyan-900 mb-1">$${resumen.aportes_totales.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="text-sm text-cyan-700 font-medium">Aportes Totales</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">GANANCIA</span>
+                        </div>
+                        <div class="text-3xl font-bold text-green-900 mb-1">$${resumen.ganancia_bruta.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="text-sm text-green-700 font-medium">Ganancia Bruta</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-percentage text-yellow-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">RENTABILIDAD</span>
+                        </div>
+                        <div class="text-3xl font-bold text-yellow-900 mb-1">${resumen.rentabilidad.toFixed(2)}%</div>
+                        <div class="text-sm text-yellow-700 font-medium">Rentabilidad Total</div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                    <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                        <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                            <i class="fas fa-chart-area text-primary-600 mr-3"></i>
+                            Evolución de la Cartera
+                        </h3>
+                        <p class="text-secondary-600 mt-2">Visualización del crecimiento de tu capital a lo largo del tiempo</p>
+                    </div>
+                    <div class="p-8">
+                        <div class="bg-secondary-50 rounded-xl p-6">
+                            <canvas id="graficaCartera" height="300" class="w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                    <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                                    <i class="fas fa-table text-primary-600 mr-3"></i>
+                                    Detalle por Periodo
+                                </h3>
+                                <p class="text-secondary-600 mt-2">Resumen inteligente de periodos clave de inversión</p>
+                            </div>
+                            <button id="toggleTableBtn"
+                                    class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium flex items-center">
+                                <i class="fas fa-eye mr-2"></i>
+                                <span id="toggleText">Ver Todos</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Summary View (Default) -->
+                    <div id="summaryView" class="p-8">
+                        ${resultado.summary_html}
+                    </div>
+
+                    <!-- Full Table View (Hidden by default) -->
+                    <div id="fullTableView" class="hidden">
+                        <div class="p-8 border-t border-secondary-200">
+                            <div class="flex items-center justify-between mb-6">
+                                <h4 class="text-lg font-semibold text-secondary-900 flex items-center">
+                                    <i class="fas fa-list text-primary-600 mr-2"></i>
+                                    Todos los Periodos
+                                </h4>
+                                <div class="text-sm text-secondary-600">
+                                    Total: ${resultado.resumen ? 'datos calculados' : '0'} periodos
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto max-h-96 overflow-y-auto border border-secondary-200 rounded-lg">
+                                ${resultado.dataframe_html}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="window.print()"
+                            class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
+                        <i class="fas fa-print mr-3"></i>
+                        Imprimir Reporte
+                    </button>
+                    <a href="/jubilacion"
+                       class="inline-flex items-center justify-center bg-green-600 text-white px-8 py-4 rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
+                        <span>Continuar a Jubilación</span>
+                        <i class="fas fa-arrow-right ml-3"></i>
+                    </a>
+                </div>
+            </div>
+        `;
+
+        // Remove existing results and add new ones
+        const existingResults = document.getElementById('results-section');
+        if (existingResults) {
+            existingResults.remove();
+        }
+
+        // Add new results after the form
+        const formElement = document.querySelector('form');
+        formElement.insertAdjacentHTML('afterend', resultsHTML);
+
+        // Initialize chart
+        initializeCarteraChart();
+
+        // Add toggle functionality for the new button
+        const newToggleBtn = document.getElementById('toggleTableBtn');
+        const newToggleText = document.getElementById('toggleText');
+        const newSummaryView = document.getElementById('summaryView');
+        const newFullTableView = document.getElementById('fullTableView');
+
+        if (newToggleBtn) {
+            newToggleBtn.addEventListener('click', function() {
+                const isExpanded = !newFullTableView.classList.contains('hidden');
+
+                if (isExpanded) {
+                    // Switch to summary view
+                    newSummaryView.classList.remove('hidden');
+                    newFullTableView.classList.add('hidden');
+                    newToggleText.textContent = 'Ver Todos';
+                    newToggleBtn.innerHTML = '<i class="fas fa-eye mr-2"></i><span id="toggleText">Ver Todos</span>';
+                } else {
+                    // Switch to full table view
+                    newSummaryView.classList.add('hidden');
+                    newFullTableView.classList.remove('hidden');
+                    newToggleText.textContent = 'Ver Resumen';
+                    newToggleBtn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i><span id="toggleText">Ver Resumen</span>';
+                }
+            });
+        }
+    }
+
+    function initializeCarteraChart() {
+        // Get chart data from the table
+        const tableRows = document.querySelectorAll('#results-section table tbody tr');
+        if (tableRows.length === 0) return;
+
+        const labels = [];
+        const saldoFinal = [];
+        const aportesAcumulados = [];
+
+        tableRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 6) {
+                labels.push(`Periodo ${cells[0].textContent.trim()}`);
+                // Parse the values, removing $ and formatting
+                const saldoFinalValue = parseFloat(cells[4].textContent.replace('$', '').replace(',', ''));
+                const aportesValue = parseFloat(cells[5].textContent.replace('$', '').replace(',', ''));
+
+                saldoFinal.push(saldoFinalValue);
+                aportesAcumulados.push(aportesValue);
+            }
+        });
+
         const ctx = document.getElementById('graficaCartera');
-        if (ctx) {
-            const demoChart = new Chart(ctx, {
+        if (ctx && labels.length > 0) {
+            // Destroy existing chart if it exists
+            if (window.carteraChart) {
+                window.carteraChart.destroy();
+            }
+
+            window.carteraChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Año 1', 'Año 5', 'Año 10', 'Año 15', 'Año 20', 'Año 25', 'Año 30'],
+                    labels: labels,
                     datasets: [{
-                        label: 'Crecimiento del Capital',
-                        data: [10000, 15000, 25000, 40000, 65000, 100000, 160000],
+                        label: 'Saldo Total',
+                        data: saldoFinal,
                         borderColor: 'rgb(59, 130, 246)',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         tension: 0.4,
@@ -512,11 +724,11 @@
                         pointBackgroundColor: 'rgb(59, 130, 246)',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     }, {
                         label: 'Aportes Acumulados',
-                        data: [5000, 10000, 15000, 20000, 25000, 30000, 35000],
+                        data: aportesAcumulados,
                         borderColor: 'rgb(239, 68, 68)',
                         backgroundColor: 'rgba(239, 68, 68, 0.1)',
                         tension: 0.4,
@@ -524,8 +736,8 @@
                         pointBackgroundColor: 'rgb(239, 68, 68)',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     }]
                 },
                 options: {
@@ -534,7 +746,7 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Ejemplo de Crecimiento - Gráfica Funcional',
+                            text: 'Evolución de la Cartera',
                             font: {
                                 size: 16,
                                 weight: 'bold',
@@ -609,7 +821,61 @@
                 }
             });
         }
+    }
+
+    function showError(message) {
+        // Create error alert
+        const alertHTML = `
+            <div class="p-4 rounded-xl shadow-sm border-l-4 border-red-500 bg-red-50 text-red-800 mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                    <div class="flex-1">${message}</div>
+                    <button type="button" class="text-red-400 hover:text-red-600 ml-4" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Add error before form
+        const formElement = document.querySelector('form');
+        formElement.insertAdjacentHTML('beforebegin', alertHTML);
+    }
+
+    // Toggle table view functionality (for existing results)
+    const toggleTableBtn = document.getElementById('toggleTableBtn');
+    const toggleText = document.getElementById('toggleText');
+    const summaryView = document.getElementById('summaryView');
+    const fullTableView = document.getElementById('fullTableView');
+
+    if (toggleTableBtn) {
+        toggleTableBtn.addEventListener('click', function() {
+            const isExpanded = !fullTableView.classList.contains('hidden');
+
+            if (isExpanded) {
+                // Switch to summary view
+                summaryView.classList.remove('hidden');
+                fullTableView.classList.add('hidden');
+                toggleText.textContent = 'Ver Todos';
+                toggleTableBtn.innerHTML = '<i class="fas fa-eye mr-2"></i><span id="toggleText">Ver Todos</span>';
+            } else {
+                // Switch to full table view
+                summaryView.classList.add('hidden');
+                fullTableView.classList.remove('hidden');
+                toggleText.textContent = 'Ver Resumen';
+                toggleTableBtn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i><span id="toggleText">Ver Resumen</span>';
+            }
+        });
+    }
+</script>
+
+{% if resultado %}
+<script>
+    // Initialize chart for existing results
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCarteraChart();
     });
 </script>
+{% endif %}
 {% endblock %}
 {% endblock %}
