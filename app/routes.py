@@ -191,6 +191,21 @@ def generate_bonos_table_html(dataframe):
 
     return html
 
+def generate_bonos_table_rows_html(dataframe):
+    """Generate only the table rows HTML for bonos results (for AJAX updates)"""
+    html = ''
+
+    for _, row in dataframe.iterrows():
+        html += f'''
+            <tr class="hover:bg-secondary-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">{int(row['Periodo'])}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${row['Flujo (USD)']:.2f}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">${row['Valor Presente (USD)']:.2f}</td>
+            </tr>
+        '''
+
+    return html
+
 @main.route('/')
 def index():
     """Home page"""
@@ -327,19 +342,22 @@ def bonos():
 
             try:
                 resultado = calcular_bonos(datos)
-                # Store results in session for PDF download
-                session['bonos_resultado'] = resultado
+                # Store results in session for PDF download (convert DataFrame to dict)
+                session['bonos_resultado'] = {
+                    'dataframe': resultado['dataframe'].to_dict('records'),
+                    'resumen': resultado['resumen']
+                }
 
                 # Return JSON for AJAX requests
                 if is_ajax_request():
-                    # Generate properly formatted table HTML for bonds
-                    table_html = generate_bonos_table_html(resultado['dataframe'])
+                    # Generate table rows HTML for AJAX updates
+                    table_rows_html = generate_bonos_table_rows_html(resultado['dataframe'])
                     return jsonify({
                         'success': True,
                         'resultado': {
                             'resumen': resultado['resumen'],
                             'dataframe': resultado['dataframe'].to_dict('records'),
-                            'dataframe_html': table_html
+                            'dataframe_html': table_rows_html
                         }
                     })
             except Exception as e:
@@ -405,8 +423,13 @@ def descargar_pdf(modulo):
                 flash('Debes completar primero el Módulo C (Valoración de Bonos)', 'error')
                 return redirect(url_for('main.bonos'))
 
-            # Get data from session
-            resultado = session['bonos_resultado']
+            # Get data from session and convert back to DataFrame
+            session_data = session['bonos_resultado']
+            import pandas as pd
+            resultado = {
+                'dataframe': pd.DataFrame(session_data['dataframe']),
+                'resumen': session_data['resumen']
+            }
 
             # Generate PDF
             pdf_buffer = generar_pdf_bono(resultado['dataframe'], resultado['resumen'])

@@ -320,68 +320,205 @@ class PDFGenerator:
         ])
 
     def generate_bond_report(self, df, resumen):
-        """Generate PDF report for bond valuation"""
+        """Generate professional PDF report for bond valuation"""
         buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            leftMargin=2*cm,
+            rightMargin=2*cm,
+            topMargin=2*cm,
+            bottomMargin=2*cm
+        )
         elements = []
 
-        # Title
-        elements.append(Paragraph("Reporte de Valoración de Bonos", self.title_style))
-        elements.append(Spacer(1, 12))
+        # Header with branding
+        header_data = [
+            [Paragraph("SIMULADOR FINANCIERO", ParagraphStyle('HeaderMain',
+                fontSize=18, fontName='Helvetica-Bold', textColor=self.primary_color, alignment=0)),
+             Paragraph("Reporte Profesional", ParagraphStyle('HeaderSub',
+                fontSize=12, fontName='Helvetica', textColor=self.secondary_color, alignment=2))]
+        ]
+        header_table = Table(header_data, colWidths=[10*cm, 6*cm])
+        header_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+            ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        elements.append(header_table)
+        elements.append(Spacer(1, 10))
+        elements.append(HRFlowable(width="100%", thickness=2, color=self.secondary_color, spaceAfter=20))
 
-        # Date
-        elements.append(Paragraph(f"Fecha de generación: {datetime.now().strftime('%d/%m/%Y %H:%M')}", self.normal_style))
+        # Main Title
+        elements.append(Paragraph("Valoración de Bonos", self.title_style))
+        elements.append(Paragraph("Análisis detallado de valoración de instrumento de deuda", self.small_style))
+        elements.append(Spacer(1, 15))
+
+        # Generation info
+        info_data = [
+            ["Fecha de generación:", datetime.now().strftime('%d/%m/%Y %H:%M')],
+            ["Tipo de análisis:", "Valoración de bono con descuento de flujos"],
+            ["Moneda:", "USD (Dólares Americanos)"]
+        ]
+        info_table = Table(info_data, colWidths=[4*cm, 12*cm])
+        info_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), self.primary_color),
+            ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+            ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+        ]))
+        elements.append(info_table)
         elements.append(Spacer(1, 20))
 
-        # Summary
-        elements.append(Paragraph("Resumen de Valoración", self.subtitle_style))
+        # Executive Summary Section
+        elements.append(Paragraph("📊 RESUMEN EJECUTIVO", self.section_style))
+        elements.append(Paragraph("Principales indicadores de la valoración del bono", self.normal_style))
 
-        summary_data = [
-            ["Parámetro", "Valor"],
-            ["Valor Nominal", f"${resumen['valor_nominal']:,.2f}"],
-            ["Tasa Cupón", f"{resumen['tasa_cupon']:.2f}%"],
-            ["Valor Presente Total", f"${resumen['valor_presente_total']:,.2f}"],
-            ["Diferencia", f"${resumen['diferencia']:,.2f}"],
-            ["Estado", resumen['estado']]
+        # Key metrics in a highlighted box
+        estado_color = self.positive_color if resumen['estado'] == 'Prima' else \
+                      self.negative_color if resumen['estado'] == 'Descuento' else \
+                      self.warning_color
+
+        key_metrics_data = [
+            ["Métrica", "Valor", "Interpretación"],
+            ["Valor Presente Total", f"${resumen['valor_presente_total']:,.2f}",
+             "Precio justo del bono en el mercado actual"],
+            ["Valor Nominal", f"${resumen['valor_nominal']:,.2f}",
+             "Valor facial del bono al vencimiento"],
+            ["Prima/Descuento", f"${resumen['diferencia']:,.2f}",
+             "Diferencia entre valor presente y nominal"],
+            ["Estado del Bono", resumen['estado'],
+             "Cotización relativa al valor nominal"],
+            ["Tasa Cupón", f"{resumen['tasa_cupon']:.2f}%",
+             "Tasa de interés nominal del bono"],
+            ["TEA Requerida", f"{resumen.get('tea_retorno', 0):.2f}%",
+             "Tasa de descuento utilizada en la valoración"]
         ]
 
-        summary_table = Table(summary_data)
-        summary_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        key_metrics_table = Table(key_metrics_data, colWidths=[3.5*cm, 3.5*cm, 9*cm])
+        key_metrics_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), self.secondary_color),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BACKGROUND', (0, 1), (-1, -1), self.light_bg),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            # Color the status row
+            ('TEXTCOLOR', (1, 3), (1, 3), estado_color),
+            ('FONTNAME', (1, 3), (1, 3), 'Helvetica-Bold'),
         ]))
+        elements.append(key_metrics_table)
+        elements.append(Spacer(1, 15))
 
-        elements.append(summary_table)
+        # Bond Characteristics
+        elements.append(Paragraph("🔧 CARACTERÍSTICAS DEL BONO", self.section_style))
+        params_data = [
+            ["Valor Nominal", f"${resumen['valor_nominal']:,.2f}"],
+            ["Tasa Cupón Anual", f"{resumen['tasa_cupon']:.2f}%"],
+            ["Frecuencia de Pago", resumen.get('frecuencia_pago', 'Anual').title()],
+            ["Plazo al Vencimiento", f"{resumen.get('años_bono', 0)} años"],
+            ["TEA de Mercado", f"{resumen.get('tea_retorno', 0):.2f}%"]
+        ]
+
+        params_table = Table(params_data, colWidths=[5*cm, 11*cm])
+        params_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), self.light_bg),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), self.primary_color),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        elements.append(params_table)
         elements.append(Spacer(1, 20))
 
-        # Cash flows table
-        elements.append(Paragraph("Flujos de Caja", self.subtitle_style))
+        # Bond Analysis
+        elements.append(Paragraph("💡 ANÁLISIS DE VALORACIÓN", self.section_style))
 
-        table_data = [df.columns.tolist()]
+        # Determine analysis based on bond status
+        if resumen['estado'] == 'Prima':
+            analysis_points = [
+                f"• El bono cotiza con <b>PRIMA</b> de ${resumen['diferencia']:,.2f} sobre su valor nominal",
+                f"• La tasa cupón ({resumen['tasa_cupon']:.2f}%) es <b>superior</b> a la TEA requerida ({resumen.get('tea_retorno', 0):.2f}%)",
+                f"• Los inversionistas están dispuestos a pagar más por los cupones atractivos",
+                f"• Valor presente total: ${resumen['valor_presente_total']:,.2f}",
+                f"• El bono ofrece mayor rentabilidad que las alternativas de mercado"
+            ]
+        elif resumen['estado'] == 'Descuento':
+            analysis_points = [
+                f"• El bono cotiza con <b>DESCUENTO</b> de ${abs(resumen['diferencia']):,.2f} bajo su valor nominal",
+                f"• La tasa cupón ({resumen['tasa_cupon']:.2f}%) es <b>inferior</b> a la TEA requerida ({resumen.get('tea_retorno', 0):.2f}%)",
+                f"• El descuento compensa la tasa de cupón menos atractiva",
+                f"• Valor presente total: ${resumen['valor_presente_total']:,.2f}",
+                f"• Oportunidad de compra a precio reducido"
+            ]
+        else:
+            analysis_points = [
+                f"• El bono cotiza a la <b>PAR</b> (valor presente = valor nominal)",
+                f"• La tasa cupón ({resumen['tasa_cupon']:.2f}%) es <b>igual</b> a la TEA requerida ({resumen.get('tea_retorno', 0):.2f}%)",
+                f"• Valoración equilibrada entre tasa de cupón y requerimientos de mercado",
+                f"• Valor presente total: ${resumen['valor_presente_total']:,.2f}",
+                f"• Precio justo de mercado"
+            ]
+
+        for point in analysis_points:
+            elements.append(Paragraph(point, self.normal_style))
+
+        elements.append(Spacer(1, 20))
+
+        # Cash Flows Table
+        elements.append(Paragraph("📋 FLUJOS DE EFECTIVO DETALLADOS", self.section_style))
+        elements.append(Paragraph(f"Desglose completo de pagos e intereses descontados - Total de {len(df)} períodos", self.normal_style))
+
+        # Prepare table data
+        table_data = [['Periodo', 'Flujo de Caja (USD)', 'Valor Presente (USD)']]
         for _, row in df.iterrows():
             table_data.append([
-                int(row['Periodo']),
+                str(int(row['Periodo'])),
                 f"${row['Flujo (USD)']:,.2f}",
                 f"${row['Valor Presente (USD)']:,.2f}"
             ])
 
-        flows_table = Table(table_data)
-        flows_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        # Create table with appropriate sizing
+        font_size = 7 if len(df) > 50 else 8
+        col_widths = [2*cm, 3.5*cm, 3.5*cm] if len(df) > 50 else [2.5*cm, 4*cm, 4*cm]
+
+        flows_table = Table(table_data, colWidths=col_widths, repeatRows=1)
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), self.table_header_bg),
+            ('TEXTCOLOR', (0, 0), (-1, 0), self.primary_color),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
             ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('FONTSIZE', (0, 1), (-1, -1), 7),
-        ]))
-
+            ('GRID', (0, 0), (-1, -1), 0.3, colors.lightgrey),
+            ('FONTSIZE', (0, 1), (-1, -1), font_size),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ])
+        flows_table.setStyle(table_style)
         elements.append(flows_table)
+
+        # Footer
+        elements.append(Spacer(1, 30))
+        elements.append(HRFlowable(width="100%", thickness=1, color=colors.lightgrey, spaceAfter=10))
+        elements.append(Paragraph("Reporte generado por Simulador Financiero - Todos los cálculos son valoraciones basadas en los parámetros proporcionados", self.footer_style))
+        elements.append(Paragraph(f"Página 1 - Generado el {datetime.now().strftime('%d/%m/%Y a las %H:%M')}", self.footer_style))
 
         # Build PDF
         doc.build(elements)
@@ -389,62 +526,241 @@ class PDFGenerator:
         return buffer
 
     def generate_retirement_report(self, resumen):
-        """Generate PDF report for retirement projection"""
+        """Generate professional PDF report for retirement projection"""
         buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            leftMargin=2*cm,
+            rightMargin=2*cm,
+            topMargin=2*cm,
+            bottomMargin=2*cm
+        )
         elements = []
 
-        # Title
-        elements.append(Paragraph("Reporte de Proyección de Jubilación", self.title_style))
-        elements.append(Spacer(1, 12))
+        # Header with branding
+        header_data = [
+            [Paragraph("SIMULADOR FINANCIERO", ParagraphStyle('HeaderMain',
+                fontSize=18, fontName='Helvetica-Bold', textColor=self.primary_color, alignment=0)),
+             Paragraph("Reporte Profesional", ParagraphStyle('HeaderSub',
+                fontSize=12, fontName='Helvetica', textColor=self.secondary_color, alignment=2))]
+        ]
+        header_table = Table(header_data, colWidths=[10*cm, 6*cm])
+        header_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+            ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        elements.append(header_table)
+        elements.append(Spacer(1, 10))
+        elements.append(HRFlowable(width="100%", thickness=2, color=self.secondary_color, spaceAfter=20))
 
-        # Date
-        elements.append(Paragraph(f"Fecha de generación: {datetime.now().strftime('%d/%m/%Y %H:%M')}", self.normal_style))
+        # Main Title
+        elements.append(Paragraph("Proyección de Jubilación", self.title_style))
+        elements.append(Paragraph("Análisis detallado de planificación financiera para el retiro", self.small_style))
+        elements.append(Spacer(1, 15))
+
+        # Generation info
+        info_data = [
+            ["Fecha de generación:", datetime.now().strftime('%d/%m/%Y %H:%M')],
+            ["Tipo de análisis:", "Proyección de pensión con impuestos"],
+            ["Moneda:", "USD (Dólares Americanos)"]
+        ]
+        info_table = Table(info_data, colWidths=[4*cm, 12*cm])
+        info_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), self.primary_color),
+            ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+            ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+        ]))
+        elements.append(info_table)
         elements.append(Spacer(1, 20))
 
-        # Summary
-        elements.append(Paragraph("Resumen de Jubilación", self.subtitle_style))
+        # Executive Summary Section
+        elements.append(Paragraph("📊 RESUMEN EJECUTIVO", self.section_style))
+        elements.append(Paragraph("Principales indicadores de la proyección de jubilación", self.normal_style))
 
-        summary_data = [
-            ["Parámetro", "Valor"],
-            ["Tipo de Retiro", "Pensión Mensual" if resumen.get('tipo_retiro') == 'pension' else "Retiro Total"],
+        # Key metrics in a highlighted box
+        tipo_retiro = "Pensión Mensual" if resumen.get('tipo_retiro') == 'pension' else "Retiro Total"
+
+        if resumen.get('tipo_retiro') == 'pension':
+            key_metrics_data = [
+                ["Métrica", "Valor", "Interpretación"],
+                ["Capital Inicial", f"${resumen.get('capital_inicial', 0):,.2f}",
+                 "Monto disponible para generar pensión"],
+                ["Pensión Mensual Neta", f"${resumen.get('pension_mensual_neta', 0):,.2f}",
+                 "Ingreso mensual después de impuestos"],
+                ["Pensión Anual Neta", f"${resumen.get('pension_anual_neta', 0):,.2f}",
+                 "Ingreso anual después de impuestos"],
+                ["Años de Retiro", f"{resumen.get('años_retiro', 0)} años",
+                 "Duración estimada de la pensión"],
+                ["TEA de Retiro", f"{resumen.get('tea_retiro', 0):.2f}%",
+                 "Tasa efectiva anual utilizada"],
+                ["Tipo de Impuesto", resumen.get('tipo_impuesto', '').title(),
+                 "Régimen tributario aplicado"]
+            ]
+        else:
+            key_metrics_data = [
+                ["Métrica", "Valor", "Interpretación"],
+                ["Capital Inicial", f"${resumen.get('capital_inicial', 0):,.2f}",
+                 "Monto disponible para retiro"],
+                ["Retiro Total Neto", f"${resumen.get('pension_mensual_neta', 0):,.2f}",
+                 "Monto total después de impuestos"],
+                ["Impuesto Total", f"${resumen.get('impuesto_mensual', 0):,.2f}",
+                 "Total de impuestos retenidos"],
+                ["TEA de Retiro", f"{resumen.get('tea_retiro', 0):.2f}%",
+                 "Tasa efectiva anual utilizada"],
+                ["Tipo de Impuesto", resumen.get('tipo_impuesto', '').title(),
+                 "Régimen tributario aplicado"],
+                ["Tipo de Retiro", "Retiro Total",
+                 "Modalidad de retiro seleccionada"]
+            ]
+
+        key_metrics_table = Table(key_metrics_data, colWidths=[3.5*cm, 3.5*cm, 9*cm])
+        key_metrics_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), self.secondary_color),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BACKGROUND', (0, 1), (-1, -1), self.light_bg),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        elements.append(key_metrics_table)
+        elements.append(Spacer(1, 15))
+
+        # Retirement Parameters
+        elements.append(Paragraph("🔧 PARÁMETROS DE JUBILACIÓN", self.section_style))
+        params_data = [
+            ["Tipo de Retiro", tipo_retiro],
             ["Tipo de Impuesto", resumen.get('tipo_impuesto', '').title()],
-            ["Capital Inicial", f"${resumen.get('capital_inicial', 0):,.2f}"],
-            ["TEA de Retiro", f"{resumen.get('tea_retiro', 0):.2f}%"],
+            ["Capital Inicial", f"${resumen.get('capital_inicial', 0):,.2f}"]
         ]
 
         if resumen.get('tipo_retiro') == 'pension':
-            summary_data.extend([
-                ["Años de Retiro", resumen.get('años_retiro', 0)],
-                ["Pensión Mensual Bruta", f"${resumen.get('pension_mensual_bruta', 0):,.2f}"],
-                ["Impuesto Mensual", f"${resumen.get('impuesto_mensual', 0):,.2f}"],
-                ["Pensión Mensual Neta", f"${resumen.get('pension_mensual_neta', 0):,.2f}"],
-                ["Pensión Anual Bruta", f"${resumen.get('pension_anual_bruta', 0):,.2f}"],
-                ["Impuesto Anual", f"${resumen.get('impuesto_anual', 0):,.2f}"],
-                ["Pensión Anual Neta", f"${resumen.get('pension_anual_neta', 0):,.2f}"],
+            params_data.extend([
+                ["Años de Retiro", f"{resumen.get('años_retiro', 0)} años"],
+                ["TEA de Retiro", f"{resumen.get('tea_retiro', 0):.2f}%"],
+                ["Usar TEA de Cartera", "Sí" if resumen.get('usar_misma_tea') else "No"]
             ])
         else:
-            summary_data.extend([
-                ["Retiro Total Bruto", f"${resumen.get('pension_mensual_bruta', 0):,.2f}"],
-                ["Impuesto Total", f"${resumen.get('impuesto_mensual', 0):,.2f}"],
-                ["Retiro Total Neto", f"${resumen.get('pension_mensual_neta', 0):,.2f}"],
+            params_data.extend([
+                ["TEA de Retiro", f"{resumen.get('tea_retiro', 0):.2f}%"],
+                ["Usar TEA de Cartera", "Sí" if resumen.get('usar_misma_tea') else "No"]
             ])
 
-        summary_table = Table(summary_data)
-        summary_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        params_table = Table(params_data, colWidths=[5*cm, 11*cm])
+        params_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), self.light_bg),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.white),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), self.primary_color),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
         ]))
-
-        elements.append(summary_table)
+        elements.append(params_table)
         elements.append(Spacer(1, 20))
 
+        # Retirement Analysis
+        elements.append(Paragraph("💡 ANÁLISIS DE JUBILACIÓN", self.section_style))
+
+        # Calculate some insights
+        capital_inicial = resumen.get('capital_inicial', 0)
+        pension_neta = resumen.get('pension_mensual_neta', 0)
+        impuesto_total = resumen.get('impuesto_mensual', 0)
+
+        if resumen.get('tipo_retiro') == 'pension':
+            años_retiro = resumen.get('años_retiro', 0)
+            pension_anual_neta = resumen.get('pension_anual_neta', 0)
+            total_pensiones = pension_anual_neta * años_retiro
+
+            analysis_points = [
+                f"• Se proyecta una <b>pensión mensual neta</b> de ${pension_neta:,.2f}",
+                f"• La pensión anual neta sería de ${pension_anual_neta:,.2f}",
+                f"• Total de pensiones proyectadas: ${total_pensiones:,.2f} en {años_retiro} años",
+                f"• Impuestos retenidos mensualmente: ${resumen.get('impuesto_mensual', 0):,.2f}",
+                f"• El capital inicial de ${capital_inicial:,.2f} generará ingresos estables",
+                f"• Planificación financiera para {años_retiro} años de retiro confortable"
+            ]
+        else:
+            analysis_points = [
+                f"• Se proyecta un <b>retiro total neto</b> de ${pension_neta:,.2f}",
+                f"• Impuestos retenidos en el retiro: ${impuesto_total:,.2f}",
+                f"• El capital inicial de ${capital_inicial:,.2f} estará disponible completamente",
+                f"• Retiro único con liquidez inmediata",
+                f"• Flexibilidad para reinvertir o utilizar según necesidades"
+            ]
+
+        for point in analysis_points:
+            elements.append(Paragraph(point, self.normal_style))
+
+        elements.append(Spacer(1, 20))
+
+        # Detailed Breakdown Table
+        elements.append(Paragraph("📋 DESGLOSE DETALLADO", self.section_style))
+
+        if resumen.get('tipo_retiro') == 'pension':
+            elements.append(Paragraph("Detalle completo de pensiones mensuales y anuales", self.normal_style))
+
+            breakdown_data = [
+                ["Concepto", "Mensual", "Anual"],
+                ["Pensión Bruta", f"${resumen.get('pension_mensual_bruta', 0):,.2f}",
+                 f"${resumen.get('pension_anual_bruta', 0):,.2f}"],
+                ["Impuestos", f"${resumen.get('impuesto_mensual', 0):,.2f}",
+                 f"${resumen.get('impuesto_anual', 0):,.2f}"],
+                ["Pensión Neta", f"${resumen.get('pension_mensual_neta', 0):,.2f}",
+                 f"${resumen.get('pension_anual_neta', 0):,.2f}"]
+            ]
+        else:
+            elements.append(Paragraph("Detalle del retiro total con impuestos", self.normal_style))
+
+            breakdown_data = [
+                ["Concepto", "Monto"],
+                ["Retiro Bruto", f"${resumen.get('pension_mensual_bruta', 0):,.2f}"],
+                ["Impuestos", f"${resumen.get('impuesto_mensual', 0):,.2f}"],
+                ["Retiro Neto", f"${resumen.get('pension_mensual_neta', 0):,.2f}"]
+            ]
+
+        breakdown_table = Table(breakdown_data, colWidths=[4*cm, 4*cm, 4*cm] if resumen.get('tipo_retiro') == 'pension' else [6*cm, 6*cm])
+        breakdown_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), self.table_header_bg),
+            ('TEXTCOLOR', (0, 0), (-1, 0), self.primary_color),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 0.3, colors.lightgrey),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        elements.append(breakdown_table)
+
         # Additional information
-        elements.append(Paragraph("Información Adicional", self.subtitle_style))
-        elements.append(Paragraph(f"Mensaje: {resumen.get('mensaje', 'Cálculo completado exitosamente')}", self.normal_style))
+        if resumen.get('mensaje'):
+            elements.append(Spacer(1, 20))
+            elements.append(Paragraph("📝 INFORMACIÓN ADICIONAL", self.section_style))
+            elements.append(Paragraph(resumen.get('mensaje', 'Cálculo completado exitosamente'), self.normal_style))
+
+        # Footer
+        elements.append(Spacer(1, 30))
+        elements.append(HRFlowable(width="100%", thickness=1, color=colors.lightgrey, spaceAfter=10))
+        elements.append(Paragraph("Reporte generado por Simulador Financiero - Todos los cálculos son proyecciones basadas en los parámetros proporcionados", self.footer_style))
+        elements.append(Paragraph(f"Página 1 - Generado el {datetime.now().strftime('%d/%m/%Y a las %H:%M')}", self.footer_style))
 
         # Build PDF
         doc.build(elements)
