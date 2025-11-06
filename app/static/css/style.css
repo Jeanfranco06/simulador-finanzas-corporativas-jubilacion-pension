@@ -2,8 +2,29 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+:root {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-color: #e2e8f0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --border-color: #334155;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
 body {
     font-family: 'Inter', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Custom scrollbar */
@@ -15,12 +36,24 @@ body {
     background: #f1f5f9;
 }
 
+.dark ::-webkit-scrollbar-track {
+    background: #334155;
+}
+
 ::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #64748b;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
 
@@ -33,6 +66,30 @@ input[type="number"]::-webkit-inner-spin-button {
 
 input[type="number"] {
     -moz-appearance: textfield;
+}
+
+/* Select element styling */
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+}
+
+select:focus {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+.dark select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+.dark select:focus {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2360a5fa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
 }
 
 /* Chart containers */
@@ -132,4 +189,271 @@ input[type="number"] {
 
 .gradient-purple {
     background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+/* Financial Floating Elements */
+.floating-element {
+    position: absolute;
+    font-size: 2rem;
+    color: rgba(14, 165, 233, 0.4);
+    animation: financialFloat 15s infinite ease-in-out;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+}
+
+.dark .floating-element {
+    opacity: 0.6;
+}
+
+.floating-element.dollar-1 {
+    top: 15%;
+    left: 8%;
+    animation-duration: 18s;
+    animation-delay: 0s;
+}
+
+.floating-element.dollar-1::before {
+    content: '$';
+    font-weight: bold;
+    font-size: 3rem;
+}
+
+.floating-element.chart-1 {
+    top: 25%;
+    right: 12%;
+    animation-duration: 22s;
+    animation-delay: -3s;
+    color: rgba(34, 197, 94, 0.4);
+}
+
+.floating-element.chart-1::before {
+    content: '\f201';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 2.5rem;
+}
+
+.floating-element.calculator-1 {
+    bottom: 25%;
+    left: 15%;
+    animation-duration: 20s;
+    animation-delay: -6s;
+    color: rgba(147, 51, 234, 0.4);
+}
+
+.floating-element.calculator-1::before {
+    content: '\f1ec';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 2.2rem;
+}
+
+.floating-element.trending-up {
+    top: 60%;
+    right: 20%;
+    animation-duration: 25s;
+    animation-delay: -9s;
+    color: rgba(245, 158, 11, 0.4);
+}
+
+.floating-element.trending-up::before {
+    content: '\f062';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 2.8rem;
+}
+
+.floating-element.piggy-bank {
+    bottom: 35%;
+    right: 8%;
+    animation-duration: 19s;
+    animation-delay: -12s;
+    color: rgba(239, 68, 68, 0.4);
+}
+
+.floating-element.piggy-bank::before {
+    content: '\f4d3';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 2.4rem;
+}
+
+.floating-element.percentage {
+    top: 45%;
+    left: 5%;
+    animation-duration: 21s;
+    animation-delay: -15s;
+    color: rgba(6, 182, 212, 0.4);
+}
+
+.floating-element.percentage::before {
+    content: '%';
+    font-weight: bold;
+    font-size: 3.2rem;
+}
+
+.floating-element.coins {
+    top: 8%;
+    right: 3%;
+    animation-duration: 23s;
+    animation-delay: -18s;
+    color: rgba(236, 72, 153, 0.4);
+}
+
+.floating-element.coins::before {
+    content: '\f51e';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 2.6rem;
+}
+
+.floating-element.wallet {
+    bottom: 15%;
+    left: 45%;
+    animation-duration: 17s;
+    animation-delay: -21s;
+    color: rgba(34, 197, 94, 0.4);
+}
+
+.floating-element.wallet::before {
+    content: '\f555';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 2.3rem;
+}
+
+.floating-element.growth {
+    top: 35%;
+    left: 25%;
+    animation-duration: 24s;
+    animation-delay: -24s;
+    color: rgba(14, 165, 233, 0.5);
+}
+
+.floating-element.growth::before {
+    content: '\f062';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 2.7rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes financialFloat {
+    0% {
+        transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+        opacity: 0.2;
+    }
+    25% {
+        transform: translateY(-40px) translateX(20px) rotate(90deg) scale(1.1);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translateY(-20px) translateX(-15px) rotate(180deg) scale(0.9);
+        opacity: 0.3;
+    }
+    75% {
+        transform: translateY(-60px) translateX(10px) rotate(270deg) scale(1.2);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateY(0px) translateX(0px) rotate(360deg) scale(1);
+        opacity: 0.2;
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Custom animations */
+@keyframes fade-in-up {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-slow {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.animate-fade-in-up {
+    animation: fade-in-up 1s ease-out;
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
+}
+
+/* Enhanced hover effects */
+.group:hover .group-hover\:scale-105 {
+    transform: scale(1.05);
+}
+
+.group:hover .group-hover\:rotate-12 {
+    transform: rotate(12deg);
+}
+
+.group:hover .group-hover\:scale-110 {
+    transform: scale(1.1);
+}
+
+/* Glass morphism effect */
+.glass {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Enhanced shadows */
+.shadow-glow {
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+}
+
+.shadow-glow-green {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.shadow-glow-purple {
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Enhanced module cards */
+.module-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.module-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Parallax effect for background */
+.parallax-bg {
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }

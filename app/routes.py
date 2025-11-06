@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from .forms import CarteraForm, JubilacionForm, BonosForm
 from .models import calcular_cartera, calcular_jubilacion, calcular_bonos
 from utils.pdf_generator import generar_pdf_cartera, generar_pdf_bono, generar_pdf_jubilacion
+from utils.manual_usuario import crear_manual_usuario
 from datetime import datetime
 
 main = Blueprint('main', __name__)
@@ -468,4 +469,22 @@ def descargar_pdf(modulo):
 
     except Exception as e:
         flash(f'Error al generar el PDF: {str(e)}', 'error')
+        return redirect(url_for('main.index'))
+
+@main.route('/descargar-manual')
+def descargar_manual():
+    """Download user manual PDF"""
+    try:
+        # Generate the manual PDF
+        manual_path = crear_manual_usuario()
+
+        return send_file(
+            manual_path,
+            as_attachment=True,
+            download_name='manual_usuario_simulador_financiero.pdf',
+            mimetype='application/pdf'
+        )
+
+    except Exception as e:
+        flash(f'Error al generar el manual: {str(e)}', 'error')
         return redirect(url_for('main.index'))

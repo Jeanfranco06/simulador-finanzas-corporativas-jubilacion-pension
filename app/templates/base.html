@@ -9,9 +9,71 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Tailwind Config -->
+    <!-- Theme System -->
     <script>
+        // Theme management
+        const theme = {
+            init() {
+                this.setTheme(this.getStoredTheme() || 'light');
+                this.createThemeToggle();
+            },
+
+            getStoredTheme() {
+                return localStorage.getItem('theme');
+            },
+
+            setStoredTheme(theme) {
+                localStorage.setItem('theme', theme);
+            },
+
+            setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                this.setStoredTheme(theme);
+                this.updateToggleButton(theme);
+            },
+
+            toggleTheme() {
+                const isDark = document.documentElement.classList.contains('dark');
+                const newTheme = isDark ? 'light' : 'dark';
+                this.setTheme(newTheme);
+            },
+
+            createThemeToggle() {
+                const toggle = document.createElement('button');
+                toggle.id = 'theme-toggle';
+                toggle.className = 'fixed top-4 right-4 z-50 p-3 rounded-full bg-white dark:bg-secondary-800 shadow-lg border border-secondary-200 dark:border-secondary-700 hover:shadow-xl transition-all duration-300';
+                toggle.innerHTML = '<i class="fas fa-moon text-secondary-600 dark:text-secondary-300 text-lg"></i>';
+                toggle.title = 'Cambiar tema';
+
+                toggle.addEventListener('click', () => this.toggleTheme());
+
+                document.body.appendChild(toggle);
+            },
+
+            updateToggleButton(theme) {
+                const toggle = document.getElementById('theme-toggle');
+                if (toggle) {
+                    const icon = toggle.querySelector('i');
+                    if (theme === 'dark') {
+                        icon.className = 'fas fa-sun text-yellow-500 text-lg';
+                        toggle.title = 'Cambiar a modo claro';
+                    } else {
+                        icon.className = 'fas fa-moon text-secondary-600 text-lg';
+                        toggle.title = 'Cambiar a modo oscuro';
+                    }
+                }
+            }
+        };
+
+        // Initialize theme on load
+        document.addEventListener('DOMContentLoaded', () => theme.init());
+
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -61,14 +123,14 @@
     {% block head %}{% endblock %}
 </head>
 
-<body class="bg-secondary-50 font-sans antialiased">
+<body class="bg-secondary-50 dark:bg-secondary-900 font-sans antialiased transition-colors duration-300">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-secondary-200 sticky top-0 z-50">
+    <nav class="bg-white dark:bg-secondary-800 shadow-sm border-b border-secondary-200 dark:border-secondary-700 sticky top-0 z-50 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="{{ url_for('main.index') }}"
-                        class="flex items-center text-secondary-900 font-bold text-xl hover:text-primary-600 transition-colors">
+                        class="flex items-center text-secondary-900 dark:text-secondary-100 font-bold text-xl hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                         <div class="bg-primary-600 text-white p-2 rounded-lg mr-3">
                             <i class="fas fa-chart-line"></i>
                         </div>
@@ -79,19 +141,19 @@
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-1">
                     <a href="{{ url_for('main.index') }}"
-                        class="text-secondary-700 hover:text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
                         <i class="fas fa-home mr-2"></i> Inicio
                     </a>
                     <a href="{{ url_for('main.cartera') }}"
-                        class="text-secondary-700 hover:text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
                         <i class="fas fa-wallet mr-2"></i> Cartera
                     </a>
                     <a href="{{ url_for('main.jubilacion') }}"
-                        class="text-secondary-700 hover:text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
                         <i class="fas fa-piggy-bank mr-2"></i> Jubilación
                     </a>
                     <a href="{{ url_for('main.bonos') }}"
-                        class="text-secondary-700 hover:text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
                         <i class="fas fa-coins mr-2"></i> Bonos
                     </a>
                 </div>
@@ -99,7 +161,7 @@
                 <!-- Mobile menu button -->
                 <div class="md:hidden flex items-center">
                     <button type="button"
-                        class="text-secondary-700 hover:text-primary-600 hover:bg-primary-50 p-2 rounded-lg transition-colors"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 p-2 rounded-lg transition-colors"
                         id="mobile-menu-button">
                         <i class="fas fa-bars text-lg"></i>
                     </button>
@@ -107,22 +169,22 @@
             </div>
 
             <!-- Mobile Menu -->
-            <div class="md:hidden hidden border-t border-secondary-200" id="mobile-menu">
-                <div class="px-2 pt-2 pb-3 space-y-1 bg-white">
+            <div class="md:hidden hidden border-t border-secondary-200 dark:border-secondary-700" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 bg-white dark:bg-secondary-800">
                     <a href="{{ url_for('main.index') }}"
-                        class="text-secondary-700 hover:text-primary-600 hover:bg-primary-50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
                         <i class="fas fa-home mr-3"></i> Inicio
                     </a>
                     <a href="{{ url_for('main.cartera') }}"
-                        class="text-secondary-700 hover:text-primary-600 hover:bg-primary-50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
                         <i class="fas fa-wallet mr-3"></i> Cartera
                     </a>
                     <a href="{{ url_for('main.jubilacion') }}"
-                        class="text-secondary-700 hover:text-primary-600 hover:bg-primary-50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
                         <i class="fas fa-piggy-bank mr-3"></i> Jubilación
                     </a>
                     <a href="{{ url_for('main.bonos') }}"
-                        class="text-secondary-700 hover:text-primary-600 hover:bg-primary-50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
                         <i class="fas fa-coins mr-3"></i> Bonos
                     </a>
                 </div>
