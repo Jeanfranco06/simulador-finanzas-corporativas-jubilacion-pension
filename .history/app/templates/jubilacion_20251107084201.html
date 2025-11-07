@@ -213,7 +213,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-secondary-700 mb-3">
                                     <i class="fas fa-info-circle mr-1"></i>¿Cómo deseas retirar tus fondos?
-                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors help-btn" data-help="Pensión Mensual: Recibes pagos fijos mensuales durante años. Retiro Total: Retiras todo el capital de una vez. Renta vía Dividendos: Solo recibes intereses/dividendos generados por el capital acumulado, sin retirar ni reducir el fondo principal. Se calcula como la mitad de la TEA durante el retiro aplicada al capital final, dividido en pagos mensuales.">
+                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors help-btn" data-help="Pensión Mensual: Recibes pagos fijos mensuales durante años. Retiro Total: Retiras todo el capital de una vez. Renta vía Dividendos: Solo recibes intereses/dividendos generados por el capital acumulado, sin retirar ni reducir el fondo principal. Se calcula como el 50% de la TEA anual aplicada al capital final, dividido en pagos mensuales.">
                                         <i class="fas fa-question-circle text-xs"></i>
                                     </button>
                                 </label>
@@ -1121,81 +1121,18 @@
                                 </div>
                                 ` : resultado.tipo_retiro === 'dividendos' ? `
                                 <div class="bg-white rounded-lg p-4 border border-blue-200">
-                                    <h5 class="font-semibold text-blue-900 mb-3">💰 Renta vía Dividendos</h5>
-
-                                    <div class="mb-4">
-                                        <h6 class="font-medium text-blue-800 mb-2">Cálculo paso a paso</h6>
-                                        <div class="space-y-2 text-sm text-blue-700">
-                                            <div class="bg-blue-50 p-2 rounded">
-                                                <strong>1. Obtener capital acumulado final</strong><br>
-                                                Capital Final = $${resultado.capital_inicial.toFixed(2)} (saldo total acumulado al momento de la jubilación, después de aportes e intereses)
-                                            </div>
-
-                                            <div class="bg-blue-50 p-2 rounded">
-                                                <strong>2. Determinar TEA para dividendos</strong><br>
-                                                TEA de Retiro = ${resultado.tea_retiro.toFixed(2)}% (tasa efectiva anual durante el retiro)
-                                            </div>
-
-                                            <div class="bg-blue-50 p-2 rounded">
-                                                <strong>3. Calcular dividendos anuales</strong><br>
-                                                Dividendos Anuales = Capital Final × (TEA ÷ 2)<br>
-                                                Dividendos Anuales = $${resultado.capital_inicial.toFixed(2)} × (${resultado.tea_retiro.toFixed(2)}% ÷ 2)<br>
-                                                Dividendos Anuales = $${resultado.capital_inicial.toFixed(2)} × ${(resultado.tea_retiro / 2).toFixed(4)}<br>
-                                                Dividendos Anuales = $${(resultado.capital_inicial * (resultado.tea_retiro / 100) / 2).toFixed(2)}
-                                            </div>
-
-                                            <div class="bg-blue-50 p-2 rounded">
-                                                <strong>4. Convertir dividendos anuales a mensuales</strong><br>
-                                                Dividendos Mensuales = Dividendos Anuales ÷ 12<br>
-                                                Dividendos Mensuales = $${(resultado.capital_inicial * (resultado.tea_retiro / 100) / 2).toFixed(2)} ÷ 12<br>
-                                                Dividendos Mensuales = $${resultado.pension_mensual_bruta.toFixed(2)}
-                                            </div>
-
-                                            <div class="bg-blue-50 p-2 rounded">
-                                                <strong>5. Calcular impuesto mensual sobre dividendos</strong><br>
-                                                Tasa de Impuesto = ${resultado.tipo_impuesto === 'extranjera' ? '29.5%' : '5%'} (sobre dividendos)<br>
-                                                Impuesto Mensual = Dividendos Mensuales × Tasa de Impuesto<br>
-                                                Impuesto Mensual = $${resultado.pension_mensual_bruta.toFixed(2)} × ${resultado.tipo_impuesto === 'extranjera' ? '0.295' : '0.05'}<br>
-                                                Impuesto Mensual = $${resultado.impuesto_mensual.toFixed(2)}
-                                            </div>
-
-                                            <div class="bg-blue-50 p-2 rounded">
-                                                <strong>6. Calcular ingreso neto mensual</strong><br>
-                                                Ingreso Neto Mensual = Dividendos Mensuales - Impuesto Mensual<br>
-                                                Ingreso Neto Mensual = $${resultado.pension_mensual_bruta.toFixed(2)} - $${resultado.impuesto_mensual.toFixed(2)}<br>
-                                                Ingreso Neto Mensual = $${resultado.pension_mensual_neta.toFixed(2)}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <h6 class="font-medium text-blue-800 mb-2">Resumen de datos utilizados</h6>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                            <div class="bg-green-50 p-3 rounded border border-green-200">
-                                                <h7 class="font-semibold text-green-800 mb-2">Datos de Entrada</h7>
-                                                <ul class="space-y-1 text-green-700">
-                                                    <li><strong>Capital Final:</strong> $${resultado.capital_inicial.toFixed(2)}</li>
-                                                    <li><strong>TEA de Retiro:</strong> ${resultado.tea_retiro.toFixed(2)}%</li>
-                                                    <li><strong>Tipo de Impuesto:</strong> ${resultado.tipo_impuesto === 'extranjera' ? 'Fuente Extranjera (29.5%)' : 'Bolsa Local (5%)'}</li>
-                                                    <li><strong>Edad de Jubilación:</strong> ${resultado.edad_jubilacion || 'N/A'} años</li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="bg-purple-50 p-3 rounded border border-purple-200">
-                                                <h7 class="font-semibold text-purple-800 mb-2">Resultados del Cálculo</h7>
-                                                <ul class="space-y-1 text-purple-700">
-                                                    <li><strong>Dividendos Anuales:</strong> $${(resultado.capital_inicial * (resultado.tea_retiro / 100) / 2).toFixed(2)}</li>
-                                                    <li><strong>Dividendos Mensuales Brutos:</strong> $${resultado.pension_mensual_bruta.toFixed(2)}</li>
-                                                    <li><strong>Impuesto Mensual:</strong> $${resultado.impuesto_mensual.toFixed(2)}</li>
-                                                    <li><strong>Ingreso Neto Mensual:</strong> $${resultado.pension_mensual_neta.toFixed(2)}</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="bg-green-50 p-3 rounded border border-green-200">
-                                        <p class="text-sm"><strong>Resultado final:</strong> $${resultado.pension_mensual_neta.toFixed(2)} mensuales (neto de impuestos)</p>
-                                        <p class="text-xs text-green-600 mt-1">* El capital principal se mantiene intacto, solo se retiran los dividendos generados</p>
+                                    <h5 class="font-semibold text-blue-900 mb-2">💰 Renta vía Dividendos</h5>
+                                    <div class="text-sm text-blue-700 space-y-1">
+                                        <p><strong>Fórmula:</strong> (Capital Final × TEA ÷ 2) ÷ 12</p>
+                                        <p><strong>Datos utilizados:</strong></p>
+                                        <ul class="list-disc list-inside ml-4 space-y-1">
+                                            <li>Capital Final: $${resultado.capital_inicial.toFixed(2)} (de Módulo A)</li>
+                                            <li>TEA de Retiro: ${resultado.tea_retiro.toFixed(2)}%</li>
+                                            <li>Porcentaje de Dividendos: La mitad (50%) de la TEA anual</li>
+                                            <li>Impuesto: ${resultado.tipo_impuesto === 'extranjera' ? '29.5%' : '5%'} sobre dividendos</li>
+                                        </ul>
+                                        <p class="mt-2"><strong>Resultado:</strong> $${resultado.pension_mensual_neta.toFixed(2)} mensuales (neto de impuestos)</p>
+                                        <p class="text-xs text-blue-600 mt-1">* El capital principal se mantiene intacto, solo se retiran los dividendos generados</p>
                                     </div>
                                 </div>
                                 ` : `
