@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Simulador Financiero de Jubilación{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Theme System -->
+    <script>
+        // Theme management
+        const theme = {
+            init() {
+                this.setTheme(this.getStoredTheme() || 'light');
+                this.createThemeToggle();
+            },
+
+            getStoredTheme() {
+                return localStorage.getItem('theme');
+            },
+
+            setStoredTheme(theme) {
+                localStorage.setItem('theme', theme);
+            },
+
+            setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                this.setStoredTheme(theme);
+                this.updateToggleButton(theme);
+            },
+
+            toggleTheme() {
+                const isDark = document.documentElement.classList.contains('dark');
+                const newTheme = isDark ? 'light' : 'dark';
+                this.setTheme(newTheme);
+            },
+
+            createThemeToggle() {
+                const toggle = document.createElement('button');
+                toggle.id = 'theme-toggle';
+                toggle.className = 'fixed bottom-6 right-6 z-50 p-3 rounded-full bg-white dark:bg-secondary-800 shadow-lg border border-secondary-200 dark:border-secondary-700 hover:shadow-xl transition-all duration-300 md:top-4 md:bottom-auto';
+                toggle.innerHTML = '<i class="fas fa-moon text-secondary-600 dark:text-secondary-300 text-lg"></i>';
+                toggle.title = 'Cambiar tema';
+
+                toggle.addEventListener('click', () => this.toggleTheme());
+
+                document.body.appendChild(toggle);
+            },
+
+            updateToggleButton(theme) {
+                const toggle = document.getElementById('theme-toggle');
+                if (toggle) {
+                    const icon = toggle.querySelector('i');
+                    if (theme === 'dark') {
+                        icon.className = 'fas fa-sun text-yellow-500 text-lg';
+                        toggle.title = 'Cambiar a modo claro';
+                    } else {
+                        icon.className = 'fas fa-moon text-secondary-600 text-lg';
+                        toggle.title = 'Cambiar a modo oscuro';
+                    }
+                }
+            }
+        };
+
+        // Initialize theme on load
+        document.addEventListener('DOMContentLoaded', () => theme.init());
+
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        secondary: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    {% block head %}{% endblock %}
+</head>
+
+<body class="bg-secondary-50 dark:bg-secondary-900 font-sans antialiased transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-secondary-800 shadow-sm border-b border-secondary-200 dark:border-secondary-700 sticky top-0 z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{{ url_for('main.index') }}"
+                        class="flex items-center text-secondary-900 dark:text-secondary-100 font-bold text-xl hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                        <div class="bg-primary-600 text-white p-2 rounded-lg mr-3">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <span class="hidden sm:block">Simulador Financiero</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="{{ url_for('main.index') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        <i class="fas fa-home mr-2"></i> Inicio
+                    </a>
+                    <a href="{{ url_for('main.cartera') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        <i class="fas fa-wallet mr-2"></i> Cartera
+                    </a>
+                    <a href="{{ url_for('main.jubilacion') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        <i class="fas fa-piggy-bank mr-2"></i> Jubilación
+                    </a>
+                    <a href="{{ url_for('main.bonos') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        <i class="fas fa-coins mr-2"></i> Bonos
+                    </a>
+                    <a href="{{ url_for('main.escenarios_sensibilidad') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        <i class="fas fa-chart-line mr-2"></i> Escenarios
+                    </a>
+                    <a href="{{ url_for('main.modulo_inflacion') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        <i class="fas fa-chart-line mr-2"></i> Inflación
+                    </a>
+                    <a href="{{ url_for('main.comparador_estrategias') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                        <i class="fas fa-balance-scale mr-2"></i> Comparador
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button type="button"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 p-2 rounded-lg transition-all duration-300 hamburger-menu"
+                        id="mobile-menu-button">
+                        <div class="hamburger-lines">
+                            <span class="line line1"></span>
+                            <span class="line line2"></span>
+                            <span class="line line3"></span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div class="md:hidden hidden border-t border-secondary-200 dark:border-secondary-700" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 bg-white dark:bg-secondary-800">
+                    <a href="{{ url_for('main.index') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        <i class="fas fa-home mr-3"></i> Inicio
+                    </a>
+                    <a href="{{ url_for('main.cartera') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        <i class="fas fa-wallet mr-3"></i> Cartera
+                    </a>
+                    <a href="{{ url_for('main.jubilacion') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        <i class="fas fa-piggy-bank mr-3"></i> Jubilación
+                    </a>
+                    <a href="{{ url_for('main.bonos') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        <i class="fas fa-coins mr-3"></i> Bonos
+                    </a>
+                    <a href="{{ url_for('main.escenarios_sensibilidad') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        <i class="fas fa-chart-line mr-3"></i> Escenarios
+                    </a>
+                    <a href="{{ url_for('main.modulo_inflacion') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        <i class="fas fa-chart-line mr-3"></i> Inflación
+                    </a>
+                    <a href="{{ url_for('main.comparador_estrategias') }}"
+                        class="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors flex items-center">
+                        <i class="fas fa-balance-scale mr-3"></i> Comparador
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="mb-6">
+                {% for category, message in messages %}
+                <div class="p-4 rounded-xl shadow-sm border-l-4
+                                {% if category == 'error' %}bg-red-50 border-red-500 text-red-800
+                                {% else %}bg-green-50 border-green-500 text-green-800{% endif %}">
+                    <div class="flex items-center">
+                        <i class="fas
+                                        {% if category == 'error' %}fa-exclamation-triangle text-red-500
+                                        {% else %}fa-check-circle text-green-500{% endif %} mr-3"></i>
+                        <div class="flex-1">{{ message }}</div>
+                        <button type="button" class="text-gray-400 hover:text-gray-600 ml-4"
+                            onclick="this.parentElement.parentElement.style.display='none'">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-secondary-900 text-secondary-300 border-t border-secondary-800">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4">Simulador Financiero</h3>
+                    <p class="text-sm text-secondary-400">
+                        Herramienta profesional para proyección de jubilación y valoración de bonos.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Módulos</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{{ url_for('main.cartera') }}"
+                                class="hover:text-white transition-colors">Crecimiento de Cartera</a></li>
+                        <li><a href="{{ url_for('main.jubilacion') }}"
+                                class="hover:text-white transition-colors">Proyección de Jubilación</a></li>
+                        <li><a href="{{ url_for('main.bonos') }}" class="hover:text-white transition-colors">Valoración
+                                de Bonos</a></li>
+                        <li><a href="{{ url_for('main.escenarios_sensibilidad') }}"
+                                class="hover:text-white transition-colors">Análisis de Escenarios</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Información</h4>
+                    <ul class="space-y-2 text-sm text-secondary-400">
+                        <li>Moneda: USD (Dólares)</li>
+                        <li>&copy; 2025 Todos los derechos reservados</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/graficas.js') }}"></script>
+
+    <!-- Mobile menu toggle -->
+    <script>
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const hamburgerMenu = document.querySelector('.hamburger-menu');
+
+        let isMenuOpen = false;
+
+        mobileMenuButton?.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+
+            // Toggle hamburger animation
+            hamburgerMenu.classList.toggle('open');
+
+            // Toggle mobile menu with animation
+            if (isMenuOpen) {
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.classList.add('animate-slide-down');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+            } else {
+                mobileMenu.classList.add('animate-slide-up');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.classList.remove('animate-slide-down', 'animate-slide-up');
+                }, 300);
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (isMenuOpen && !mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                mobileMenuButton.click();
+            }
+        });
+
+        // Close menu on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isMenuOpen) {
+                mobileMenuButton.click();
+            }
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

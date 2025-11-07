@@ -1,0 +1,542 @@
+{% extends "base.html" %}
+
+{% block title %}Comparador de Estrategias de Inversión - Simulador Financiero{% endblock %}
+
+{% block head %}
+<style>
+.strategy-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.strategy-card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.strategy-card.selected {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.strategy-card .strategy-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.strategy-conservative .strategy-icon {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #166534;
+}
+
+.strategy-moderate .strategy-icon {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+}
+
+.strategy-aggressive .strategy-icon {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+}
+
+.strategy-custom .strategy-icon {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    color: #3730a3;
+}
+
+.strategy-balanced .strategy-icon {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+    color: #6b21a8;
+}
+
+.strategy-tech .strategy-icon {
+    background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+    color: #0e7490;
+}
+
+.asset-allocation {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.asset-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.asset-item .asset-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.asset-item .asset-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.asset-item .asset-details h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.asset-item .asset-details p {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.asset-item .asset-weight {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.comparison-results {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.strategy-result {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.strategy-result:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.strategy-result.best {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.strategy-result .strategy-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.strategy-result .strategy-header .strategy-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.strategy-result .strategy-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.strategy-result .metric {
+    text-align: center;
+}
+
+.strategy-result .metric .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.strategy-result .metric .label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.benchmark-comparison {
+    background: linear-gradient(135deg, #fefefe 0%, #f9fafb 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid #e5e7eb;
+}
+
+.benchmark-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.benchmark-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.benchmark-item .benchmark-name {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.benchmark-item .benchmark-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.benchmark-item .benchmark-change {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.benchmark-item .benchmark-change.positive {
+    color: #10b981;
+}
+
+.benchmark-item .benchmark-change.negative {
+    color: #ef4444;
+}
+
+.risk-analysis {
+    background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid #fdba74;
+}
+
+.risk-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.risk-metric {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid #fed7aa;
+}
+
+.risk-metric .metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #9a3412;
+    margin-bottom: 0.25rem;
+}
+
+.risk-metric .metric-label {
+    font-size: 0.875rem;
+    color: #c2410c;
+}
+
+.rebalancing-options {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid #bae6fd;
+}
+
+.rebalancing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.rebalancing-option {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #bae6fd;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rebalancing-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.rebalancing-option.selected {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.rebalancing-option .option-name {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.rebalancing-option .option-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.strategy-customization {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.customization-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.control-group {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+}
+
+.control-group h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.control-group .control-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.control-group .control-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.loading-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e5e7eb;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-secondary-900 dark:via-secondary-800 dark:to-secondary-900">
+    <!-- Header -->
+    <div class="bg-white dark:bg-secondary-800 shadow-lg border-b border-secondary-200 dark:border-secondary-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-secondary-900 dark:text-secondary-100 flex items-center">
+                        <i class="fas fa-balance-scale text-blue-600 mr-3"></i>
+                        Comparador de Estrategias de Inversión
+                    </h1>
+                    <p class="text-secondary-600 dark:text-secondary-400 mt-2">
+                        Compara diferentes estrategias de inversión y encuentra la que mejor se adapte a tus objetivos
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Capital Base</p>
+                        <p class="text-lg font-bold text-primary-600" id="base-capital">$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Strategy Selection -->
+        <div class="bg-white dark:bg-secondary-800 rounded-2xl shadow-xl p-8 mb-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-chart-pie text-blue-600 text-2xl mr-3"></i>
+                <h2 class="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                    Selecciona Estrategias a Comparar
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Conservative Strategy -->
+                <div class="strategy-card bg-white dark:bg-secondary-700 rounded-xl p-6 border-2 border-secondary-200 dark:border-secondary-600" data-strategy="conservative">
+                    <div class="strategy-conservative strategy-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">Conservadora</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400 text-sm mb-4">
+                        Enfoque en preservación de capital con bajo riesgo
+                    </p>
+                    <div class="asset-allocation">
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                                    <i class="fas fa-piggy-bank text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Bonos</h4>
+                                    <p>Conservador</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">70%</div>
+                        </div>
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+                                    <i class="fas fa-chart-line text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Acciones</h4>
+                                    <p>Crecimiento</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">30%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Moderate Strategy -->
+                <div class="strategy-card bg-white dark:bg-secondary-700 rounded-xl p-6 border-2 border-secondary-200 dark:border-secondary-600" data-strategy="moderate">
+                    <div class="strategy-moderate strategy-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">Moderada</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400 text-sm mb-4">
+                        Balance entre crecimiento y estabilidad
+                    </p>
+                    <div class="asset-allocation">
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                                    <i class="fas fa-piggy-bank text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Bonos</h4>
+                                    <p>Conservador</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">50%</div>
+                        </div>
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+                                    <i class="fas fa-chart-line text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Acciones</h4>
+                                    <p>Crecimiento</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">50%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aggressive Strategy -->
+                <div class="strategy-card bg-white dark:bg-secondary-700 rounded-xl p-6 border-2 border-secondary-200 dark:border-secondary-600" data-strategy="aggressive">
+                    <div class="strategy-aggressive strategy-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">Agresiva</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400 text-sm mb-4">
+                        Enfoque en crecimiento máximo con alto riesgo
+                    </p>
+                    <div class="asset-allocation">
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                                    <i class="fas fa-piggy-bank text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Bonos</h4>
+                                    <p>Conservador</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">20%</div>
+                        </div>
+                        <div class="asset-item">
+                            <div class="asset-info">

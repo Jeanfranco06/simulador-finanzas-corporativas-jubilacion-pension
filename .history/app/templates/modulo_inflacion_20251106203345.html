@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Módulo de Inflación y Ajustes Automáticos - Simulador Financiero{% endblock %}
+
+{% block head %}
+<style>
+.inflation-controls {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid #cbd5e1;
+}
+
+.adjustment-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.adjustment-card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.inflation-chart {
+    position: relative;
+    height: 300px;
+    background: linear-gradient(to top, rgba(239, 68, 68, 0.1) 0%, rgba(34, 197, 94, 0.1) 100%);
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.adjustment-timeline {
+    position: relative;
+    height: 200px;
+    background: linear-gradient(to right, #f1f5f9 0%, #e2e8f0 100%);
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+}
+
+.timeline-marker {
+    position: absolute;
+    width: 4px;
+    background: #3b82f6;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.timeline-label {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
+}
+
+.real-vs-nominal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.real-vs-nominal .metric-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.real-vs-nominal .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.real-vs-nominal .metric-card.real {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border-color: #86efac;
+}
+
+.real-vs-nominal .metric-card.nominal {

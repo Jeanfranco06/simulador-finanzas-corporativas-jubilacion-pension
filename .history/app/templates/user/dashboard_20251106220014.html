@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Tu Retiro Seguro{% endblock %}
+
+{% block head %}
+<style>
+.achievement-card {
+    transition: all 0.3s ease;
+}
+.achievement-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stats-card.completed {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring circle {
+    transition: stroke-dasharray 0.3s ease;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-secondary-50 dark:bg-secondary-900">
+    <!-- Header -->
+    <div class="bg-white dark:bg-secondary-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-secondary-900 dark:text-secondary-100">
+                        <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
+                        Mi Dashboard
+                    </h1>
+                    <p class="text-secondary-600 dark:text-secondary-400 mt-1">
+                        Tu progreso y actividad en la plataforma
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Usuario Anónimo</p>
+                        <p class="text-xs text-secondary-400 dark:text-secondary-500">
+                            ID: <span id="user-id" class="font-mono">-</span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-primary-600 dark:text-primary-400 text-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-6">
+                <div class="flex items-center">
+                    <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                        <i class="fas fa-calculator text-blue-600 dark:text-blue-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Simulaciones</p>
+                        <p class="text-2xl font-bold text-secondary-900 dark:text-secondary-100" id="total-simulations">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-6">
+                <div class="flex items-center">
+                    <div class="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+                        <i class="fas fa-share text-green-600 dark:text-green-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Plantillas</p>
+                        <p class="text-2xl font-bold text-secondary-900 dark:text-secondary-100" id="total-templates">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-6">
+                <div class="flex items-center">
+                    <div class="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                        <i class="fas fa-trophy text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Logros</p>
+                        <p class="text-2xl font-bold text-secondary-900 dark:text-secondary-100" id="total-achievements">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-6">
+                <div class="flex items-center">
+                    <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                        <i class="fas fa-calendar text-purple-600 dark:text-purple-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Miembro desde</p>
+                        <p class="text-sm font-bold text-secondary-900 dark:text-secondary-100" id="member-since">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Achievements -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Recent Simulations -->
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700">
+                <div class="p-6 border-b border-secondary-200 dark:border-secondary-700">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-secondary-900 dark:text-secondary-100">
+                            <i class="fas fa-history text-primary-600 mr-2"></i>
+                            Actividad Reciente
+                        </h2>
+                        <a href="{{ url_for('main.user_simulations') }}"
+                           class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium">
+                            Ver todas <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="recent-simulations" class="space-y-4">
+                        <div class="animate-pulse">
+                            <div class="h-4 bg-secondary-200 dark:bg-secondary-700 rounded w-3/4 mb-2"></div>

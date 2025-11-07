@@ -1,0 +1,642 @@
+{% extends "base.html" %}
+
+{% block title %}Escenarios de Sensibilidad - Simulador Financiero{% endblock %}
+
+{% block head %}
+<style>
+.sensitivity-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, #ef4444 0%, #eab308 50%, #22c55e 100%);
+    outline: none;
+    cursor: pointer;
+}
+
+.sensitivity-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #3b82f6;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+.sensitivity-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.sensitivity-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #3b82f6;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.scenario-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.scenario-card.best {
+    border-color: #22c55e;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+}
+
+.scenario-card.worst {
+    border-color: #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+}
+
+.risk-meter {
+    position: relative;
+    height: 20px;
+    background: linear-gradient(to right, #22c55e 0%, #eab308 50%, #ef4444 100%);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.risk-indicator {
+    position: absolute;
+    top: 0;
+    width: 4px;
+    height: 20px;
+    background: #1f2937;
+    border-radius: 2px;
+    transition: left 0.5s ease;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
+.comparison-chart {
+    position: relative;
+    height: 300px;
+}
+
+.variable-impact {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.variable-impact .impact-bar {
+    flex: 1;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    margin: 0 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.variable-impact .impact-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.variable-impact.positive .impact-fill {
+    background: linear-gradient(to right, #22c55e, #16a34a);
+}
+
+.variable-impact.negative .impact-fill {
+    background: linear-gradient(to right, #ef4444, #dc2626);
+}
+
+.probability-distribution {
+    position: relative;
+    height: 200px;
+    background: linear-gradient(to top, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.distribution-curve {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    fill: rgba(59, 130, 246, 0.3);
+    stroke: #3b82f6;
+    stroke-width: 2;
+}
+
+.confidence-interval {
+    position: absolute;
+    bottom: 0;
+    height: 60%;
+    background: rgba(59, 130, 246, 0.2);
+    border-top: 2px solid #3b82f6;
+    border-bottom: 2px solid #3b82f6;
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-secondary-900 dark:via-secondary-800 dark:to-secondary-900">
+    <!-- Header -->
+    <div class="bg-white dark:bg-secondary-800 shadow-lg border-b border-secondary-200 dark:border-secondary-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-secondary-900 dark:text-secondary-100 flex items-center">
+                        <i class="fas fa-chart-line text-primary-600 mr-3"></i>
+                        Escenarios de Sensibilidad
+                    </h1>
+                    <p class="text-secondary-600 dark:text-secondary-400 mt-2">
+                        Analiza cómo cambios en variables económicas afectan tus proyecciones financieras
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Escenario Base</p>
+                        <p class="text-lg font-bold text-primary-600" id="base-capital">$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Sensitivity Controls -->
+        <div class="bg-white dark:bg-secondary-800 rounded-2xl shadow-xl p-8 mb-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-sliders-h text-primary-600 text-2xl mr-3"></i>
+                <h2 class="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                    Controles de Sensibilidad
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- TEA Control -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-percentage text-blue-600 text-xl mr-2"></i>
+                        <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100">Tasa de Interés (TEA)</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <input type="range" id="tea-slider" class="sensitivity-slider" min="-50" max="50" value="0" step="1">
+                        <div class="flex justify-between text-sm text-blue-700 dark:text-blue-300">
+                            <span>-50%</span>
+                            <span id="tea-value" class="font-bold">0%</span>
+                            <span>+50%</span>
+                        </div>
+                        <p class="text-xs text-blue-600 dark:text-blue-400">
+                            Modifica la tasa efectiva anual para ver el impacto en el crecimiento
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Aporte Control -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 rounded-xl border border-green-200 dark:border-green-800">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-dollar-sign text-green-600 text-xl mr-2"></i>
+                        <h3 class="text-lg font-semibold text-green-900 dark:text-green-100">Aportes Periódicos</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <input type="range" id="aporte-slider" class="sensitivity-slider" min="-50" max="50" value="0" step="1">
+                        <div class="flex justify-between text-sm text-green-700 dark:text-green-300">
+                            <span>-50%</span>
+                            <span id="aporte-value" class="font-bold">0%</span>
+                            <span>+50%</span>
+                        </div>
+                        <p class="text-xs text-green-600 dark:text-green-400">
+                            Ajusta los aportes periódicos para analizar diferentes niveles de ahorro
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Inflación Control -->
+                <div class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-6 rounded-xl border border-orange-200 dark:border-orange-800">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-chart-area text-orange-600 text-xl mr-2"></i>
+                        <h3 class="text-lg font-semibold text-orange-900 dark:text-orange-100">Inflación</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <input type="range" id="inflacion-slider" class="sensitivity-slider" min="-10" max="20" value="0" step="0.5">
+                        <div class="flex justify-between text-sm text-orange-700 dark:text-orange-300">
+                            <span>-10%</span>
+                            <span id="inflacion-value" class="font-bold">0%</span>
+                            <span>+20%</span>
+                        </div>
+                        <p class="text-xs text-orange-600 dark:text-orange-400">
+                            Simula el efecto de la inflación en el poder adquisitivo futuro
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reset Button -->
+            <div class="flex justify-center mt-8">
+                <button id="reset-btn" class="bg-secondary-600 hover:bg-secondary-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center">
+                    <i class="fas fa-undo mr-2"></i>
+                    Restablecer Valores Base
+                </button>
+            </div>
+        </div>
+
+        <!-- Real-time Results -->
+        <div class="bg-white dark:bg-secondary-800 rounded-2xl shadow-xl p-8 mb-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-tachometer-alt text-primary-600 text-2xl mr-3"></i>
+                <h2 class="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                    Resultados en Tiempo Real
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 p-6 rounded-xl text-center">
+                    <i class="fas fa-coins text-primary-600 text-2xl mb-2"></i>
+                    <h3 class="text-lg font-bold text-primary-900 dark:text-primary-100" id="capital-final">$0.00</h3>
+                    <p class="text-sm text-primary-700 dark:text-primary-300">Capital Final</p>
+                </div>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 rounded-xl text-center">
+                    <i class="fas fa-piggy-bank text-green-600 text-2xl mb-2"></i>
+                    <h3 class="text-lg font-bold text-green-900 dark:text-green-100" id="aportes-totales">$0.00</h3>
+                    <p class="text-sm text-green-700 dark:text-green-300">Aportes Totales</p>
+                </div>
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 rounded-xl text-center">
+                    <i class="fas fa-chart-line text-blue-600 text-2xl mb-2"></i>
+                    <h3 class="text-lg font-bold text-blue-900 dark:text-blue-100" id="ganancia-bruta">$0.00</h3>
+                    <p class="text-sm text-blue-700 dark:text-blue-300">Ganancia Bruta</p>
+                </div>
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-6 rounded-xl text-center">
+                    <i class="fas fa-percentage text-purple-600 text-2xl mb-2"></i>
+                    <h3 class="text-lg font-bold text-purple-900 dark:text-purple-100" id="rentabilidad">0.00%</h3>
+                    <p class="text-sm text-purple-700 dark:text-purple-300">Rentabilidad</p>
+                </div>
+            </div>
+
+            <!-- Variable Impact Analysis -->
+            <div class="bg-secondary-50 dark:bg-secondary-700/50 rounded-xl p-6">
+                <h3 class="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-6 flex items-center">
+                    <i class="fas fa-balance-scale text-primary-600 mr-2"></i>
+                    Impacto de Variables
+                </h3>
+                <div id="impact-analysis" class="space-y-4">
+                    <!-- Impact bars will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Analysis Scenarios -->
+        <div class="bg-white dark:bg-secondary-800 rounded-2xl shadow-xl p-8 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                        Análisis de Riesgo
+                    </h2>
+                </div>
+                <button id="analizar-riesgo-btn" class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    Analizar Escenarios
+                </button>
+            </div>
+
+            <div id="risk-analysis-results" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Scenario cards will be populated by JavaScript -->
+                </div>
+
+                <!-- Risk Visualization -->
+                <div class="bg-gradient-to-br from-red-50 to-yellow-50 dark:from-red-900/20 dark:to-yellow-900/20 rounded-xl p-6 mb-6">
+                    <h3 class="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-4 flex items-center">
+                        <i class="fas fa-wave-square text-red-600 mr-2"></i>
+                        Distribución de Probabilidades
+                    </h3>
+                    <div class="probability-distribution">
+                        <svg id="distribution-chart" class="distribution-curve" viewBox="0 0 400 200" preserveAspectRatio="none">
+                            <!-- Distribution curve will be drawn by JavaScript -->
+                        </svg>
+                        <div class="confidence-interval" style="left: 20%; width: 60%;"></div>
+                    </div>
+                    <div class="flex justify-between mt-4 text-sm text-secondary-600 dark:text-secondary-400">
+                        <span>Percentil 10: <span id="percentil-10" class="font-bold text-red-600">$0.00</span></span>
+                        <span>Promedio: <span id="capital-promedio" class="font-bold text-yellow-600">$0.00</span></span>
+                        <span>Percentil 90: <span id="percentil-90" class="font-bold text-green-600">$0.00</span></span>
+                    </div>
+                </div>
+
+                <!-- Risk Meter -->
+                <div class="bg-secondary-50 dark:bg-secondary-700/50 rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-4 flex items-center">
+                        <i class="fas fa-tachometer-alt text-primary-600 mr-2"></i>
+                        Nivel de Riesgo Estimado
+                    </h3>
+                    <div class="risk-meter">
+                        <div id="risk-indicator" class="risk-indicator"></div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-sm text-secondary-600 dark:text-secondary-400">
+                        <span>Bajo Riesgo</span>
+                        <span id="risk-level" class="font-bold text-primary-600">Riesgo Moderado</span>
+                        <span>Alto Riesgo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="risk-loading" class="text-center py-12 hidden">
+                <div class="animate-pulse-slow">
+                    <i class="fas fa-chart-line text-primary-600 text-4xl mb-4"></i>
+                    <p class="text-lg text-secondary-600 dark:text-secondary-400">Analizando escenarios de riesgo...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-8 text-white">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-lightbulb text-yellow-300 text-2xl mr-3"></i>
+                <h2 class="text-2xl font-bold">Recomendaciones</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">💡 Consejos de Optimización</h3>
+                    <ul class="space-y-2 text-primary-100">
+                        <li id="recommendation-1">• Aumenta tus aportes mensuales para maximizar el crecimiento</li>
+                        <li id="recommendation-2">• Diversifica tus inversiones para reducir volatilidad</li>
+                        <li id="recommendation-3">• Considera el impacto de la inflación en tus metas</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">🎯 Próximos Pasos</h3>
+                    <ul class="space-y-2 text-primary-100">
+                        <li>• Revisa regularmente tus proyecciones</li>
+                        <li>• Ajusta tu estrategia según cambios económicos</li>
+                        <li>• Considera consultar con un asesor financiero</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-secondary-800 rounded-xl p-8 text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+        <p class="text-secondary-900 dark:text-secondary-100">Calculando escenario...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let baseResults = null;
+let currentResults = null;
+let riskAnalysisData = null;
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadBaseResults();
+    setupEventListeners();
+});
+
+function loadBaseResults() {
+    // Load base portfolio results from session
+    fetch('/api/calcular-escenario', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            baseResults = data.resultado;
+            currentResults = {...baseResults};
+            updateDisplay();
+        }
+    })
+    .catch(error => {
+        console.error('Error loading base results:', error);
+    });
+}
+
+function setupEventListeners() {
+    // Slider event listeners
+    document.getElementById('tea-slider').addEventListener('input', handleSliderChange);
+    document.getElementById('aporte-slider').addEventListener('input', handleSliderChange);
+    document.getElementById('inflacion-slider').addEventListener('input', handleSliderChange);
+
+    // Reset button
+    document.getElementById('reset-btn').addEventListener('click', resetSliders);
+
+    // Risk analysis button
+    document.getElementById('analizar-riesgo-btn').addEventListener('click', performRiskAnalysis);
+}
+
+function handleSliderChange(event) {
+    const sliderId = event.target.id;
+    const value = parseFloat(event.target.value);
+
+    // Update display value
+    updateSliderValue(sliderId, value);
+
+    // Calculate new scenario
+    calculateScenario();
+}
+
+function updateSliderValue(sliderId, value) {
+    let displayElement;
+    let formattedValue;
+
+    switch(sliderId) {
+        case 'tea-slider':
+            displayElement = document.getElementById('tea-value');
+            formattedValue = `${value > 0 ? '+' : ''}${value}%`;
+            break;
+        case 'aporte-slider':
+            displayElement = document.getElementById('aporte-value');
+            formattedValue = `${value > 0 ? '+' : ''}${value}%`;
+            break;
+        case 'inflacion-slider':
+            displayElement = document.getElementById('inflacion-value');
+            formattedValue = `${value > 0 ? '+' : ''}${value}%`;
+            break;
+    }
+
+    if (displayElement) {
+        displayElement.textContent = formattedValue;
+    }
+}
+
+function calculateScenario() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    loadingOverlay.classList.remove('hidden');
+
+    const teaChange = parseFloat(document.getElementById('tea-slider').value);
+    const aporteChange = parseFloat(document.getElementById('aporte-slider').value);
+    const inflacionChange = parseFloat(document.getElementById('inflacion-slider').value);
+
+    fetch('/api/calcular-escenario', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            tea_change: teaChange,
+            aporte_change: aporteChange,
+            inflacion_change: inflacionChange
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        loadingOverlay.classList.add('hidden');
+
+        if (data.success) {
+            currentResults = data.resultado;
+            updateDisplay();
+            updateImpactAnalysis();
+        } else {
+            console.error('Error calculating scenario:', data.error);
+        }
+    })
+    .catch(error => {
+        loadingOverlay.classList.add('hidden');
+        console.error('Error:', error);
+    });
+}
+
+function updateDisplay() {
+    if (!currentResults) return;
+
+    // Update main metrics
+    document.getElementById('capital-final').textContent = formatCurrency(currentResults.capital_final);
+    document.getElementById('aportes-totales').textContent = formatCurrency(currentResults.aportes_totales);
+    document.getElementById('ganancia-bruta').textContent = formatCurrency(currentResults.ganancia_bruta);
+    document.getElementById('rentabilidad').textContent = `${currentResults.rentabilidad.toFixed(2)}%`;
+
+    // Update base capital display
+    if (baseResults) {
+        document.getElementById('base-capital').textContent = formatCurrency(baseResults.capital_final);
+    }
+}
+
+function updateImpactAnalysis() {
+    if (!baseResults || !currentResults) return;
+
+    const impactAnalysis = document.getElementById('impact-analysis');
+    const teaChange = parseFloat(document.getElementById('tea-slider').value);
+    const aporteChange = parseFloat(document.getElementById('aporte-slider').value);
+    const inflacionChange = parseFloat(document.getElementById('inflacion-slider').value);
+
+    const impacts = [
+        {
+            name: 'TEA',
+            change: teaChange,
+            impact: calculateVariableImpact('tea', teaChange)
+        },
+        {
+            name: 'Aportes',
+            change: aporteChange,
+            impact: calculateVariableImpact('aportes', aporteChange)
+        },
+        {
+            name: 'Inflación',
+            change: inflacionChange,
+            impact: calculateVariableImpact('inflacion', inflacionChange)
+        }
+    ];
+
+    impactAnalysis.innerHTML = impacts.map(impact => `
+        <div class="variable-impact ${impact.change >= 0 ? 'positive' : 'negative'}">
+            <div class="flex items-center justify-between w-24">
+                <span class="font-medium text-secondary-900 dark:text-secondary-100">${impact.name}</span>
+                <span class="text-sm font-bold ${impact.change >= 0 ? 'text-green-600' : 'text-red-600'}">
+                    ${impact.change > 0 ? '+' : ''}${impact.change}%
+                </span>
+            </div>
+            <div class="impact-bar">
+                <div class="impact-fill" style="width: ${Math.min(Math.abs(impact.impact), 100)}%"></div>
+            </div>
+            <div class="text-sm text-secondary-600 dark:text-secondary-400 w-20 text-right">
+                ${impact.impact > 0 ? '+' : ''}${impact.impact.toFixed(1)}%
+            </div>
+        </div>
+    `).join('');
+}
+
+function calculateVariableImpact(variable, changePercent) {
+    if (!baseResults || !currentResults) return 0;
+
+    const baseValue = baseResults.capital_final;
+    const newValue = currentResults.capital_final;
+    const actualChange = ((newValue - baseValue) / baseValue) * 100;
+
+    // Estimate impact per variable (simplified)
+    const impactMultiplier = {
+        'tea': 0.7,
+        'aportes': 0.8,
+        'inflacion': 0.3
+    };
+
+    return actualChange * (impactMultiplier[variable] || 1);
+}
+
+function resetSliders() {
+    document.getElementById('tea-slider').value = 0;
+    document.getElementById('aporte-slider').value = 0;
+    document.getElementById('inflacion-slider').value = 0;
+
+    updateSliderValue('tea-slider', 0);
+    updateSliderValue('aporte-slider', 0);
+    updateSliderValue('inflacion-slider', 0);
+
+    currentResults = {...baseResults};
+    updateDisplay();
+    updateImpactAnalysis();
+}
+
+function performRiskAnalysis() {
+    const riskLoading = document.getElementById('risk-loading');
+    const riskResults = document.getElementById('risk-analysis-results');
+    const analyzeBtn = document.getElementById('analizar-riesgo-btn');
+
+    // Show loading
+    riskLoading.classList.remove('hidden');
+    riskResults.classList.add('hidden');
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analizando...';
+
+    fetch('/api/analisis-riesgo', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        riskLoading.classList.add('hidden');
+
+        if (data.success) {
+            riskAnalysisData = data.resultados;
+            displayRiskAnalysis(data.resultados);
+            riskResults.classList.remove('hidden');
+        } else {
+            console.error('Error in risk analysis:', data.error);
+        }
+    })
+    .catch(error => {
+        riskLoading.classList.add('hidden');
+        console.error('Error:', error);

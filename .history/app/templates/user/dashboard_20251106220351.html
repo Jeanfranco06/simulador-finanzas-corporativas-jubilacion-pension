@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Tu Retiro Seguro{% endblock %}
+
+{% block head %}
+<style>
+.achievement-card {
+    transition: all 0.3s ease;
+}
+.achievement-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stats-card.completed {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring circle {
+    transition: stroke-dasharray 0.3s ease;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-secondary-50 dark:bg-secondary-900">
+    <!-- Header -->
+    <div class="bg-white dark:bg-secondary-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-secondary-900 dark:text-secondary-100">
+                        <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
+                        Mi Dashboard
+                    </h1>
+                    <p class="text-secondary-600 dark:text-secondary-400 mt-1">
+                        Tu progreso y actividad en la plataforma
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Usuario Anónimo</p>
+                        <p class="text-xs text-secondary-400 dark:text-secondary-500">
+                            ID: <span id="user-id" class="font-mono">-</span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-primary-600 dark:text-primary-400 text-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-6">
+                <div class="flex items-center">
+                    <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                        <i class="fas fa-calculator text-blue-600 dark:text-blue-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Simulaciones</p>
+                        <p class="text-2xl font-bold text-secondary-900 dark:text-secondary-100" id="total-simulations">-</p>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-6">
+                <div class="flex items-center">
+                    <div class="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                        <i class="fas fa-trophy text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Logros</p>
+                        <p class="text-2xl font-bold text-secondary-900 dark:text-secondary-100" id="total-achievements">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-6">
+                <div class="flex items-center">
+                    <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                        <i class="fas fa-calendar text-purple-600 dark:text-purple-400 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Miembro desde</p>
+                        <p class="text-sm font-bold text-secondary-900 dark:text-secondary-100" id="member-since">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Achievements -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Recent Simulations -->
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700">
+                <div class="p-6 border-b border-secondary-200 dark:border-secondary-700">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-secondary-900 dark:text-secondary-100">
+                            <i class="fas fa-history text-primary-600 mr-2"></i>
+                            Actividad Reciente
+                        </h2>
+                        <a href="{{ url_for('main.user_simulations') }}"
+                           class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium">
+                            Ver todas <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="recent-simulations" class="space-y-4">
+                        <div class="animate-pulse">
+                            <div class="h-4 bg-secondary-200 dark:bg-secondary-700 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-secondary-200 dark:bg-secondary-700 rounded w-1/2"></div>
+                        </div>
+                        <div class="animate-pulse">
+                            <div class="h-4 bg-secondary-200 dark:bg-secondary-700 rounded w-2/3 mb-2"></div>
+                            <div class="h-3 bg-secondary-200 dark:bg-secondary-700 rounded w-1/3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Achievements -->
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700">
+                <div class="p-6 border-b border-secondary-200 dark:border-secondary-700">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-secondary-900 dark:text-secondary-100">
+                            <i class="fas fa-trophy text-yellow-600 mr-2"></i>
+                            Logros Recientes
+                        </h2>
+                        <a href="{{ url_for('main.user_achievements') }}"
+                           class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium">
+                            Ver todos <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="recent-achievements" class="space-y-4">
+                        <div class="animate-pulse">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-secondary-200 dark:bg-secondary-700 rounded-lg"></div>
+                                <div class="flex-1">
+                                    <div class="h-4 bg-secondary-200 dark:bg-secondary-700 rounded w-2/3 mb-1"></div>
+                                    <div class="h-3 bg-secondary-200 dark:bg-secondary-700 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-8 bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-6">
+            <h2 class="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-6">
+                <i class="fas fa-bolt text-primary-600 mr-2"></i>
+                Acciones Rápidas
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="{{ url_for('main.cartera') }}"
+                   class="flex items-center p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors">
+                    <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-wallet text-primary-600 dark:text-primary-400"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-secondary-900 dark:text-secondary-100">Nueva Simulación</p>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400">Cartera de inversión</p>
+                    </div>
+                </a>
+
+                <a href="{{ url_for('main.social_comparison') }}"
+                   class="flex items-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors">
+                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-users text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-secondary-900 dark:text-secondary-100">Comparación</p>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400">Con la comunidad</p>
+                    </div>
+                </a>
+
+                <a href="{{ url_for('main.user_achievements') }}"
+                   class="flex items-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors">
+                    <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-trophy text-yellow-600 dark:text-yellow-400"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-secondary-900 dark:text-secondary-100">Logros</p>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400">Ver progreso</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+});
+
+async function loadDashboardData() {
+    try {
+        // Load user profile
+        const profileResponse = await fetch('/api/user/profile');
+        const profileData = await profileResponse.json();
+
+        if (profileData.success) {
+            updateProfileStats(profileData);
+        }
+
+        // Load recent simulations
+        const simulationsResponse = await fetch('/api/simulations');
+        const simulationsData = await simulationsResponse.json();
+
+        if (simulationsData.success) {
+            updateRecentSimulations(simulationsData.simulations.slice(0, 5));
+        }
+
+        // Load achievements
+        const achievementsResponse = await fetch('/api/achievements');
+        const achievementsData = await achievementsResponse.json();
+
+        if (achievementsData.success) {
+            updateRecentAchievements(achievementsData.achievements);
+        }
+
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+function updateProfileStats(data) {
+    document.getElementById('user-id').textContent = data.user.id.substring(0, 8) + '...';
+    document.getElementById('total-simulations').textContent = data.user.total_simulations;
+    document.getElementById('total-achievements').textContent = data.user.total_achievements;
+
+    const createdDate = new Date(data.user.created_at);
+    document.getElementById('member-since').textContent = createdDate.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short'
+    });
+}
+
+function updateRecentSimulations(simulations) {
+    const container = document.getElementById('recent-simulations');
+
+    if (simulations.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-calculator text-secondary-400 text-3xl mb-3"></i>
+                <p class="text-secondary-600 dark:text-secondary-400">No tienes simulaciones aún</p>
+                <a href="{{ url_for('main.cartera') }}" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 mt-2 inline-block">
+                    Crear primera simulación
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = simulations.map(sim => `
+        <div class="flex items-center justify-between p-3 bg-secondary-50 dark:bg-secondary-700/50 rounded-lg">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-${getModuleIcon(sim.module_type)} text-primary-600 dark:text-primary-400 text-sm"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-secondary-900 dark:text-secondary-100 text-sm">${sim.name}</p>
+                    <p class="text-xs text-secondary-600 dark:text-secondary-400">
+                        ${new Date(sim.created_at).toLocaleDateString('es-ES')}
+                    </p>
+                </div>
+            </div>
+            ${sim.is_favorite ? '<i class="fas fa-star text-yellow-500"></i>' : ''}
+        </div>
+    `).join('');
+}
+
+function updateRecentAchievements(achievements) {
+    const container = document.getElementById('recent-achievements');
+    const completedAchievements = achievements.filter(a => a.progress.is_completed).slice(0, 3);
+
+    if (completedAchievements.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-trophy text-secondary-400 text-3xl mb-3"></i>
+                <p class="text-secondary-600 dark:text-secondary-400">No tienes logros aún</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-500 mt-1">Completa simulaciones para ganar logros</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = completedAchievements.map(item => `
+        <div class="flex items-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+            <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center mr-3">
+                <i class="fas fa-${item.achievement.icon} text-yellow-600 dark:text-yellow-400"></i>
+            </div>
+            <div class="flex-1">
+                <p class="font-medium text-secondary-900 dark:text-secondary-100 text-sm">${item.achievement.name}</p>
+                <p class="text-xs text-secondary-600 dark:text-secondary-400">${item.achievement.description}</p>
+            </div>
+            <div class="text-right">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
+                    ${item.achievement.points} pts
+                </span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getModuleIcon(moduleType) {
+    const icons = {
+        'cartera': 'wallet',
+        'jubilacion': 'piggy-bank',
+        'bonos': 'coins',
+        'default': 'calculator'
+    };
+    return icons[moduleType] || icons.default;
+}
+</script>
+{% endblock %}

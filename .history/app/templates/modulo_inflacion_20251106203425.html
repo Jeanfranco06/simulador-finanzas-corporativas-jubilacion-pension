@@ -1,0 +1,765 @@
+{% extends "base.html" %}
+
+{% block title %}Módulo de Inflación y Ajustes Automáticos - Simulador Financiero{% endblock %}
+
+{% block head %}
+<style>
+.inflation-controls {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid #cbd5e1;
+}
+
+.adjustment-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.adjustment-card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.inflation-chart {
+    position: relative;
+    height: 300px;
+    background: linear-gradient(to top, rgba(239, 68, 68, 0.1) 0%, rgba(34, 197, 94, 0.1) 100%);
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.adjustment-timeline {
+    position: relative;
+    height: 200px;
+    background: linear-gradient(to right, #f1f5f9 0%, #e2e8f0 100%);
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+}
+
+.timeline-marker {
+    position: absolute;
+    width: 4px;
+    background: #3b82f6;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.timeline-label {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
+}
+
+.real-vs-nominal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.real-vs-nominal .metric-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.real-vs-nominal .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.real-vs-nominal .metric-card.real {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border-color: #86efac;
+}
+
+.real-vs-nominal .metric-card.nominal {
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+    border-color: #fca5a5;
+}
+
+.inflation-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.inflation-warning .warning-icon {
+    color: #d97706;
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.adjustment-summary {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #0ea5e9;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.adjustment-summary h3 {
+    color: #0c4a6e;
+    margin-bottom: 1rem;
+}
+
+.adjustment-summary .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.adjustment-summary .summary-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #bae6fd;
+}
+
+.adjustment-summary .summary-item .label {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.adjustment-summary .summary-item .value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0c4a6e;
+}
+
+.pension-adjustment {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+    border: 1px solid #a855f7;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.pension-adjustment h3 {
+    color: #6b21a8;
+    margin-bottom: 1rem;
+}
+
+.pension-adjustment .pension-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.pension-adjustment .pension-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid #d8b4fe;
+}
+
+.pension-adjustment .pension-item .label {
+    font-size: 0.875rem;
+    color: #7c3aed;
+    margin-bottom: 0.5rem;
+}
+
+.pension-adjustment .pension-item .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #6b21a8;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-secondary-900 dark:via-secondary-800 dark:to-secondary-900">
+    <!-- Header -->
+    <div class="bg-white dark:bg-secondary-800 shadow-lg border-b border-secondary-200 dark:border-secondary-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-secondary-900 dark:text-secondary-100 flex items-center">
+                        <i class="fas fa-chart-line text-orange-600 mr-3"></i>
+                        Módulo de Inflación y Ajustes Automáticos
+                    </h1>
+                    <p class="text-secondary-600 dark:text-secondary-400 mt-2">
+                        Simulaciones realistas que incorporan el efecto de la inflación en tus finanzas
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Escenario Base</p>
+                        <p class="text-lg font-bold text-primary-600" id="base-capital">$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Inflation Controls -->
+        <div class="bg-white dark:bg-secondary-800 rounded-2xl shadow-xl p-8 mb-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-sliders-h text-orange-600 text-2xl mr-3"></i>
+                <h2 class="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                    Controles de Inflación y Ajustes
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Inflation Rate Control -->
+                <div class="inflation-controls p-6 rounded-xl border">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-percentage text-red-600 text-xl mr-2"></i>
+                        <h3 class="text-lg font-semibold text-secondary-900 dark:text-secondary-100">Tasa de Inflación</h3>
+                        <button class="help-btn ml-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200" data-tooltip="inflacion">
+                            <i class="fas fa-question-circle text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <input type="range" id="inflation-rate" class="sensitivity-slider" min="0" max="15" value="3" step="0.1">
+                        <div class="flex justify-between text-sm text-secondary-700 dark:text-secondary-300">
+                            <span>0%</span>
+                            <span id="inflation-value" class="font-bold">3.0%</span>
+                            <span>15%</span>
+                        </div>
+                        <p class="text-xs text-secondary-600 dark:text-secondary-400">
+                            Tasa anual de inflación esperada
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Contribution Scaling Control -->
+                <div class="inflation-controls p-6 rounded-xl border">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-arrow-up text-green-600 text-xl mr-2"></i>
+                        <h3 class="text-lg font-semibold text-secondary-900 dark:text-secondary-100">Escalado de Aportes</h3>
+                        <button class="help-btn ml-2 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200" data-tooltip="escalado">
+                            <i class="fas fa-question-circle text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <input type="range" id="contribution-scaling" class="sensitivity-slider" min="0" max="10" value="2" step="0.1">
+                        <div class="flex justify-between text-sm text-secondary-700 dark:text-secondary-300">
+                            <span>0%</span>
+                            <span id="scaling-value" class="font-bold">2.0%</span>
+                            <span>10%</span>
+                        </div>
+                        <p class="text-xs text-secondary-600 dark:text-secondary-400">
+                            Incremento anual automático de aportes
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Pension Adjustment Control -->
+                <div class="inflation-controls p-6 rounded-xl border">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-hand-holding-usd text-blue-600 text-xl mr-2"></i>
+                        <h3 class="text-lg font-semibold text-secondary-900 dark:text-secondary-100">Reajuste de Pensión</h3>
+                        <button class="help-btn ml-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200" data-tooltip="pension">
+                            <i class="fas fa-question-circle text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="pension-adjustment" class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-secondary-300 rounded">
+                            <span class="text-sm text-secondary-700 dark:text-secondary-300">Aplicar reajuste por costo de vida</span>
+                        </label>
+                        <p class="text-xs text-secondary-600 dark:text-secondary-400">
+                            Las pensiones se ajustan automáticamente por inflación
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculate Button -->
+            <div class="flex justify-center mt-8">
+                <button id="calculate-inflation" class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-4 rounded-lg font-medium transition-all flex items-center transform hover:scale-105">
+                    <i class="fas fa-calculator mr-3"></i>
+                    Calcular con Ajustes por Inflación
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="inflation-results" class="hidden animate-fade-in">
+            <!-- Real vs Nominal Comparison -->
+            <div class="bg-white dark:bg-secondary-800 rounded-2xl shadow-xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-balance-scale text-primary-600 text-2xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                        Valor Real vs Valor Nominal
+                    </h2>
+                </div>
+
+                <div class="real-vs-nominal">
+                    <div class="metric-card nominal">
+                        <i class="fas fa-coins text-red-600 text-3xl mb-3"></i>
+                        <h3 class="text-lg font-bold text-red-900 dark:text-red-100" id="capital-nominal">$0.00</h3>
+                        <p class="text-sm text-red-700 dark:text-red-300">Capital Nominal</p>
+                        <p class="text-xs text-red-600 dark:text-red-400 mt-2">Valor sin ajustar por inflación</p>
+                    </div>
+                    <div class="metric-card real">
+                        <i class="fas fa-shield-alt text-green-600 text-3xl mb-3"></i>
+                        <h3 class="text-lg font-bold text-green-900 dark:text-green-100" id="capital-real">$0.00</h3>
+                        <p class="text-sm text-green-700 dark:text-green-300">Capital Real</p>
+                        <p class="text-xs text-green-600 dark:text-green-400 mt-2">Valor ajustado por inflación</p>
+                    </div>
+                </div>
+
+                <div class="inflation-warning">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle warning-icon"></i>
+                        <div>
+                            <h4 class="font-semibold text-yellow-800 dark:text-yellow-200">Importante:</h4>
+                            <p class="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                                El <strong>capital nominal</strong> es lo que verías en tu estado de cuenta, pero el
+                                <strong>capital real</strong> representa el verdadero poder adquisitivo de tu dinero,
+                                después de considerar la erosión causada por la inflación.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adjustment Summary -->
+            <div class="adjustment-summary">
+                <h3 class="flex items-center">
+                    <i class="fas fa-chart-bar text-blue-600 mr-2"></i>
+                    Resumen de Ajustes Automáticos
+                </h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="label">Inflación Total</div>
+                        <div class="value" id="inflation-total">$0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">Aportes Escalados</div>
+                        <div class="value" id="aportes-escalados">$0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">Ganancia Real</div>
+                        <div class="value" id="ganancia-real">$0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">Rentabilidad Real</div>
+                        <div class="value" id="rentabilidad-real">0.00%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pension Adjustment -->
+            <div id="pension-section" class="pension-adjustment hidden">
+                <h3 class="flex items-center">
+                    <i class="fas fa-hand-holding-usd text-purple-600 mr-2"></i>
+                    Proyección de Pensión con Reajuste por Costo de Vida
+                </h3>
+                <div class="pension-grid">
+                    <div class="pension-item">
+                        <div class="label">Pensión Inicial</div>
+                        <div class="value" id="pension-inicial">$0.00</div>
+                    </div>
+                    <div class="pension-item">
+                        <div class="label">Pensión Final (Ajustada)</div>
+                        <div class="value" id="pension-final">$0.00</div>
+                    </div>
+                    <div class="pension-item">
+                        <div class="label">Incremento Total</div>
+                        <div class="value" id="incremento-pension">$0.00</div>
+                    </div>
+                    <div class="pension-item">
+                        <div class="label">Años de Retiro</div>
+                        <div class="value" id="años-retiro">25</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="bg-white dark:bg-secondary-800 rounded-2xl shadow-xl p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-secondary-900 dark:text-secondary-100 flex items-center">
+                        <i class="fas fa-table text-primary-600 mr-3"></i>
+                        Detalle Periódico con Ajustes
+                    </h2>
+                    <button id="export-inflation" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+                        <i class="fas fa-download mr-2"></i>
+                        Exportar
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-secondary-200">
+                        <thead class="bg-secondary-100 sticky top-0">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Periodo</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Saldo Inicial</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Aporte</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Interés Real</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Saldo Final</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Inflación Acum.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inflation-table-body" class="bg-white divide-y divide-secondary-200">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="inflation-loading" class="text-center py-16 hidden">
+            <div class="animate-pulse-slow">
+                <i class="fas fa-chart-line text-orange-600 text-6xl mb-6"></i>
+                <h3 class="text-2xl font-bold text-secondary-900 dark:text-secondary-100 mb-4">
+                    Calculando ajustes por inflación...
+                </h3>
+                <p class="text-lg text-secondary-600 dark:text-secondary-400">
+                    Aplicando escalado de aportes y reajustes automáticos
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tooltip Container (will be moved by JavaScript) -->
+<div id="tooltip-container" class="tooltip-container">
+    <div class="tooltip-content">
+        <!-- Content will be populated by JavaScript -->
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-secondary-800 rounded-xl p-8 text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+        <p class="text-secondary-900 dark:text-secondary-100">Calculando con ajustes por inflación...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let inflationResults = null;
+let inflationData = null;
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setupEventListeners();
+    loadBaseData();
+});
+
+// Setup event listeners
+function setupEventListeners() {
+    // Calculate button
+    document.getElementById('calculate-inflation').addEventListener('click', calculateInflation);
+
+    // Input changes
+    document.getElementById('inflation-rate').addEventListener('input', updateInflationValue);
+    document.getElementById('contribution-scaling').addEventListener('input', updateScalingValue);
+
+    // Help buttons
+    document.querySelectorAll('.help-btn').forEach(button => {
+        button.addEventListener('click', handleHelpClick);
+    });
+
+    // Close tooltips
+    document.addEventListener('click', handleOutsideClick);
+
+    // Export button
+    document.getElementById('export-inflation').addEventListener('click', exportInflationData);
+}
+
+// Load base portfolio data
+function loadBaseData() {
+    fetch('/api/get-portfolio-data', {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateBaseCapital(data.capital_final);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading base data:', error);
+    });
+}
+
+// Update display values
+function updateInflationValue() {
+    const value = parseFloat(document.getElementById('inflation-rate').value);
+    document.getElementById('inflation-value').textContent = `${value.toFixed(1)}%`;
+}
+
+function updateScalingValue() {
+    const value = parseFloat(document.getElementById('contribution-scaling').value);
+    document.getElementById('scaling-value').textContent = `${value.toFixed(1)}%`;
+}
+
+function updateBaseCapital(capital) {
+    document.getElementById('base-capital').textContent = formatCurrency(capital);
+}
+
+// Calculate inflation-adjusted results
+function calculateInflation() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loadingState = document.getElementById('inflation-loading');
+    const resultsSection = document.getElementById('inflation-results');
+
+    // Show loading
+    loadingOverlay.classList.remove('hidden');
+    loadingState.classList.remove('hidden');
+    resultsSection.classList.add('hidden');
+
+    const inflationRate = parseFloat(document.getElementById('inflation-rate').value) / 100;
+    const contributionScaling = parseFloat(document.getElementById('contribution-scaling').value) / 100;
+    const pensionAdjustment = document.getElementById('pension-adjustment').checked;
+
+    fetch('/api/calcular-inflacion', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            tasa_inflacion: inflationRate,
+            escalado_aportes: contributionScaling,
+            reajuste_jubilacion: pensionAdjustment
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        loadingOverlay.classList.add('hidden');
+        loadingState.classList.add('hidden');
+
+        if (data.success) {
+            inflationResults = data.resumen;
+            inflationData = data.dataframe;
+            displayInflationResults(data.resumen, data.dataframe);
+            resultsSection.classList.remove('hidden');
+        } else {
+            alert('Error en el cálculo: ' + data.error);
+        }
+    })
+    .catch(error => {
+        loadingOverlay.classList.add('hidden');
+        loadingState.classList.add('hidden');
+        console.error('Error:', error);
+        alert('Error al calcular los ajustes por inflación');
+    });
+}
+
+// Display results
+function displayInflationResults(resumen, dataframe) {
+    // Update main metrics
+    document.getElementById('capital-nominal').textContent = formatCurrency(resumen.capital_final);
+    document.getElementById('capital-real').textContent = formatCurrency(resumen.ganancia_real + resumen.aportes_totales);
+
+    // Update summary
+    document.getElementById('inflation-total').textContent = formatCurrency(resumen.inflacion_total);
+    document.getElementById('aportes-escalados').textContent = formatCurrency(resumen.aportes_totales);
+    document.getElementById('ganancia-real').textContent = formatCurrency(resumen.ganancia_real);
+    document.getElementById('rentabilidad-real').textContent = `${resumen.rentabilidad_real.toFixed(2)}%`;
+
+    // Update pension section if applicable
+    if (resumen.pension_mensual_ajustada) {
+        document.getElementById('pension-section').classList.remove('hidden');
+        document.getElementById('pension-inicial').textContent = formatCurrency(resumen.pension_mensual || 0);
+        document.getElementById('pension-final').textContent = formatCurrency(resumen.pension_mensual_ajustada);
+        document.getElementById('incremento-pension').textContent = formatCurrency(resumen.pension_mensual_ajustada - (resumen.pension_mensual || 0));
+    } else {
+        document.getElementById('pension-section').classList.add('hidden');
+    }
+
+    // Update table
+    updateInflationTable(dataframe);
+}
+
+// Update table with inflation data
+function updateInflationTable(dataframe) {
+    const tbody = document.getElementById('inflation-table-body');
+    tbody.innerHTML = '';
+
+    // Show last 20 periods or all if less than 20
+    const startIndex = Math.max(0, dataframe.length - 20);
+    const displayData = dataframe.slice(startIndex);
+
+    displayData.forEach((row, index) => {
+        const actualIndex = startIndex + index;
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-secondary-50 transition-colors';
+
+        tr.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">${row.Periodo}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${formatCurrency(row['Saldo Inicial (USD)'])}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${formatCurrency(row['Aporte (USD)'])}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">${formatCurrency(row['Interés Real (USD)'])}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary-600">${formatCurrency(row['Saldo Final (USD)'])}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">${formatCurrency(row['Inflación Acumulada (USD)'])}</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+// Export inflation data
+function exportInflationData() {
+    if (!inflationData) {
+        alert('No hay datos para exportar. Realiza un cálculo primero.');
+        return;
+    }
+
+    // Create CSV content
+    const headers = Object.keys(inflationData[0]).join(',');
+    const rows = inflationData.map(row =>
+        Object.values(row).map(value =>
+            typeof value === 'number' ? value.toFixed(2) : value
+        ).join(',')
+    ).join('\n');
+
+    const csvContent = `${headers}\n${rows}`;
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `simulacion_inflacion_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Tooltip functionality
+function handleHelpClick(event) {
+    event.stopPropagation();
+    const button = event.currentTarget;
+    const tooltipType = button.getAttribute('data-tooltip');
+    const tooltipContainer = document.getElementById('tooltip-container');
+
+    // Move tooltip to button's parent
+    const parentElement = button.closest('.inflation-controls, .adjustment-card');
+    if (parentElement) {
+        parentElement.appendChild(tooltipContainer);
+    }
+
+    // Close all other tooltips
+    document.querySelectorAll('.tooltip-container.active').forEach(container => {
+        if (container !== tooltipContainer) {
+            container.classList.remove('active');
+        }
+    });
+
+    // Toggle current tooltip
+    tooltipContainer.classList.toggle('active');
+
+    // Create tooltip content if it doesn't exist
+    let tooltipContent = tooltipContainer.querySelector('.tooltip-content');
+    if (!tooltipContent) {
+        tooltipContent = document.createElement('div');
+        tooltipContent.className = 'tooltip-content';
+        tooltipContainer.appendChild(tooltipContent);
+    }
+
+    // Set content
+    tooltipContent.innerHTML = getTooltipContent(tooltipType);
+
+    // Apply dark mode class if needed
+    if (document.documentElement.classList.contains('dark')) {
+        tooltipContent.classList.add('dark');
+    } else {
+        tooltipContent.classList.remove('dark');
+    }
+}
+
+function handleOutsideClick(event) {
+    if (!event.target.closest('.help-btn') && !event.target.closest('.tooltip-content')) {
+        document.querySelectorAll('.tooltip-container.active').forEach(container => {
+            container.classList.remove('active');
+        });
+    }
+}
+
+function getTooltipContent(type) {
+    const tooltips = {
+        inflacion: `
+            <div class="tooltip-header">¿Qué es la Inflación?</div>
+            <div class="tooltip-text">
+                La inflación representa el aumento generalizado de precios que reduce el poder adquisitivo de tu dinero con el tiempo.
+                Una tasa del 3% significa que $100 hoy valdrán $97 en términos reales el próximo año.
+            </div>
+            <div class="tooltip-examples">
+                <h4>Ejemplos:</h4>
+                <ul>
+                    <li>• 2% anual: Inflación baja, poder adquisitivo se mantiene</li>
+                    <li>• 5% anual: Inflación alta, erosión significativa del valor</li>
+                    <li>• Afecta tanto ahorros como ingresos por jubilación</li>
+                </ul>
+            </div>
+        `,
+        escalado: `
+            <div class="tooltip-header">¿Qué es el Escalado de Aportes?</div>
+            <div class="tooltip-text">
+                El escalado automático aumenta tus aportes cada año por un porcentaje fijo, simulando incrementos salariales
+                o decisiones conscientes de aumentar el ahorro con el tiempo.
+            </div>
+            <div class="tooltip-examples">
+                <h4>Ejemplos:</h4>
+                <ul>
+                    <li>• 3% anual: Tus aportes crecen al mismo ritmo que la inflación</li>
+                    <li>• 5% anual: Aumentas tus ahorros por encima de la inflación</li>
+                    <li>• Simula incrementos automáticos en tu plan de ahorro</li>
+                </ul>
+            </div>
+        `,
+        pension: `
+            <div class="tooltip-header">¿Qué es el Reajuste de Pensión?</div>
+            <div class="tooltip-text">
+                El reajuste por costo de vida ajusta automáticamente tus pensiones de jubilación para compensar
+                la inflación, manteniendo tu poder adquisitivo real durante los años de retiro.
+            </div>
+            <div class="tooltip-examples">
+                <h4>Ejemplos:</h4>
+                <ul>
+                    <li>• Sin reajuste: Tu pensión pierde valor por inflación</li>
+                    <li>• Con reajuste: Tu pensión mantiene su poder adquisitivo</li>
+                    <li>• Simula pensiones indexadas a la inflación</li>
+                </ul>
+            </div>
+        `
+    };
+
+    return tooltips[type] || '<div class="tooltip-text">Contenido no disponible</div>';
+}
+
+// Utility functions
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('es-ES', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(amount);
+}
+</script>

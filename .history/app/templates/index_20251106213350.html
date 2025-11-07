@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Simulador Financiero{% endblock %}
+
+{% block content %}
+<!-- Financial Floating Elements -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="floating-element dollar-1"></div>
+    <div class="floating-element chart-1"></div>
+    <div class="floating-element calculator-1"></div>
+    <div class="floating-element trending-up"></div>
+    <div class="floating-element piggy-bank"></div>
+    <div class="floating-element percentage"></div>
+    <div class="floating-element coins"></div>
+    <div class="floating-element wallet"></div>
+    <div class="floating-element growth"></div>
+</div>
+
+<!-- Hero Section -->
+<div class="relative text-center mb-20 pt-16">
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="mb-12 relative">
+            <!-- Animated background gradient -->
+            <div class="absolute inset-0 bg-gradient-to-r from-primary-50 via-white to-primary-50 dark:from-secondary-800 dark:via-secondary-900 dark:to-secondary-800 rounded-3xl -z-10 opacity-60"></div>
+
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-white rounded-2xl mb-8 shadow-2xl animate-pulse-slow">
+                <img src="{{ url_for('static', filename='images/logoblanco.jpeg') }}"
+                     alt="Tu Retiro Seguro"
+                     class="h-16 w-auto">
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-secondary-900 via-primary-700 to-secondary-800 dark:from-secondary-100 dark:via-primary-400 dark:to-secondary-200 mb-6 leading-tight">
+                Simulador
+                <span class="block text-primary-600 dark:text-primary-400 animate-fade-in-up">Financiero</span>
+            </h1>
+
+            <div class="max-w-3xl mx-auto">
+                <p class="text-xl md:text-2xl text-secondary-600 dark:text-secondary-300 leading-relaxed mb-8 font-light">
+                    Herramienta profesional para proyección de jubilación y valoración de bonos.
+                    <span class="font-semibold text-primary-600 dark:text-primary-400">Realiza cálculos precisos en dólares estadounidenses</span>
+                    con metodologías financieras avanzadas.
+                </p>
+
+                <!-- CTA Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="#modules" class="group bg-gradient-to-r from-primary-600 to-primary-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-rocket mr-2 group-hover:rotate-12 transition-transform inline-block"></i>
+                        Comenzar Ahora
+                    </a>
+                    <a href="#about" class="group text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 px-8 py-4 rounded-2xl font-semibold text-lg border-2 border-secondary-300 dark:border-secondary-600 hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-300 hover:shadow-lg">
+                        <i class="fas fa-info-circle mr-2 group-hover:scale-110 transition-transform inline-block"></i>
+                        Saber Más
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white rounded-xl shadow-sm border border-secondary-200 p-6">
+                <div class="flex items-center justify-center w-12 h-12 bg-primary-100 rounded-lg mb-4 mx-auto">
+                    <i class="fas fa-calculator text-primary-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-secondary-900 mb-1">3 Módulos</h3>
+                <p class="text-secondary-600">Herramientas especializadas</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-secondary-200 p-6">
+                <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4 mx-auto">
+                    <i class="fas fa-dollar-sign text-green-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-secondary-900 mb-1">USD</h3>
+                <p class="text-secondary-600">Cálculos en dólares</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-secondary-200 p-6">
+                <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4 mx-auto">
+                    <i class="fas fa-chart-bar text-purple-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-secondary-900 mb-1">PDF</h3>
+                <p class="text-secondary-600">Reportes exportables</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modules Section -->
+<div id="modules" class="mb-20">
+    <div class="text-center mb-16">
+        <h2 class="text-4xl font-extrabold text-secondary-900 dark:text-secondary-100 mb-6">Módulos Disponibles</h2>
+        <p class="text-xl text-secondary-600 dark:text-secondary-300 max-w-3xl mx-auto leading-relaxed">
+            Explora nuestras herramientas especializadas para análisis financiero profesional con
+            <span class="font-semibold text-primary-600 dark:text-primary-400">tecnología de vanguardia</span>
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Módulo A -->
+        <div class="group module-card">
+            <div class="bg-white dark:bg-secondary-800 rounded-3xl shadow-lg border border-secondary-200 dark:border-secondary-700 overflow-hidden relative transition-colors duration-300">
+                <!-- Floating accent -->
+                <div class="absolute top-4 right-4 w-20 h-20 bg-primary-100 dark:bg-primary-900/50 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
+
+                <div class="bg-gradient-to-br from-primary-500 to-primary-600 p-8 text-white relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-wallet text-2xl"></i>
+                        </div>
+                        <span class="text-primary-100 text-sm font-medium bg-white/10 px-3 py-1 rounded-full">MÓDULO A</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Crecimiento de Cartera</h3>
+                    <p class="text-primary-100">Análisis del crecimiento de capital con interés compuesto</p>
+                </div>
+
+                <div class="p-8">
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
+                            <i class="fas fa-check text-primary-600 dark:text-primary-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Depósito inicial único
+                        </li>
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
+                            <i class="fas fa-check text-primary-600 dark:text-primary-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Aportes periódicos
+                        </li>
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
+                            <i class="fas fa-check text-primary-600 dark:text-primary-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Gráficas interactivas
+                        </li>
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
+                            <i class="fas fa-check text-primary-600 dark:text-primary-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Reportes detallados
+                        </li>
+                    </ul>
+
+                    <a href="{{ url_for('main.cartera') }}"
+                       class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-4 px-6 rounded-2xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 font-semibold text-lg flex items-center justify-center shadow-xl hover:shadow-2xl transform hover:scale-105">
+                        <span>Comenzar Simulación</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Módulo B -->
+        <div class="group module-card">
+            <div class="bg-white dark:bg-secondary-800 rounded-3xl shadow-lg border border-secondary-200 dark:border-secondary-700 overflow-hidden relative transition-colors duration-300">
+                <!-- Floating accent -->
+                <div class="absolute top-4 right-4 w-20 h-20 bg-green-100 dark:bg-green-900/50 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
+
+                <div class="bg-gradient-to-br from-green-500 to-green-600 p-8 text-white relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-piggy-bank text-2xl"></i>
+                        </div>
+                        <span class="text-green-100 text-sm font-medium bg-white/10 px-3 py-1 rounded-full">MÓDULO B</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Proyección de Jubilación</h3>
+                    <p class="text-green-100">Cálculo de pensión mensual con consideraciones fiscales</p>
+                </div>
+
+                <div class="p-8">
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">
+                            <i class="fas fa-check text-green-600 dark:text-green-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Pensión mensual estimada
+                        </li>
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">
+                            <i class="fas fa-check text-green-600 dark:text-green-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Cálculo de impuestos
+                        </li>
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">
+                            <i class="fas fa-check text-green-600 dark:text-green-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Escenarios comparativos
+                        </li>
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">
+                            <i class="fas fa-check text-green-600 dark:text-green-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Proyección a largo plazo
+                        </li>
+                    </ul>
+
+                    <a href="{{ url_for('main.jubilacion') }}"
+                       class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 px-6 rounded-2xl hover:from-green-700 hover:to-green-800 transition-all duration-300 font-semibold text-lg flex items-center justify-center shadow-xl hover:shadow-2xl transform hover:scale-105">
+                        <span>Proyectar Jubilación</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Módulo C -->
+        <div class="group module-card">
+            <div class="bg-white dark:bg-secondary-800 rounded-3xl shadow-lg border border-secondary-200 dark:border-secondary-700 overflow-hidden relative transition-colors duration-300">
+                <!-- Floating accent -->
+                <div class="absolute top-4 right-4 w-20 h-20 bg-purple-100 dark:bg-purple-900/50 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
+
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-8 text-white relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-coins text-2xl"></i>
+                        </div>
+                        <span class="text-purple-100 text-sm font-medium bg-white/10 px-3 py-1 rounded-full">MÓDULO C</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Valoración de Bonos</h3>
+                    <p class="text-purple-100">Análisis profesional de instrumentos de deuda</p>
+                </div>
+
+                <div class="p-8">
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">
+                            <i class="fas fa-check text-purple-600 dark:text-purple-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Valor presente de flujos
+                        </li>
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">
+                            <i class="fas fa-check text-purple-600 dark:text-purple-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Análisis de prima/descuento
+                        </li>
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">
+                            <i class="fas fa-check text-purple-600 dark:text-purple-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Cupones periódicos
+                        </li>
+                        <li class="flex items-center text-secondary-700 dark:text-secondary-300 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">
+                            <i class="fas fa-check text-purple-600 dark:text-purple-400 mr-3 group-hover:scale-110 transition-transform"></i>
+                            Tabla de amortización
+                        </li>
+                    </ul>
+
+                    <a href="{{ url_for('main.bonos') }}"
+                       class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-4 px-6 rounded-2xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 font-semibold text-lg flex items-center justify-center shadow-xl hover:shadow-2xl transform hover:scale-105">
+                        <span>Valorar Bonos</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How it Works Section -->
+<div class="bg-secondary-50 dark:bg-secondary-800/50 rounded-2xl p-8 mb-16 transition-colors duration-300">
+    <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-secondary-900 dark:text-secondary-100 mb-4">¿Cómo Funciona?</h2>
+        <p class="text-lg text-secondary-600 dark:text-secondary-300">Proceso simple en 4 pasos para obtener resultados profesionales</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/50 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors duration-300">
+                <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">1</span>
+            </div>
+            <h3 class="text-lg font-semibold text-secondary-900 dark:text-secondary-100 mb-2">Selecciona Módulo</h3>
+            <p class="text-secondary-600 dark:text-secondary-400">Elige la herramienta financiera que necesitas</p>
+        </div>
+
+        <div class="text-center">
+            <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/50 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors duration-300">
+                <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">2</span>
+            </div>
+            <h3 class="text-lg font-semibold text-secondary-900 dark:text-secondary-100 mb-2">Ingresa Datos</h3>
+            <p class="text-secondary-600 dark:text-secondary-400">Completa el formulario con información precisa</p>
+        </div>
+
+        <div class="text-center">
+            <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/50 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors duration-300">
+                <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">3</span>
+            </div>
+            <h3 class="text-lg font-semibold text-secondary-900 dark:text-secondary-100 mb-2">Calcula Resultados</h3>
+            <p class="text-secondary-600 dark:text-secondary-400">Obtén análisis detallados con gráficas</p>
+        </div>
+
+        <div class="text-center">
+            <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/50 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors duration-300">
+                <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">4</span>
+            </div>
+            <h3 class="text-lg font-semibold text-secondary-900 dark:text-secondary-100 mb-2">Exporta Reporte</h3>
+            <p class="text-secondary-600 dark:text-secondary-400">Descarga resultados en formato PDF</p>
+        </div>
+    </div>
+</div>
+
+<!-- Project Info Section -->
+<div id="about" class="bg-white dark:bg-secondary-800 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-8 transition-colors duration-300">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+            <h2 class="text-3xl font-bold text-secondary-900 dark:text-secondary-100 mb-6">Sobre el Proyecto</h2>
+            <div class="space-y-6 text-secondary-700 dark:text-secondary-300">
+                <div class="flex items-start">
+                    <i class="fab fa-python text-2xl text-yellow-500 mt-1 mr-4"></i>
+                    <div>
+                        <strong class="text-secondary-900 dark:text-secondary-100 text-lg">Python Flask</strong>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400">Framework web backend para aplicaciones robustas</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-palette text-2xl text-cyan-500 mt-1 mr-4"></i>
+                    <div>
+                        <strong class="text-secondary-900 dark:text-secondary-100 text-lg">Tailwind CSS</strong>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400">Framework CSS utility-first para diseño moderno</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-chart-bar text-2xl text-green-500 mt-1 mr-4"></i>
+                    <div>
+                        <strong class="text-secondary-900 dark:text-secondary-100 text-lg">Chart.js</strong>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400">Biblioteca de gráficos interactivos y responsivos</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-database text-2xl text-blue-500 mt-1 mr-4"></i>
+                    <div>
+                        <strong class="text-secondary-900 dark:text-secondary-100 text-lg">Pandas & NumPy</strong>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400">Librerías para análisis de datos y cálculos científicos</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-file-pdf text-2xl text-red-500 mt-1 mr-4"></i>
+                    <div>
+                        <strong class="text-secondary-900 dark:text-secondary-100 text-lg">ReportLab</strong>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400">Generación de reportes PDF profesionales</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-dollar-sign text-2xl text-green-600 mt-1 mr-4"></i>
+                    <div>
+                        <strong class="text-secondary-900 dark:text-secondary-100 text-lg">USD (Dólares)</strong>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400">Moneda estándar para cálculos financieros internacionales</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-secondary-50 dark:bg-secondary-700/50 rounded-xl p-6 transition-colors duration-300">
+            <h3 class="text-xl font-semibold text-secondary-900 dark:text-secondary-100 mb-4">Características Técnicas</h3>
+            <ul class="space-y-3">
+                <li class="flex items-center text-secondary-700 dark:text-secondary-300">
+                    <i class="fas fa-check-circle text-green-600 dark:text-green-400 mr-3"></i>
+                    Cálculos financieros precisos
+                </li>
+                <li class="flex items-center text-secondary-700 dark:text-secondary-300">
+                    <i class="fas fa-check-circle text-green-600 dark:text-green-400 mr-3"></i>
+                    Interfaz responsive y moderna
+                </li>
+                <li class="flex items-center text-secondary-700 dark:text-secondary-300">
+                    <i class="fas fa-check-circle text-green-600 dark:text-green-400 mr-3"></i>
+                    Gráficas interactivas
+                </li>
+                <li class="flex items-center text-secondary-700 dark:text-secondary-300">
+                    <i class="fas fa-check-circle text-green-600 dark:text-green-400 mr-3"></i>
+                    Exportación a PDF
+                </li>
+                <li class="flex items-center text-secondary-700 dark:text-secondary-300">
+                    <i class="fas fa-check-circle text-green-600 dark:text-green-400 mr-3"></i>
+                    Validaciones de entrada
+                </li>
+            </ul>
+
+            <div class="mt-6 pt-6 border-t border-secondary-200 dark:border-secondary-600">
+                <a href="{{ url_for('main.descargar_manual') }}"
+                   class="inline-flex items-center justify-center w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                    <i class="fas fa-book mr-3"></i>
+                    Descargar Manual de Usuario
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

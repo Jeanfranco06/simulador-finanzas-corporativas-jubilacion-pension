@@ -1,0 +1,1244 @@
+{% extends "base.html" %}
+
+{% block title %}Módulo A - Crecimiento de Cartera{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-16">
+        <div class="text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/10 rounded-full mb-6">
+                <i class="fas fa-wallet text-3xl"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                Crecimiento de Cartera
+            </h1>
+            <p class="text-xl text-primary-100 max-w-2xl mx-auto">
+                Simula el crecimiento de tu capital con aportes periódicos e interés compuesto
+            </p>
+            <div class="mt-6 inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                <i class="fas fa-dollar-sign mr-2"></i>
+                <span class="font-medium">Todos los cálculos en USD</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-6xl mx-auto -mt-8 relative z-10">
+    <!-- Input Form Card -->
+    <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden mb-8">
+        <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+            <h2 class="text-2xl font-bold text-secondary-900 flex items-center">
+                <i class="fas fa-calculator text-primary-600 mr-3"></i>
+                Parámetros de Simulación
+            </h2>
+            <p class="text-secondary-600 mt-2">Ingresa los datos para calcular el crecimiento de tu cartera</p>
+        </div>
+
+        <form method="POST" class="p-8">
+            {{ form.hidden_tag() }}
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Personal Information -->
+                <div class="space-y-6">
+                    <div class="bg-secondary-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center">
+                            <i class="fas fa-user text-primary-600 mr-2"></i>
+                            Información Personal
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-2">
+                                    <i class="fas fa-birthday-cake mr-1"></i>Edad Actual
+                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors" title="Tu edad actual en años. Se usa para calcular la edad de jubilación.">
+                                        <i class="fas fa-question-circle text-xs"></i>
+                                    </button>
+                                </label>
+                                {{ form.edad_actual(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="18", max="100", placeholder="Ej: 30", style="background-color: white; color: #374151; border-color: #d1d5db;") }}
+                                {% if form.edad_actual.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.edad_actual.errors[0] }}
+                                    </p>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-3">
+                                    <i class="fas fa-calendar-alt mr-1"></i>Especificar plazo por:
+                                </label>
+                                <div class="space-y-3">
+                                    {% for subfield in form.tipo_plazo %}
+                                        <div class="flex items-center p-3 bg-white rounded-lg border border-secondary-200 hover:border-primary-300 transition-colors">
+                                            {{ subfield(class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300") }}
+                                            {{ subfield.label(class="ml-3 block text-sm font-medium text-secondary-900") }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div id="años_field" class="space-y-2">
+                                <label class="block text-sm font-medium text-secondary-700">
+                                    <i class="fas fa-clock mr-1"></i>Plazo (Años)
+                                </label>
+                                {{ form.años(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="1", max="100", placeholder="Ej: 35", style="background-color: white; color: #374151; border-color: #d1d5db;") }}
+                                {% if form.años.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.años.errors[0] }}
+                                    </p>
+                                {% endif %}
+                            </div>
+
+                            <div id="edad_retiro_field" class="space-y-2" style="display: none;">
+                                <label class="block text-sm font-medium text-secondary-700">
+                                    <i class="fas fa-home mr-1"></i>Edad de Jubilación
+                                </label>
+                                {{ form.edad_retiro(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="18", max="120", placeholder="Ej: 65", style="background-color: white; color: #374151; border-color: #d1d5db;") }}
+                                {% if form.edad_retiro.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.edad_retiro.errors[0] }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Information -->
+                <div class="space-y-6">
+                    <div class="bg-secondary-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center">
+                            <i class="fas fa-chart-line text-primary-600 mr-2"></i>
+                            Información Financiera
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-2">
+                                    <i class="fas fa-piggy-bank mr-1"></i>Monto Inicial (USD)
+                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors" title="Capital inicial que tienes disponible para invertir. Puede ser $0 si solo harás aportes periódicos.">
+                                        <i class="fas fa-question-circle text-xs"></i>
+                                    </button>
+                                </label>
+                                {{ form.monto_inicial(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="0", step="0.01", placeholder="Ej: 5000.00", style="background-color: white; color: #374151; border-color: #d1d5db;") }}
+                                {% if form.monto_inicial.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.monto_inicial.errors[0] }}
+                                    </p>
+                                {% endif %}
+                                <p class="mt-1 text-xs text-secondary-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>Mínimo: $0.00 - Máximo: Sin límite
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-2">
+                                    <i class="fas fa-plus-circle mr-1"></i>Aporte Periódico (USD)
+                                </label>
+                                {{ form.aporte_periodico(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="0", step="0.01", placeholder="Ej: 500.00", style="background-color: white; color: #374151; border-color: #d1d5db;") }}
+                                {% if form.aporte_periodico.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.aporte_periodico.errors[0] }}
+                                    </p>
+                                {% endif %}
+                                <p class="mt-1 text-xs text-secondary-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>Mínimo: $0.00 - Máximo: Sin límite
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-2">
+                                    <i class="fas fa-sync-alt mr-1"></i>Frecuencia de Aportes
+                                </label>
+                                {{ form.frecuencia(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:ring-primary-500 transition-colors", style="background-color: white; color: #374151; border-color: #d1d5db;") }}
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-secondary-700 mb-2">
+                                    <i class="fas fa-percentage mr-1"></i>TEA (%)
+                                </label>
+                                {{ form.tea(class="w-full px-4 py-3 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors numeric-input", type="number", min="0", max="50", step="0.01", placeholder="Ej: 8.0", style="background-color: white; color: #374151; border-color: #d1d5db;") }}
+                                {% if form.tea.errors %}
+                                    <p class="mt-1 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ form.tea.errors[0] }}
+                                    </p>
+                                {% endif %}
+                                <p class="mt-1 text-xs text-secondary-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>Mínimo: 0.00% - Máximo: 50.00%
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button type="submit" class="bg-primary-600 text-white px-12 py-4 rounded-xl hover:bg-primary-700 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 inline-flex items-center">
+                    <i class="fas fa-rocket ml-2"></i>
+                    {{ form.submit.label.text }}
+                    <i class="fas fa-rocket ml-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    {% if resultado %}
+        <div class="space-y-8">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-gradient-to-br from-primary-50 to-primary-100 p-6 rounded-xl border border-primary-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-trophy text-primary-600 text-xl"></i>
+                        </div>
+                        <span class="text-xs font-medium text-primary-600 bg-primary-100 px-2 py-1 rounded-full">FINAL</span>
+                    </div>
+                    <div class="text-3xl font-bold text-primary-900 mb-1">${{ "%.2f"|format(resultado.resumen.capital_final) }}</div>
+                    <div class="text-sm text-primary-700 font-medium">Capital Final</div>
+                </div>
+
+                <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 p-6 rounded-xl border border-cyan-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-coins text-cyan-600 text-xl"></i>
+                        </div>
+                        <span class="text-xs font-medium text-cyan-600 bg-cyan-100 px-2 py-1 rounded-full">TOTAL</span>
+                    </div>
+                    <div class="text-3xl font-bold text-cyan-900 mb-1">${{ "%.2f"|format(resultado.resumen.aportes_totales) }}</div>
+                    <div class="text-sm text-cyan-700 font-medium">Aportes Totales</div>
+                </div>
+
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                        </div>
+                        <span class="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">GANANCIA</span>
+                    </div>
+                    <div class="text-3xl font-bold text-green-900 mb-1">${{ "%.2f"|format(resultado.resumen.ganancia_bruta) }}</div>
+                    <div class="text-sm text-green-700 font-medium">Ganancia Bruta</div>
+                </div>
+
+                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-percentage text-yellow-600 text-xl"></i>
+                        </div>
+                        <span class="text-xs font-medium text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">RENTABILIDAD</span>
+                    </div>
+                    <div class="text-3xl font-bold text-yellow-900 mb-1">{{ "%.2f"|format(resultado.resumen.rentabilidad) }}%</div>
+                    <div class="text-sm text-yellow-700 font-medium">Rentabilidad Total</div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                    <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                        <i class="fas fa-chart-area text-primary-600 mr-3"></i>
+                        Evolución de la Cartera
+                    </h3>
+                    <p class="text-secondary-600 mt-2">Visualización del crecimiento de tu capital a lo largo del tiempo</p>
+                </div>
+                <div class="p-8">
+                    <div class="bg-secondary-50 rounded-xl p-6 text-center">
+                        <div class="text-secondary-500 mb-4">
+                            <i class="fas fa-chart-line text-6xl"></i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-secondary-900 mb-2">Gráfica Interactiva</h4>
+                        <p class="text-secondary-600">La gráfica se mostrará aquí una vez que completes los cálculos.</p>
+                        <div class="mt-4 p-4 bg-white rounded-lg border-2 border-dashed border-secondary-300">
+                            <canvas id="graficaCartera" height="300" class="w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Table - Redesigned for better UX -->
+            <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                                <i class="fas fa-table text-primary-600 mr-3"></i>
+                                Detalle por Periodo
+                            </h3>
+                            <p class="text-secondary-600 mt-2">Resumen inteligente de periodos clave de inversión</p>
+                        </div>
+                        <button id="toggleTableBtn"
+                                class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium flex items-center">
+                            <i class="fas fa-eye mr-2"></i>
+                            <span id="toggleText">Ver Todos</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary View (Default) -->
+                <div id="summaryView" class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <!-- Period Highlights -->
+                        <div class="bg-gradient-to-br from-primary-50 to-primary-100 p-6 rounded-xl border border-primary-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-play text-primary-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-primary-900">Inicio</h4>
+                                    <p class="text-sm text-primary-700">Periodo 1</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-primary-700">Capital:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[0]['Saldo Final']) }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-primary-700">Aportes:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[0]['Aportes Acumulados']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-chart-line text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-green-900">Mitad del Periodo</h4>
+                                    <p class="text-sm text-green-700">Periodo {{ (resultado.dataframe.shape[0] // 2) + 1 }}</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-green-700">Capital:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[resultado.dataframe.shape[0] // 2]['Saldo Final']) }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-green-700">Aportes:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[resultado.dataframe.shape[0] // 2]['Aportes Acumulados']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-trophy text-yellow-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-yellow-900">Final</h4>
+                                    <p class="text-sm text-yellow-700">Periodo {{ resultado.dataframe.shape[0] }}</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-yellow-700">Capital:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[-1]['Saldo Final']) }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-yellow-700">Aportes:</span>
+                                    <span class="font-semibold">${{ "%.2f"|format(resultado.dataframe.iloc[-1]['Aportes Acumulados']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Milestones Table -->
+                    <div class="bg-secondary-50 rounded-xl p-6">
+                        <h4 class="text-lg font-semibold text-secondary-900 mb-4 flex items-center">
+                            <i class="fas fa-calendar-check text-primary-600 mr-2"></i>
+                            Hitos Principales
+                        </h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="border-b border-secondary-200">
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Periodo</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Capital</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Aportes</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Interés</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-secondary-200">
+                                    {% set total_rows = resultado.dataframe.shape[0] %}
+                                    {% set step = ((total_rows - 1) // 4) %}
+                                    {% if step < 1 %}
+                                        {% set step = 1 %}
+                                    {% endif %}
+                                    {% for i in range(0, total_rows, step) %}
+                                        {% if i < total_rows %}
+                                            {% set row = resultado.dataframe.iloc[i] %}
+                                            <tr class="hover:bg-white transition-colors">
+                                                <td class="px-4 py-3 text-sm font-medium text-secondary-900">{{ row['Periodo'] }}</td>
+                                                <td class="px-4 py-3 text-sm font-bold text-primary-600">${{ "%.2f"|format(row['Saldo Final']) }}</td>
+                                                <td class="px-4 py-3 text-sm text-secondary-700">${{ "%.2f"|format(row['Aportes Acumulados']) }}</td>
+                                                <td class="px-4 py-3 text-sm text-green-600 font-medium">${{ "%.2f"|format(row['Interés']) }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if resultado.dataframe.shape[0] > 0 %}
+                                        {% set last_row = resultado.dataframe.iloc[-1] %}
+                                        <tr class="hover:bg-white transition-colors bg-primary-50">
+                                            <td class="px-4 py-3 text-sm font-bold text-primary-900">{{ last_row['Periodo'] }}</td>
+                                            <td class="px-4 py-3 text-sm font-bold text-primary-600">${{ "%.2f"|format(last_row['Saldo Final']) }}</td>
+                                            <td class="px-4 py-3 text-sm font-bold text-primary-900">${{ "%.2f"|format(last_row['Aportes Acumulados']) }}</td>
+                                            <td class="px-4 py-3 text-sm font-bold text-green-600">${{ "%.2f"|format(last_row['Interés']) }}</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <p class="text-sm text-secondary-600">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                {% if resultado.dataframe.shape[0] <= 5 %}
+                                    Mostrando {{ resultado.dataframe.shape[0] }} periodos clave de {{ resultado.dataframe.shape[0] }} totales
+                                {% else %}
+                                    Mostrando 5 periodos clave de {{ resultado.dataframe.shape[0] }} totales
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Table View (Hidden by default) -->
+                <div id="fullTableView" class="hidden">
+                    <div class="p-8 border-t border-secondary-200">
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-lg font-semibold text-secondary-900 flex items-center">
+                                <i class="fas fa-list text-primary-600 mr-2"></i>
+                                Todos los Periodos
+                            </h4>
+                            <div class="text-sm text-secondary-600">
+                                Total: {{ resultado.dataframe.shape[0] }} periodos
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto max-h-96 overflow-y-auto border border-secondary-200 rounded-lg">
+                            <table class="min-w-full divide-y divide-secondary-200">
+                                <thead class="bg-secondary-100 sticky top-0">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Periodo</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Saldo Inicial</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Aportes</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Interés</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Saldo Final</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wider">Aportes Acumulados</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-secondary-200">
+                                    {% for _, row in resultado.dataframe.iterrows() %}
+                                        <tr class="hover:bg-secondary-50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">{{ row['Periodo'] }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${{ "%.2f"|format(row['Saldo Inicial']) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${{ "%.2f"|format(row['Aportes']) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">${{ "%.2f"|format(row['Interés']) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary-600">${{ "%.2f"|format(row['Saldo Final']) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-700">${{ "%.2f"|format(row['Aportes Acumulados']) }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('main.descargar_pdf', modulo='cartera') }}"
+                   class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl no-underline">
+                    <i class="fas fa-download mr-3"></i>
+                    Descargar Reporte PDF
+                </a>
+                <a href="{{ url_for('main.jubilacion') }}"
+                   class="inline-flex items-center justify-center bg-green-600 text-white px-8 py-4 rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
+                    <span>Continuar a Jubilación</span>
+                    <i class="fas fa-arrow-right ml-3"></i>
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% block scripts %}
+<script>
+    // Enhanced real-time validation for portfolio growth form
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuration constants
+        const VALIDATION_CONFIG = {
+            MIN_TEA: 0.0,
+            MAX_TEA: 50.0,
+            REASONABLE_TEA_MIN: 1.0,
+            REASONABLE_TEA_MAX: 25.0,
+            MIN_RETIREMENT_AGE: 50,
+            MAX_RETIREMENT_AGE: 100
+        };
+
+        // Numeric input validation - prevent non-numeric characters
+        const numericInputs = document.querySelectorAll('.numeric-input');
+
+        numericInputs.forEach(input => {
+            // Prevent invalid characters on keypress
+            input.addEventListener('keypress', function(e) {
+                // Allow: backspace, delete, tab, escape, enter
+                if ([8, 9, 27, 13].includes(e.keyCode) ||
+                    // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z
+                    (e.ctrlKey === true && [65, 67, 86, 88, 90].includes(e.keyCode)) ||
+                    // Allow: home, end, left, right, arrows
+                    ([35, 36, 37, 38, 39, 40].includes(e.keyCode))) {
+                    // Let it happen, don't do anything
+                    return;
+                }
+
+                // Allow decimal point (.) for decimal inputs - check the actual character
+                if (e.key === '.' || e.key === ',') {
+                    // Check if there's already a decimal point or comma in the input
+                    if (this.value.includes('.') || this.value.includes(',')) {
+                        e.preventDefault();
+                    }
+                    return;
+                }
+
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Real-time validation on input
+            input.addEventListener('input', function(e) {
+                // Trigger comprehensive validation without modifying the input value
+                validateField(this);
+            });
+
+            // Clear validation styling on focus
+            input.addEventListener('focus', function() {
+                this.classList.remove('border-red-300', 'border-green-300', 'border-yellow-300');
+            });
+        });
+
+        // Real-time form validation feedback
+        const form = document.querySelector('form');
+        const inputs = form.querySelectorAll('input, select');
+
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                validateField(this);
+            });
+
+            // For radio buttons, validate on change
+            if (input.type === 'radio') {
+                input.addEventListener('change', function() {
+                    // Validate related fields when radio changes
+                    validatePlazoFields();
+                    validateCrossFieldDependencies();
+                });
+            }
+        });
+
+        // Comprehensive field validation function
+        function validateField(input) {
+            const fieldName = input.name;
+            const value = input.value.trim();
+            let isValid = true;
+            let errorMessage = '';
+
+            // Basic required field validation
+            if (input.hasAttribute('required') && !value) {
+                isValid = false;
+                errorMessage = 'Este campo es obligatorio';
+            }
+            // Numeric field validations
+            else if (input.type === 'number' && value) {
+                const numericValue = parseFloat(value);
+                const min = parseFloat(input.min);
+                const max = parseFloat(input.max);
+
+                if (isNaN(numericValue)) {
+                    isValid = false;
+                    errorMessage = 'Debe ingresar un número válido';
+                } else {
+                    // Range validations
+                    if (!isNaN(min) && numericValue < min) {
+                        isValid = false;
+                        errorMessage = `El valor mínimo es ${min}`;
+                    } else if (!isNaN(max) && numericValue > max) {
+                        isValid = false;
+                        errorMessage = `El valor máximo es ${max}`;
+                    }
+                    // Business logic validations
+                    else {
+                        switch(fieldName) {
+                            case 'edad_actual':
+                                if (numericValue < 18 || numericValue > 100) {
+                                    isValid = false;
+                                    errorMessage = 'La edad debe estar entre 18 y 100 años';
+                                }
+                                break;
+                            case 'años':
+                                if (numericValue < 1 || numericValue > 100) {
+                                    isValid = false;
+                                    errorMessage = 'El plazo debe estar entre 1 y 100 años';
+                                }
+                                break;
+                            case 'edad_retiro':
+                                if (numericValue < 18 || numericValue > 120) {
+                                    isValid = false;
+                                    errorMessage = 'La edad de jubilación debe estar entre 18 y 120 años';
+                                }
+                                break;
+                            case 'tea':
+                                if (numericValue < VALIDATION_CONFIG.MIN_TEA || numericValue > VALIDATION_CONFIG.MAX_TEA) {
+                                    isValid = false;
+                                    errorMessage = `La TEA debe estar entre ${VALIDATION_CONFIG.MIN_TEA}% y ${VALIDATION_CONFIG.MAX_TEA}%`;
+                                } else if (numericValue < VALIDATION_CONFIG.REASONABLE_TEA_MIN) {
+                                    isValid = false;
+                                    errorMessage = 'La TEA parece muy baja. Las tasas típicas están entre 3% y 15%';
+                                } else if (numericValue > VALIDATION_CONFIG.REASONABLE_TEA_MAX) {
+                                    isValid = false;
+                                    errorMessage = 'La TEA parece muy alta. Las tasas típicas están entre 3% y 15%';
+                                }
+                                break;
+                            case 'monto_inicial':
+                            case 'aporte_periodico':
+                                if (numericValue < 0) {
+                                    isValid = false;
+                                    errorMessage = 'El monto no puede ser negativo';
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+
+            // Investment amount validation
+            if (isValid && (fieldName === 'monto_inicial' || fieldName === 'aporte_periodico')) {
+                const montoInicial = parseFloat(document.querySelector('input[name="monto_inicial"]').value) || 0;
+                const aportePeriodico = parseFloat(document.querySelector('input[name="aporte_periodico"]').value) || 0;
+
+                if (montoInicial <= 0 && aportePeriodico <= 0) {
+                    isValid = false;
+                    errorMessage = 'Debe proporcionar un monto inicial o aportes periódicos mayores a 0';
+                }
+            }
+
+            // Update visual feedback
+            updateFieldVisualFeedback(input, isValid, errorMessage);
+
+            return isValid;
+        }
+
+        // Cross-field validation logic - returns warnings instead of blocking
+        function validateCrossFieldDependencies() {
+            const edadActual = parseFloat(document.querySelector('input[name="edad_actual"]').value) || 0;
+            const tipoPlazo = document.querySelector('input[name="tipo_plazo"]:checked')?.value;
+            const años = parseFloat(document.querySelector('input[name="años"]').value) || 0;
+            const edadRetiro = parseFloat(document.querySelector('input[name="edad_retiro"]').value) || 0;
+
+            let warningMessage = '';
+
+            if (tipoPlazo === 'edad' && edadRetiro && edadActual) {
+                if (edadRetiro <= edadActual) {
+                    warningMessage = 'La edad de jubilación debe ser mayor que la edad actual';
+                    // Clear any field errors and show as warning instead
+                    clearFieldError(document.querySelector('input[name="edad_retiro"]'));
+                } else {
+                    const edadRetiroCalculada = edadRetiro;
+                    if (edadRetiroCalculada < VALIDATION_CONFIG.MIN_RETIREMENT_AGE) {
+                        warningMessage = 'La edad de jubilación parece muy baja. Considere una edad más realista';
+                        clearFieldError(document.querySelector('input[name="edad_retiro"]'));
+                    } else if (edadRetiroCalculada > VALIDATION_CONFIG.MAX_RETIREMENT_AGE) {
+                        warningMessage = 'La edad de jubilación parece muy alta. Considere una edad más realista';
+                        clearFieldError(document.querySelector('input[name="edad_retiro"]'));
+                    } else {
+                        clearFieldError(document.querySelector('input[name="edad_retiro"]'));
+                    }
+                }
+            } else if (tipoPlazo === 'años' && años && edadActual) {
+                const edadRetiroCalculada = edadActual + años;
+                if (edadRetiroCalculada < VALIDATION_CONFIG.MIN_RETIREMENT_AGE) {
+                    warningMessage = 'La edad de jubilación calculada parece muy baja. Considere más años';
+                    clearFieldError(document.querySelector('input[name="años"]'));
+                } else if (edadRetiroCalculada > VALIDATION_CONFIG.MAX_RETIREMENT_AGE) {
+                    warningMessage = 'La edad de jubilación calculada parece muy alta. Considere menos años';
+                    clearFieldError(document.querySelector('input[name="años"]'));
+                } else {
+                    clearFieldError(document.querySelector('input[name="años"]'));
+                }
+            }
+
+            return warningMessage;
+        }
+
+        // Validate plazo-related fields
+        function validatePlazoFields() {
+            const tipoPlazo = document.querySelector('input[name="tipo_plazo"]:checked')?.value;
+            const añosField = document.getElementById('años_field');
+            const edadRetiroField = document.getElementById('edad_retiro_field');
+
+            if (tipoPlazo === 'años') {
+                añosField.style.display = 'block';
+                edadRetiroField.style.display = 'none';
+                // Validate años field if visible
+                const añosInput = document.querySelector('input[name="años"]');
+                if (añosInput) validateField(añosInput);
+            } else {
+                añosField.style.display = 'none';
+                edadRetiroField.style.display = 'block';
+                // Validate edad_retiro field if visible
+                const edadRetiroInput = document.querySelector('input[name="edad_retiro"]');
+                if (edadRetiroInput) validateField(edadRetiroInput);
+            }
+        }
+
+        // Update visual feedback for fields
+        function updateFieldVisualFeedback(input, isValid, errorMessage) {
+            // Remove all validation classes
+            input.classList.remove('border-red-300', 'border-green-300', 'border-yellow-300', 'focus:border-red-500', 'focus:ring-red-500');
+
+            if (errorMessage) {
+                showFieldError(input, errorMessage);
+            } else {
+                clearFieldError(input);
+                // Add success styling for valid inputs with values
+                if (input.value.trim() && isValid) {
+                    input.classList.add('border-green-300');
+                }
+            }
+        }
+
+        function showFieldError(input, message) {
+            // Remove existing error
+            clearFieldError(input);
+
+            // Add error styling
+            input.classList.add('border-red-300', 'focus:border-red-500', 'focus:ring-red-500');
+
+            // Create error message
+            const errorDiv = document.createElement('p');
+            errorDiv.className = 'mt-1 text-sm text-red-600 flex items-center error-message';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i>${message}`;
+
+            // Insert after input
+            input.parentNode.insertBefore(errorDiv, input.nextSibling);
+        }
+
+        function clearFieldError(input) {
+            // Remove error styling
+            input.classList.remove('border-red-300', 'focus:border-red-500', 'focus:ring-red-500');
+
+            // Remove error message
+            const errorMsg = input.parentNode.querySelector('.error-message');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        }
+
+        // Form submission validation - Show warnings but allow submission
+        form.addEventListener('submit', function(e) {
+            let hasErrors = false;
+
+            // Validate all individual fields
+            inputs.forEach(input => {
+                if (!validateField(input)) {
+                    hasErrors = true;
+                }
+            });
+
+            // Run cross-field validations
+            const crossFieldError = validateCrossFieldDependencies();
+            if (crossFieldError) {
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                // Show general warning message but don't prevent submission
+                showFormWarning('Se encontraron algunos valores que pueden no ser óptimos. El cálculo se realizará con los datos proporcionados.');
+                // Scroll to first warning
+                const firstError = document.querySelector('.error-message');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+
+        function showFormError(message) {
+            // Remove existing form errors
+            const existingError = document.querySelector('.form-error');
+            if (existingError) existingError.remove();
+
+            // Create error alert
+            const alertHTML = `
+                <div class="form-error p-4 rounded-xl shadow-sm border-l-4 border-red-500 bg-red-50 text-red-800 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                        <div class="flex-1">${message}</div>
+                        <button type="button" class="text-red-400 hover:text-red-600 ml-4" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Add error before form
+            form.insertAdjacentHTML('beforebegin', alertHTML);
+        }
+
+        function showFormWarning(message) {
+            // Remove existing form warnings
+            const existingWarning = document.querySelector('.form-warning');
+            if (existingWarning) existingWarning.remove();
+
+            // Create warning alert
+            const alertHTML = `
+                <div class="form-warning p-4 rounded-xl shadow-sm border-l-4 border-yellow-500 bg-yellow-50 text-yellow-800 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mr-3"></i>
+                        <div class="flex-1">${message}</div>
+                        <button type="button" class="text-yellow-400 hover:text-yellow-600 ml-4" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Add warning before form
+            form.insertAdjacentHTML('beforebegin', alertHTML);
+        }
+
+        // Initialize validations on page load
+        validatePlazoFields();
+    });
+
+    // Toggle fields based on plazo type
+    document.querySelectorAll('input[name="tipo_plazo"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const añosField = document.getElementById('años_field');
+            const edadField = document.getElementById('edad_retiro_field');
+
+            if (this.value === 'años') {
+                añosField.style.display = 'block';
+                edadField.style.display = 'none';
+            } else {
+                añosField.style.display = 'none';
+                edadField.style.display = 'block';
+            }
+        });
+    });
+
+    // AJAX form submission
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Calculando...';
+
+            try {
+                const formData = new FormData(form);
+                const response = await fetch(window.location.pathname, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update results section
+                    updateCarteraResults(data.resultado);
+                    // Scroll to results
+                    document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    // Show error
+                    showError(data.error || 'Error en el cálculo');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión. Inténtalo de nuevo.');
+            } finally {
+                // Restore button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    }
+
+    function updateCarteraResults(resultado) {
+        // Update summary cards
+        const resumen = resultado.resumen;
+
+        // Create results HTML
+        const resultsHTML = `
+            <div class="space-y-8" id="results-section">
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-gradient-to-br from-primary-50 to-primary-100 p-6 rounded-xl border border-primary-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-trophy text-primary-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-primary-600 bg-primary-100 px-2 py-1 rounded-full">FINAL</span>
+                        </div>
+                        <div class="text-3xl font-bold text-primary-900 mb-1">$${resumen.capital_final.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="text-sm text-primary-700 font-medium">Capital Final</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 p-6 rounded-xl border border-cyan-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-coins text-cyan-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-cyan-600 bg-cyan-100 px-2 py-1 rounded-full">TOTAL</span>
+                        </div>
+                        <div class="text-3xl font-bold text-cyan-900 mb-1">$${resumen.aportes_totales.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="text-sm text-cyan-700 font-medium">Aportes Totales</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">GANANCIA</span>
+                        </div>
+                        <div class="text-3xl font-bold text-green-900 mb-1">$${resumen.ganancia_bruta.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="text-sm text-green-700 font-medium">Ganancia Bruta</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-percentage text-yellow-600 text-xl"></i>
+                            </div>
+                            <span class="text-xs font-medium text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">RENTABILIDAD</span>
+                        </div>
+                        <div class="text-3xl font-bold text-yellow-900 mb-1">${resumen.rentabilidad.toFixed(2)}%</div>
+                        <div class="text-sm text-yellow-700 font-medium">Rentabilidad Total</div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                    <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                        <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                            <i class="fas fa-chart-area text-primary-600 mr-3"></i>
+                            Evolución de la Cartera
+                        </h3>
+                        <p class="text-secondary-600 mt-2">Visualización del crecimiento de tu capital a lo largo del tiempo</p>
+                    </div>
+                    <div class="p-8">
+                        <div class="bg-secondary-50 rounded-xl p-6">
+                            <canvas id="graficaCartera" height="300" class="w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bg-white rounded-2xl shadow-xl border border-secondary-200 overflow-hidden">
+                    <div class="bg-secondary-50 px-8 py-6 border-b border-secondary-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-2xl font-bold text-secondary-900 flex items-center">
+                                    <i class="fas fa-table text-primary-600 mr-3"></i>
+                                    Detalle por Periodo
+                                </h3>
+                                <p class="text-secondary-600 mt-2">Resumen inteligente de periodos clave de inversión</p>
+                            </div>
+                            <button id="toggleTableBtn"
+                                    class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium flex items-center">
+                                <i class="fas fa-eye mr-2"></i>
+                                <span id="toggleText">Ver Todos</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Summary View (Default) -->
+                    <div id="summaryView" class="p-8">
+                        ${resultado.summary_html}
+                    </div>
+
+                    <!-- Full Table View (Hidden by default) -->
+                    <div id="fullTableView" class="hidden">
+                        <div class="p-8 border-t border-secondary-200">
+                            <div class="flex items-center justify-between mb-6">
+                                <h4 class="text-lg font-semibold text-secondary-900 flex items-center">
+                                    <i class="fas fa-list text-primary-600 mr-2"></i>
+                                    Todos los Periodos
+                                </h4>
+                                <div class="text-sm text-secondary-600">
+                                    Total: ${resultado.resumen ? 'datos calculados' : '0'} periodos
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto max-h-96 overflow-y-auto border border-secondary-200 rounded-lg">
+                                ${resultado.dataframe_html}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/descargar-pdf/cartera"
+                       class="inline-flex items-center justify-center bg-secondary-600 text-white px-8 py-4 rounded-xl hover:bg-secondary-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl no-underline">
+                        <i class="fas fa-download mr-3"></i>
+                        Descargar Reporte PDF
+                    </a>
+                    <a href="/jubilacion"
+                       class="inline-flex items-center justify-center bg-green-600 text-white px-8 py-4 rounded-xl hover:bg-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
+                        <span>Continuar a Jubilación</span>
+                        <i class="fas fa-arrow-right ml-3"></i>
+                    </a>
+                </div>
+            </div>
+        `;
+
+        // Remove existing results and add new ones
+        const existingResults = document.getElementById('results-section');
+        if (existingResults) {
+            existingResults.remove();
+        }
+
+        // Add new results after the form
+        const formElement = document.querySelector('form');
+        formElement.insertAdjacentHTML('afterend', resultsHTML);
+
+        // Initialize chart
+        initializeCarteraChart();
+
+        // Add toggle functionality for the new button
+        const newToggleBtn = document.getElementById('toggleTableBtn');
+        const newToggleText = document.getElementById('toggleText');
+        const newSummaryView = document.getElementById('summaryView');
+        const newFullTableView = document.getElementById('fullTableView');
+
+        if (newToggleBtn) {
+            newToggleBtn.addEventListener('click', function() {
+                const isExpanded = !newFullTableView.classList.contains('hidden');
+
+                if (isExpanded) {
+                    // Switch to summary view
+                    newSummaryView.classList.remove('hidden');
+                    newFullTableView.classList.add('hidden');
+                    newToggleText.textContent = 'Ver Todos';
+                    newToggleBtn.innerHTML = '<i class="fas fa-eye mr-2"></i><span id="toggleText">Ver Todos</span>';
+                } else {
+                    // Switch to full table view
+                    newSummaryView.classList.add('hidden');
+                    newFullTableView.classList.remove('hidden');
+                    newToggleText.textContent = 'Ver Resumen';
+                    newToggleBtn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i><span id="toggleText">Ver Resumen</span>';
+                }
+            });
+        }
+    }
+
+    function initializeCarteraChart() {
+        // Get chart data from the table
+        const tableRows = document.querySelectorAll('#results-section table tbody tr');
+        if (tableRows.length === 0) return;
+
+        const labels = [];
+        const saldoFinal = [];
+        const aportesAcumulados = [];
+
+        tableRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 6) {
+                labels.push(`Periodo ${cells[0].textContent.trim()}`);
+                // Parse the values, removing $ and formatting
+                const saldoFinalValue = parseFloat(cells[4].textContent.replace('$', '').replace(',', ''));
+                const aportesValue = parseFloat(cells[5].textContent.replace('$', '').replace(',', ''));
+
+                saldoFinal.push(saldoFinalValue);
+                aportesAcumulados.push(aportesValue);
+            }
+        });
+
+        const ctx = document.getElementById('graficaCartera');
+        if (ctx && labels.length > 0) {
+            // Destroy existing chart if it exists
+            if (window.carteraChart) {
+                window.carteraChart.destroy();
+            }
+
+            window.carteraChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Saldo Total',
+                        data: saldoFinal,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }, {
+                        label: 'Aportes Acumulados',
+                        data: aportesAcumulados,
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: 'rgb(239, 68, 68)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Evolución de la Cartera',
+                            font: {
+                                size: 16,
+                                weight: 'bold',
+                                family: 'Inter'
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 20
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    family: 'Inter',
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                },
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                lineWidth: 1
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                lineWidth: 1
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    elements: {
+                        point: {
+                            hoverBorderWidth: 3
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    function showError(message) {
+        // Create error alert
+        const alertHTML = `
+            <div class="p-4 rounded-xl shadow-sm border-l-4 border-red-500 bg-red-50 text-red-800 mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                    <div class="flex-1">${message}</div>
+                    <button type="button" class="text-red-400 hover:text-red-600 ml-4" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Add error before form
+        const formElement = document.querySelector('form');
+        formElement.insertAdjacentHTML('beforebegin', alertHTML);
+    }
+
+    // Toggle table view functionality (for existing results)
+    const toggleTableBtn = document.getElementById('toggleTableBtn');
+    const toggleText = document.getElementById('toggleText');
+    const summaryView = document.getElementById('summaryView');
+    const fullTableView = document.getElementById('fullTableView');
+
+    if (toggleTableBtn) {
+        toggleTableBtn.addEventListener('click', function() {
+            const isExpanded = !fullTableView.classList.contains('hidden');
+
+            if (isExpanded) {
+                // Switch to summary view
+                summaryView.classList.remove('hidden');
+                fullTableView.classList.add('hidden');
+                toggleText.textContent = 'Ver Todos';
+                toggleTableBtn.innerHTML = '<i class="fas fa-eye mr-2"></i><span id="toggleText">Ver Todos</span>';
+            } else {
+                // Switch to full table view
+                summaryView.classList.add('hidden');
+                fullTableView.classList.remove('hidden');
+                toggleText.textContent = 'Ver Resumen';
+                toggleTableBtn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i><span id="toggleText">Ver Resumen</span>';
+            }
+        });
+    }
+</script>
+
+{% if resultado %}
+<script>
+    // Initialize chart for existing results
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCarteraChart();
+    });
+</script>
+{% endif %}
+{% endblock %}
+{% endblock %}

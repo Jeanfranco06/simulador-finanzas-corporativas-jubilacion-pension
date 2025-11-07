@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Logros - Tu Retiro Seguro{% endblock %}
+
+{% block head %}
+<style>
+.achievement-card {
+    transition: all 0.3s ease;
+}
+.achievement-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.progress-bar {
+    transition: width 0.5s ease;
+}
+
+.rarity-common { border-color: #6b7280; }
+.rarity-rare { border-color: #3b82f6; }
+.rarity-epic { border-color: #8b5cf6; }
+.rarity-legendary { border-color: #f59e0b; }
+
+.rarity-common .rarity-badge { background: #6b7280; }
+.rarity-rare .rarity-badge { background: #3b82f6; }
+.rarity-epic .rarity-badge { background: #8b5cf6; }
+.rarity-legendary .rarity-badge { background: #f59e0b; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-secondary-50 dark:bg-secondary-900">
+    <!-- Header -->
+    <div class="bg-white dark:bg-secondary-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-secondary-900 dark:text-secondary-100">
+                        <i class="fas fa-trophy text-yellow-600 mr-3"></i>
+                        Mis Logros
+                    </h1>
+                    <p class="text-secondary-600 dark:text-secondary-400 mt-1">
+                        Tu progreso y conquistas en la plataforma
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Progreso Total</p>
+                        <p class="text-lg font-bold text-secondary-900 dark:text-secondary-100">
+                            <span id="completed-count">0</span> / <span id="total-count">0</span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center">
+                        <i class="fas fa-trophy text-yellow-600 dark:text-yellow-400 text-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Progress Overview -->
+        <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-secondary-900 dark:text-secondary-100">
+                    <i class="fas fa-chart-line text-primary-600 mr-2"></i>
+                    Progreso General
+                </h2>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-secondary-600 dark:text-secondary-400">Puntuación Total:</span>
+                    <span class="font-bold text-lg text-primary-600" id="total-points">0</span>
+                    <span class="text-sm text-secondary-600 dark:text-secondary-400">pts</span>
+                </div>
+            </div>
+            <div class="w-full bg-secondary-200 dark:bg-secondary-700 rounded-full h-3 mb-2">
+                <div class="bg-primary-600 h-3 rounded-full progress-bar" id="progress-bar" style="width: 0%"></div>
+            </div>
+            <p class="text-sm text-secondary-600 dark:text-secondary-400 text-center">
+                <span id="progress-text">0% completado</span>
+            </p>
+        </div>
+
+        <!-- Achievement Categories -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Loading State -->
+            <div id="loading-state" class="col-span-full">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for i in range(6) %}
+                    <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700 p-6 animate-pulse">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-secondary-200 dark:bg-secondary-700 rounded-lg"></div>
+                            <div class="w-16 h-6 bg-secondary-200 dark:bg-secondary-700 rounded-full"></div>
+                        </div>
+                        <div class="h-5 bg-secondary-200 dark:bg-secondary-700 rounded w-3/4 mb-2"></div>
+                        <div class="h-4 bg-secondary-200 dark:bg-secondary-700 rounded w-full mb-3"></div>
+                        <div class="h-2 bg-secondary-200 dark:bg-secondary-700 rounded w-full"></div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Achievements Container -->
+            <div id="achievements-container" class="col-span-full hidden">
+                <!-- This will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Achievement Categories Tabs -->
+        <div class="mt-8 bg-white dark:bg-secondary-800 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-700">
+            <div class="border-b border-secondary-200 dark:border-secondary-700">
+                <nav class="flex">
+                    <button class="category-tab active px-6 py-4 text-sm font-medium border-b-2 border-primary-600 text-primary-600 dark:text-primary-400" data-category="all">
+                        Todos los Logros
+                    </button>
+                    <button class="category-tab px-6 py-4 text-sm font-medium text-secondary-600 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-secondary-100" data-category="simulations">
+                        Simulaciones
+                    </button>
+                    <button class="category-tab px-6 py-4 text-sm font-medium text-secondary-600 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-secondary-100" data-category="templates">
+                        Plantillas
+                    </button>
+                    <button class="category-tab px-6 py-4 text-sm font-medium text-secondary-600 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-secondary-100" data-category="social">
+                        Social
+                    </button>
+                    <button class="category-tab px-6 py-4 text-sm font-medium text-secondary-600 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-secondary-100" data-category="achievements">
+                        Meta-Logros
+                    </button>
+                </nav>
+            </div>
+            <div class="p-6">
+                <div id="filtered-achievements" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Filtered achievements will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadAchievements();
+
+    // Category tabs
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Update active tab
+            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active', 'border-primary-600', 'text-primary-600', 'dark:text-primary-400'));
+            this.classList.add('active', 'border-primary-600', 'text-primary-600', 'dark:text-primary-400');
+
+            // Filter achievements
+            const category = this.dataset.category;
+            filterAchievements(category);
+        });
+    });
+});
+
+async function loadAchievements() {
+    try {
+        const response = await fetch('/api/achievements');
+        const data = await response.json();
+
+        if (data.success) {
+            displayAchievements(data.achievements);
+            updateProgress(data.achievements);
+        }
+    } catch (error) {
+        console.error('Error loading achievements:', error);
+    }
+}
+
+function displayAchievements(achievements) {
+    const container = document.getElementById('achievements-container');
+    const loading = document.getElementById('loading-state');
+
+    loading.classList.add('hidden');
+    container.classList.remove('hidden');
+
+    container.innerHTML = achievements.map(item => createAchievementCard(item)).join('');
+
+    // Also populate filtered view
+    filterAchievements('all');
+}
+
+function createAchievementCard(item) {
+    const { achievement, progress } = item;
+    const isCompleted = progress.is_completed;
+    const progressPercent = achievement.criteria_value > 0 ? Math.min((progress.current_value / achievement.criteria_value) * 100, 100) : 0;
+
+    const rarityClasses = {
+        'common': 'rarity-common',
+        'rare': 'rarity-rare',
+        'epic': 'rarity-epic',
+        'legendary': 'rarity-legendary'
+    };
+
+    return `
+        <div class="achievement-card bg-white dark:bg-secondary-800 rounded-xl shadow-sm border-2 ${rarityClasses[achievement.rarity]} p-6 ${isCompleted ? 'bg-opacity-50' : ''}">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 ${isCompleted ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-secondary-100 dark:bg-secondary-700'} rounded-lg flex items-center justify-center">
+                    <i class="fas fa-${achievement.icon} ${isCompleted ? 'text-yellow-600 dark:text-yellow-400' : 'text-secondary-400 dark:text-secondary-500'} text-lg"></i>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="rarity-badge px-2 py-1 rounded-full text-xs font-medium text-white">
+                        ${achievement.rarity.toUpperCase()}
+                    </span>
+                    <span class="text-sm font-medium text-secondary-600 dark:text-secondary-400">
+                        ${achievement.points} pts
+                    </span>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">
+                ${achievement.name}
+                ${isCompleted ? '<i class="fas fa-check-circle text-green-500 ml-2"></i>' : ''}
+            </h3>
+
+            <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-4">
+                ${achievement.description}
+            </p>
+
+            ${!isCompleted ? `
+                <div class="mb-3">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-secondary-600 dark:text-secondary-400">Progreso</span>
+                        <span class="text-secondary-900 dark:text-secondary-100 font-medium">
+                            ${progress.current_value} / ${achievement.criteria_value}
+                        </span>
+                    </div>
+                    <div class="w-full bg-secondary-200 dark:bg-secondary-700 rounded-full h-2">
+                        <div class="bg-primary-600 h-2 rounded-full progress-bar" style="width: ${progressPercent}%"></div>
+                    </div>
+                </div>
+            ` : `
+                <div class="mb-3">
+                    <div class="flex items-center text-green-600 dark:text-green-400 text-sm font-medium">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Completado ${new Date(progress.completed_at).toLocaleDateString('es-ES')}
+                    </div>
+                </div>
+            `}
+
+            <div class="flex items-center justify-between text-xs text-secondary-500 dark:text-secondary-400">
+                <span>Categoría: ${achievement.category}</span>
+                <span>ID: ${achievement.id}</span>
+            </div>
+        </div>
+    `;
+}
+
+function filterAchievements(category) {
+    const container = document.getElementById('filtered-achievements');
+
+    // This would normally filter the achievements, but for simplicity we'll show all
+    // In a real implementation, you'd fetch filtered data from the API
+    container.innerHTML = document.getElementById('achievements-container').innerHTML;
+}
+
+function updateProgress(achievements) {
+    const completed = achievements.filter(a => a.progress.is_completed).length;
+    const total = achievements.length;
+    const percentage = total > 0 ? (completed / total) * 100 : 0;
+
+    const totalPoints = achievements
+        .filter(a => a.progress.is_completed)
+        .reduce((sum, a) => sum + a.achievement.points, 0);
+
+    document.getElementById('completed-count').textContent = completed;
+    document.getElementById('total-count').textContent = total;
+    document.getElementById('progress-bar').style.width = `${percentage}%`;
+    document.getElementById('progress-text').textContent = `${Math.round(percentage)}% completado`;
+    document.getElementById('total-points').textContent = totalPoints;
+}
+</script>
+{% endblock %}

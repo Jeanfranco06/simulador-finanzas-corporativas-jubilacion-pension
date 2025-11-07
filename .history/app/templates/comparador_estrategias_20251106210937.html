@@ -1,0 +1,1263 @@
+{% extends "base.html" %}
+
+{% block title %}Comparador de Estrategias de Inversión - Simulador Financiero{% endblock %}
+
+{% block head %}
+<style>
+.strategy-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.strategy-card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.strategy-card.selected {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.strategy-card .strategy-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.strategy-conservative .strategy-icon {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #166534;
+}
+
+.strategy-moderate .strategy-icon {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+}
+
+.strategy-aggressive .strategy-icon {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+}
+
+.strategy-custom .strategy-icon {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    color: #3730a3;
+}
+
+.strategy-balanced .strategy-icon {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+    color: #6b21a8;
+}
+
+.strategy-tech .strategy-icon {
+    background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+    color: #0e7490;
+}
+
+.asset-allocation {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.asset-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.asset-item .asset-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.asset-item .asset-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.asset-item .asset-details h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.asset-item .asset-details p {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.asset-item .asset-weight {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.comparison-results {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.strategy-result {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.strategy-result:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.strategy-result.best {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.strategy-result .strategy-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.strategy-result .strategy-header .strategy-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.strategy-result .strategy-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.strategy-result .metric {
+    text-align: center;
+}
+
+.strategy-result .metric .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.strategy-result .metric .label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.benchmark-comparison {
+    background: linear-gradient(135deg, #fefefe 0%, #f9fafb 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid #e5e7eb;
+}
+
+.benchmark-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.benchmark-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.benchmark-item .benchmark-name {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.benchmark-item .benchmark-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.benchmark-item .benchmark-change {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.benchmark-item .benchmark-change.positive {
+    color: #10b981;
+}
+
+.benchmark-item .benchmark-change.negative {
+    color: #ef4444;
+}
+
+.risk-analysis {
+    background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid #fdba74;
+}
+
+.risk-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.risk-metric {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid #fed7aa;
+}
+
+.risk-metric .metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #9a3412;
+    margin-bottom: 0.25rem;
+}
+
+.risk-metric .metric-label {
+    font-size: 0.875rem;
+    color: #c2410c;
+}
+
+.rebalancing-options {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid #bae6fd;
+}
+
+.rebalancing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.rebalancing-option {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #bae6fd;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rebalancing-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.rebalancing-option.selected {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.rebalancing-option .option-name {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.rebalancing-option .option-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.strategy-customization {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.customization-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.control-group {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+}
+
+.control-group h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.control-group .control-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.control-group .control-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.loading-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e5e7eb;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-secondary-900 dark:via-secondary-800 dark:to-secondary-900">
+    <!-- Header -->
+    <div class="bg-white dark:bg-secondary-800 shadow-lg border-b border-secondary-200 dark:border-secondary-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-secondary-900 dark:text-secondary-100 flex items-center">
+                        <i class="fas fa-balance-scale text-blue-600 mr-3"></i>
+                        Comparador de Estrategias de Inversión
+                    </h1>
+                    <p class="text-secondary-600 dark:text-secondary-400 mt-2">
+                        Compara diferentes estrategias de inversión y encuentra la que mejor se adapte a tus objetivos
+                    </p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Capital Base</p>
+                        <p class="text-lg font-bold text-primary-600" id="base-capital">$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Strategy Selection -->
+        <div class="bg-white dark:bg-secondary-800 rounded-2xl shadow-xl p-8 mb-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-chart-pie text-blue-600 text-2xl mr-3"></i>
+                <h2 class="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
+                    Selecciona Estrategias a Comparar
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Conservative Strategy -->
+                <div class="strategy-card bg-white dark:bg-secondary-700 rounded-xl p-6 border-2 border-secondary-200 dark:border-secondary-600" data-strategy="conservative">
+                    <div class="strategy-conservative strategy-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">Conservadora</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400 text-sm mb-4">
+                        Enfoque en preservación de capital con bajo riesgo
+                    </p>
+                    <div class="asset-allocation">
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                                    <i class="fas fa-piggy-bank text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Bonos</h4>
+                                    <p>Conservador</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">70%</div>
+                        </div>
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+                                    <i class="fas fa-chart-line text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Acciones</h4>
+                                    <p>Crecimiento</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">30%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Moderate Strategy -->
+                <div class="strategy-card bg-white dark:bg-secondary-700 rounded-xl p-6 border-2 border-secondary-200 dark:border-secondary-600" data-strategy="moderate">
+                    <div class="strategy-moderate strategy-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">Moderada</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400 text-sm mb-4">
+                        Balance entre crecimiento y estabilidad
+                    </p>
+                    <div class="asset-allocation">
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                                    <i class="fas fa-piggy-bank text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Bonos</h4>
+                                    <p>Conservador</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">50%</div>
+                        </div>
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+                                    <i class="fas fa-chart-line text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Acciones</h4>
+                                    <p>Crecimiento</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">50%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aggressive Strategy -->
+                <div class="strategy-card bg-white dark:bg-secondary-700 rounded-xl p-6 border-2 border-secondary-200 dark:border-secondary-600" data-strategy="aggressive">
+                    <div class="strategy-aggressive strategy-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">Agresiva</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400 text-sm mb-4">
+                        Enfoque en crecimiento máximo con alto riesgo
+                    </p>
+                    <div class="asset-allocation">
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                                    <i class="fas fa-piggy-bank text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Bonos</h4>
+                                    <p>Conservador</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">20%</div>
+                        </div>
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+                                    <i class="fas fa-chart-line text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Acciones</h4>
+                                    <p>Crecimiento</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">80%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Balanced Strategy -->
+                <div class="strategy-card bg-white dark:bg-secondary-700 rounded-xl p-6 border-2 border-secondary-200 dark:border-secondary-600" data-strategy="balanced">
+                    <div class="strategy-balanced strategy-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">Balanceada</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400 text-sm mb-4">
+                        Diversificación global con múltiples activos
+                    </p>
+                    <div class="asset-allocation">
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                                    <i class="fas fa-piggy-bank text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Bonos</h4>
+                                    <p>Conservador</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">40%</div>
+                        </div>
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+                                    <i class="fas fa-chart-line text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Acciones</h4>
+                                    <p>Crecimiento</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">40%</div>
+                        </div>
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                                    <i class="fas fa-coins text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Oro</h4>
+                                    <p>Hedge</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">20%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tech-Focused Strategy -->
+                <div class="strategy-card bg-white dark:bg-secondary-700 rounded-xl p-6 border-2 border-secondary-200 dark:border-secondary-600" data-strategy="tech">
+                    <div class="strategy-tech strategy-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">Tecnología</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400 text-sm mb-4">
+                        Enfoque en empresas tecnológicas innovadoras
+                    </p>
+                    <div class="asset-allocation">
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+                                    <i class="fas fa-chart-line text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Tech Stocks</h4>
+                                    <p>Alto crecimiento</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">70%</div>
+                        </div>
+                        <div class="asset-item">
+                            <div class="asset-info">
+                                <div class="asset-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                                    <i class="fas fa-piggy-bank text-sm"></i>
+                                </div>
+                                <div class="asset-details">
+                                    <h4>Bonos</h4>
+                                    <p>Estabilidad</p>
+                                </div>
+                            </div>
+                            <div class="asset-weight">30%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Strategy -->
+                <div class="strategy-card bg-white dark:bg-secondary-700 rounded-xl p-6 border-2 border-secondary-200 dark:border-secondary-600" data-strategy="custom">
+                    <div class="strategy-custom strategy-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">Personalizada</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400 text-sm mb-4">
+                        Crea tu propia estrategia de inversión
+                    </p>
+                    <div class="text-center">
+                        <i class="fas fa-plus-circle text-3xl text-secondary-400 mb-2"></i>
+                        <p class="text-xs text-secondary-500">Configura tus propios pesos</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compare Button -->
+            <div class="flex justify-center mt-8">
+                <button id="compare-strategies" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-lg font-medium transition-all flex items-center transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    Comparar Estrategias Seleccionadas
+                </button>
+            </div>
+        </div>
+
+        <!-- Custom Strategy Configuration -->
+        <div id="custom-strategy-config" class="strategy-customization hidden">
+            <h3 class="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-4 flex items-center">
+                <i class="fas fa-sliders-h text-blue-600 mr-2"></i>
+                Configuración de Estrategia Personalizada
+            </h3>
+
+            <div class="customization-controls">
+                <div class="control-group">
+                    <h4 class="flex items-center">
+                        <i class="fas fa-chart-line text-blue-600 mr-2"></i>
+                        Acciones (%)
+                    </h4>
+                    <input type="number" id="custom-stocks" class="control-input" min="0" max="100" value="50" placeholder="50">
+                </div>
+
+                <div class="control-group">
+                    <h4 class="flex items-center">
+                        <i class="fas fa-piggy-bank text-green-600 mr-2"></i>
+                        Bonos (%)
+                    </h4>
+                    <input type="number" id="custom-bonds" class="control-input" min="0" max="100" value="30" placeholder="30">
+                </div>
+
+                <div class="control-group">
+                    <h4 class="flex items-center">
+                        <i class="fas fa-coins text-yellow-600 mr-2"></i>
+                        Oro (%)
+                    </h4>
+                    <input type="number" id="custom-gold" class="control-input" min="0" max="100" value="10" placeholder="10">
+                </div>
+
+                <div class="control-group">
+                    <h4 class="flex items-center">
+                        <i class="fas fa-home text-purple-600 mr-2"></i>
+                        Bienes Raíces (%)
+                    </h4>
+                    <input type="number" id="custom-real-estate" class="control-input" min="0" max="100" value="10" placeholder="10">
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-6">
+                <button id="apply-custom-strategy" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    <i class="fas fa-check mr-2"></i>
+                    Aplicar Configuración
+                </button>
+            </div>
+        </div>
+
+        <!-- Rebalancing Options -->
+        <div class="rebalancing-options">
+            <h3 class="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-4 flex items-center">
+                <i class="fas fa-sync-alt text-blue-600 mr-2"></i>
+                Frecuencia de Rebalanceo
+            </h3>
+
+            <div class="rebalancing-grid">
+                <div class="rebalancing-option selected" data-rebalance="none">
+                    <div class="option-name">Sin Rebalanceo</div>
+                    <div class="option-description">Mantener pesos iniciales</div>
+                </div>
+
+                <div class="rebalancing-option" data-rebalance="annual">
+                    <div class="option-name">Anual</div>
+                    <div class="option-description">Rebalancear una vez al año</div>
+                </div>
+
+                <div class="rebalancing-option" data-rebalance="quarterly">
+                    <div class="option-name">Trimestral</div>
+                    <div class="option-description">Rebalancear cada 3 meses</div>
+                </div>
+
+                <div class="rebalancing-option" data-rebalance="monthly">
+                    <div class="option-name">Mensual</div>
+                    <div class="option-description">Rebalancear cada mes</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="comparison-results" class="hidden animate-fade-in">
+            <!-- Strategy Comparison -->
+            <div class="comparison-results">
+                <h3 class="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-4 flex items-center">
+                    <i class="fas fa-trophy text-yellow-600 mr-2"></i>
+                    Resultados de la Comparación
+                </h3>
+
+                <div id="strategy-comparison-grid" class="comparison-grid">
+                    <!-- Strategy results will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Benchmark Comparison -->
+            <div class="benchmark-comparison">
+                <h3 class="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-4 flex items-center">
+                    <i class="fas fa-chart-line text-green-600 mr-2"></i>
+                    Comparación con Benchmarks del Mercado
+                </h3>
+
+                <div id="benchmark-comparison-grid" class="benchmark-grid">
+                    <!-- Benchmark results will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Risk Analysis -->
+            <div class="risk-analysis">
+                <h3 class="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-4 flex items-center">
+                    <i class="fas fa-exclamation-triangle text-orange-600 mr-2"></i>
+                    Análisis de Riesgo
+                </h3>
+
+                <div id="risk-analysis-metrics" class="risk-metrics">
+                    <!-- Risk metrics will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="bg-white dark:bg-secondary-800 rounded-2xl shadow-xl p-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-2">Exportar Resultados</h3>
+                        <p class="text-secondary-600 dark:text-secondary-400">Descarga un reporte completo de la comparación</p>
+                    </div>
+                    <button id="export-comparison" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center">
+                        <i class="fas fa-download mr-2"></i>
+                        Exportar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="comparison-loading" class="text-center py-16 hidden">
+            <div class="animate-pulse-slow">
+                <i class="fas fa-chart-bar text-blue-600 text-6xl mb-6"></i>
+                <h3 class="text-2xl font-bold text-secondary-900 dark:text-secondary-100 mb-4">
+                    Comparando estrategias...
+                </h3>
+                <p class="text-lg text-secondary-600 dark:text-secondary-400">
+                    Analizando rendimiento, riesgo y volatilidad
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay hidden">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <h3 class="text-lg font-bold text-secondary-900 dark:text-secondary-100 mb-2">Procesando comparación...</h3>
+        <p class="text-secondary-600 dark:text-secondary-400">Esto puede tomar unos momentos</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let selectedStrategies = new Set();
+let customStrategy = null;
+let rebalancingFrequency = 'none';
+let comparisonResults = null;
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setupEventListeners();
+    loadBaseData();
+});
+
+// Setup event listeners
+function setupEventListeners() {
+    // Strategy selection
+    document.querySelectorAll('.strategy-card').forEach(card => {
+        card.addEventListener('click', handleStrategySelection);
+    });
+
+    // Custom strategy configuration
+    document.getElementById('apply-custom-strategy').addEventListener('click', applyCustomStrategy);
+
+    // Rebalancing options
+    document.querySelectorAll('.rebalancing-option').forEach(option => {
+        option.addEventListener('click', handleRebalancingSelection);
+    });
+
+    // Compare button
+    document.getElementById('compare-strategies').addEventListener('click', compareStrategies);
+
+    // Export button
+    document.getElementById('export-comparison').addEventListener('click', exportComparison);
+
+    // Custom strategy inputs validation
+    document.querySelectorAll('.control-input').forEach(input => {
+        input.addEventListener('input', validateCustomStrategyInputs);
+    });
+}
+
+// Load base portfolio data
+function loadBaseData() {
+    fetch('/api/get-portfolio-data', {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateBaseCapital(data.capital_final);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading base data:', error);
+    });
+}
+
+// Update display values
+function updateBaseCapital(capital) {
+    document.getElementById('base-capital').textContent = formatCurrency(capital);
+}
+
+// Handle strategy selection
+function handleStrategySelection(event) {
+    const card = event.currentTarget;
+    const strategy = card.getAttribute('data-strategy');
+
+    if (strategy === 'custom') {
+        // Show custom strategy configuration
+        document.getElementById('custom-strategy-config').classList.remove('hidden');
+        card.classList.add('selected');
+        selectedStrategies.add(strategy);
+    } else {
+        // Toggle selection for predefined strategies
+        if (selectedStrategies.has(strategy)) {
+            selectedStrategies.delete(strategy);
+            card.classList.remove('selected');
+        } else {
+            selectedStrategies.add(strategy);
+            card.classList.add('selected');
+        }
+    }
+
+    updateCompareButton();
+}
+
+// Apply custom strategy configuration
+function applyCustomStrategy() {
+    const stocks = parseFloat(document.getElementById('custom-stocks').value) || 0;
+    const bonds = parseFloat(document.getElementById('custom-bonds').value) || 0;
+    const gold = parseFloat(document.getElementById('custom-gold').value) || 0;
+    const realEstate = parseFloat(document.getElementById('custom-real-estate').value) || 0;
+
+    const total = stocks + bonds + gold + realEstate;
+
+    if (total !== 100) {
+        alert('Los porcentajes deben sumar exactamente 100%');
+        return;
+    }
+
+    customStrategy = {
+        stocks: stocks,
+        bonds: bonds,
+        gold: gold,
+        realEstate: realEstate
+    };
+
+    document.getElementById('custom-strategy-config').classList.add('hidden');
+    updateCompareButton();
+}
+
+// Validate custom strategy inputs
+function validateCustomStrategyInputs() {
+    const inputs = document.querySelectorAll('.control-input');
+    let total = 0;
+
+    inputs.forEach(input => {
+        total += parseFloat(input.value) || 0;
+    });
+
+    inputs.forEach(input => {
+        if (total > 100) {
+            input.style.borderColor = '#ef4444';
+        } else if (total === 100) {
+            input.style.borderColor = '#10b981';
+        } else {
+            input.style.borderColor = '#d1d5db';
+        }
+    });
+}
+
+// Handle rebalancing selection
+function handleRebalancingSelection(event) {
+    const option = event.currentTarget;
+    const frequency = option.getAttribute('data-rebalance');
+
+    // Remove selected class from all options
+    document.querySelectorAll('.rebalancing-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+
+    // Add selected class to clicked option
+    option.classList.add('selected');
+    rebalancingFrequency = frequency;
+}
+
+// Update compare button state
+function updateCompareButton() {
+    const compareButton = document.getElementById('compare-strategies');
+    const hasSelections = selectedStrategies.size > 0 || customStrategy !== null;
+
+    compareButton.disabled = !hasSelections;
+
+    if (hasSelections) {
+        compareButton.innerHTML = `
+            <i class="fas fa-chart-bar mr-3"></i>
+            Comparar ${selectedStrategies.size + (customStrategy ? 1 : 0)} Estrategias
+        `;
+    } else {
+        compareButton.innerHTML = `
+            <i class="fas fa-chart-bar mr-3"></i>
+            Comparar Estrategias Seleccionadas
+        `;
+    }
+}
+
+// Compare strategies
+function compareStrategies() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loadingState = document.getElementById('comparison-loading');
+    const resultsSection = document.getElementById('comparison-results');
+
+    // Show loading
+    loadingOverlay.classList.remove('hidden');
+    loadingState.classList.remove('hidden');
+    resultsSection.classList.add('hidden');
+
+    const strategies = Array.from(selectedStrategies);
+    if (customStrategy) {
+        strategies.push('custom');
+    }
+
+    fetch('/api/comparar-estrategias', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            estrategias: strategies,
+            estrategia_personalizada: customStrategy,
+            rebalanceo: rebalancingFrequency
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        loadingOverlay.classList.add('hidden');
+        loadingState.classList.add('hidden');
+
+        if (data.success) {
+            comparisonResults = data;
+            displayComparisonResults(data);
+            resultsSection.classList.remove('hidden');
+        } else {
+            alert('Error en la comparación: ' + data.error);
+        }
+    })
+    .catch(error => {
+        loadingOverlay.classList.add('hidden');
+        loadingState.classList.add('hidden');
+        console.error('Error:', error);
+        alert('Error al comparar estrategias');
+    });
+}
+
+// Display comparison results
+function displayComparisonResults(data) {
+    // Display strategy comparison
+    displayStrategyComparison(data.estrategias);
+
+    // Display benchmark comparison
+    displayBenchmarkComparison(data.benchmarks);
+
+    // Display risk analysis
+    displayRiskAnalysis(data.analisis_riesgo);
+}
+
+// Display strategy comparison
+function displayStrategyComparison(strategies) {
+    const grid = document.getElementById('strategy-comparison-grid');
+    grid.innerHTML = '';
+
+    // Find best performing strategy
+    const bestStrategy = strategies.reduce((best, current) =>
+        current['Capital Promedio (USD)'] > best['Capital Promedio (USD)'] ? current : best
+    );
+
+    strategies.forEach(strategy => {
+        const isBest = strategy.nombre === bestStrategy.nombre;
+        const strategyCard = createStrategyCard(strategy, isBest);
+        grid.appendChild(strategyCard);
+    });
+}
+
+// Create strategy result card
+function createStrategyCard(strategy, isBest) {
+    const card = document.createElement('div');
+    card.className = `strategy-result ${isBest ? 'best' : ''}`;
+
+    const strategyConfig = getStrategyConfig(strategy.nombre);
+
+    card.innerHTML = `
+        <div class="strategy-header">
+            <div class="${strategyConfig.iconClass} strategy-icon">
+                <i class="${strategyConfig.icon}"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-secondary-900 dark:text-secondary-100">${strategyConfig.nombre}</h4>
+                <p class="text-sm text-secondary-600 dark:text-secondary-400">${strategyConfig.descripcion}</p>
+            </div>
+            ${isBest ? '<i class="fas fa-trophy text-yellow-500 ml-auto"></i>' : ''}
+        </div>
+        <div class="strategy-metrics">
+            <div class="metric">
+                <div class="value">${formatCurrency(strategy['Capital Promedio (USD)'])}</div>
+                <div class="label">Capital Final</div>
+            </div>
+            <div class="metric">
+                <div class="value">${strategy['TEA Esperada (%)'].toFixed(1)}%</div>
+                <div class="label">TEA Esperada</div>
+            </div>
+            <div class="metric">
+                <div class="value">${strategy['Volatilidad (%)'].toFixed(1)}%</div>
+                <div class="label">Volatilidad</div>
+            </div>
+            <div class="metric">
+                <div class="value">${strategy['Ratio Sharpe'].toFixed(2)}</div>
+                <div class="label">Ratio Sharpe</div>
+            </div>
+        </div>
+    `;
+
+    return card;
+}
+
+// Display benchmark comparison
+function displayBenchmarkComparison(benchmarks) {
+    const grid = document.getElementById('benchmark-comparison-grid');
+    grid.innerHTML = '';
+
+    benchmarks.forEach(benchmark => {
+        const item = document.createElement('div');
+        item.className = 'benchmark-item';
+
+        const diferencia = benchmark.diferencia_vs_mercado;
+        const isPositive = diferencia >= 0;
+
+        item.innerHTML = `
+            <div class="benchmark-name">${benchmark['Benchmark']}</div>
+            <div class="benchmark-value">${formatCurrency(benchmark['Capital Final (USD)'])}</div>
+            <div class="benchmark-change ${isPositive ? 'positive' : 'negative'}">
+                ${isPositive ? '+' : ''}${benchmark['Diferencia vs Mercado (%)'].toFixed(1)}% vs Mercado
+            </div>
+        `;
+
+        grid.appendChild(item);
+    });
+}
+
+// Display risk analysis
+function displayRiskAnalysis(analisisRiesgo) {
+    const metrics = document.getElementById('risk-analysis-metrics');
+    metrics.innerHTML = '';
+
+    const riskMetrics = [
+        { label: 'Volatilidad Promedio', value: `${analisisRiesgo.volatilidad_promedio.toFixed(1)}%`, icon: 'fas fa-wave-square' },
+        { label: 'Mejor Escenario', value: formatCurrency(analisisRiesgo.mejor_escenario), icon: 'fas fa-arrow-up' },
+        { label: 'Peor Escenario', value: formatCurrency(analisisRiesgo.peor_escenario), icon: 'fas fa-arrow-down' },
+        { label: 'Probabilidad Éxito', value: `${analisisRiesgo.probabilidad_exito.toFixed(1)}%`, icon: 'fas fa-percentage' }
+    ];
+
+    riskMetrics.forEach(metric => {
+        const item = document.createElement('div');
+        item.className = 'risk-metric';
+
+        item.innerHTML = `
+            <div class="flex items-center justify-center mb-2">
+                <i class="${metric.icon} text-orange-600 text-lg"></i>
+            </div>
+            <div class="metric-value">${metric.value}</div>
+            <div class="metric-label">${metric.label}</div>
+        `;
+
+        metrics.appendChild(item);
+    });
+}
+
+// Export comparison results
+function exportComparison() {
+    if (!comparisonResults) {
+        alert('No hay resultados para exportar. Realiza una comparación primero.');
+        return;
+    }
+
+    // Create comprehensive report data
+    const reportData = {
+        estrategias: comparisonResults.estrategias,
+        benchmarks: comparisonResults.benchmarks,
+        analisis_riesgo: comparisonResults.analisis_riesgo,
+        configuracion: {
+            estrategias_seleccionadas: Array.from(selectedStrategies),
+            estrategia_personalizada: customStrategy,
+            frecuencia_rebalanceo: rebalancingFrequency
+        }
+    };
+
+    fetch('/api/exportar-comparacion', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reportData)
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `comparacion_estrategias_${new Date().toISOString().split('T')[0]}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    })
+    .catch(error => {
+        console.error('Error exporting comparison:', error);
+        alert('Error al exportar la comparación');
+    });
+}
+
+// Get strategy configuration
+function getStrategyConfig(strategyName) {
+    const configs = {
+        conservative: {
+            nombre: 'Conservadora',
+            descripcion: 'Enfoque conservador',
+            iconClass: 'strategy-conservative',
+            icon: 'fas fa-shield-alt'
+        },
+        moderate: {
+            nombre: 'Moderada',
+            descripcion: 'Balance equilibrado',
+            iconClass: 'strategy-moderate',
+            icon: 'fas fa-balance-scale'
+        },
+        aggressive: {
+            nombre: 'Agresiva',
+            descripcion: 'Alto crecimiento',
+            iconClass: 'strategy-aggressive',
+            icon: 'fas fa-rocket'
+        },
+        balanced: {
+            nombre: 'Balanceada',
+            descripcion: 'Diversificación global',
+            iconClass: 'strategy-balanced',
+            icon: 'fas fa-palette'
+        },
+        tech: {
+            nombre: 'Tecnología',
+            descripcion: 'Enfoque tech',
+            iconClass: 'strategy-tech',
+            icon: 'fas fa-microchip'
+        },
+        custom: {
+            nombre: 'Personalizada',
+            descripcion: 'Configuración personalizada',
+            iconClass: 'strategy-custom',
+            icon: 'fas fa-cogs'
+        }
+    };
+
+    return configs[strategyName] || {
+        nombre: strategyName,
+        descripcion: 'Estrategia de inversión',
+        iconClass: 'strategy-custom',
+        icon: 'fas fa-chart-line'
+    };
+}
+
+// Utility functions
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('es-ES', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(amount);
+}
+</script>
+{% endblock %}
