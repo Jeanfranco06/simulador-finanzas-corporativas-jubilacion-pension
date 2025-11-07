@@ -1381,7 +1381,6 @@ def user_simulations():
     return render_template('user/simulations.html')
 
 @main.route('/perfil/logros')
-@login_required
 def user_achievements():
     """User achievements page"""
     return render_template('user/achievements.html')
@@ -1389,7 +1388,6 @@ def user_achievements():
 
 
 @main.route('/perfil/comparacion-social')
-@login_required
 def social_comparison():
     """Social comparison page"""
     return render_template('user/social_comparison.html')

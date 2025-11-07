@@ -527,13 +527,11 @@ def modulo_inflacion():
     """Módulo E: Inflación y Ajustes Automáticos"""
     # Check if portfolio data exists in session
     if 'cartera_resumen' not in session or 'cartera_datos' not in session:
-        flash('Debes completar primero el Módulo A (Crecimiento de Cartera) para usar el módulo de inflación', 'error')
         return redirect(url_for('main.cartera'))
 
     return render_template('modulo_inflacion.html')
 
 @main.route('/comparador-estrategias')
-@login_required
 def comparador_estrategias():
     """Módulo F: Comparador de Estrategias de Inversión"""
     # Check if portfolio data exists in session
@@ -1369,19 +1367,16 @@ def get_social_comparison():
 # ===== USER INTERFACE ROUTES =====
 
 @main.route('/perfil/dashboard')
-@login_required
 def user_dashboard():
     """User dashboard with overview of activity"""
     return render_template('user/dashboard.html')
 
 @main.route('/perfil/simulaciones')
-@login_required
 def user_simulations():
     """User's saved simulations page"""
     return render_template('user/simulations.html')
 
 @main.route('/perfil/logros')
-@login_required
 def user_achievements():
     """User achievements page"""
     return render_template('user/achievements.html')
@@ -1389,7 +1384,6 @@ def user_achievements():
 
 
 @main.route('/perfil/comparacion-social')
-@login_required
 def social_comparison():
     """Social comparison page"""
     return render_template('user/social_comparison.html')

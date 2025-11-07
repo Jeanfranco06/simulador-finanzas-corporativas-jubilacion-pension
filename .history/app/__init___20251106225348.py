@@ -22,11 +22,6 @@ def create_app(config_name=None):
     migrate = Migrate(app, db)
 
     # Initialize Flask-Login
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-    login_manager.login_view = 'main.login'
-    login_manager.login_message = 'Por favor inicia sesión para acceder a esta página.'
-    login_manager.login_message_category = 'info'
 
     @login_manager.user_loader
     def load_user(user_id):

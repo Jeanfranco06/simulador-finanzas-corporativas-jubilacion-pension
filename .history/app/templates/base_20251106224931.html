@@ -321,12 +321,10 @@
                 {% for category, message in messages %}
                 <div class="p-4 rounded-xl shadow-sm border-l-4
                                 {% if category == 'error' %}bg-red-50 border-red-500 text-red-800
-                                {% elif category == 'info' %}bg-blue-50 border-blue-500 text-blue-800
                                 {% else %}bg-green-50 border-green-500 text-green-800{% endif %}">
                     <div class="flex items-center">
                         <i class="fas
                                         {% if category == 'error' %}fa-exclamation-triangle text-red-500
-                                        {% elif category == 'info' %}fa-info-circle text-blue-500
                                         {% else %}fa-check-circle text-green-500{% endif %} mr-3"></i>
                         <div class="flex-1">{{ message }}</div>
                         <button type="button" class="text-gray-400 hover:text-gray-600 ml-4"

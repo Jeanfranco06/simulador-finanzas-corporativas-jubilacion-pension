@@ -494,38 +494,18 @@
             </div>
         `;
 
-        // Position tooltip above the button
+        // Position tooltip
         const rect = element.getBoundingClientRect();
-        const tooltipRect = tooltip.getBoundingClientRect();
-        tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
-        tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+        tooltip.style.left = rect.left + 'px';
+        tooltip.style.top = (rect.top - 10) + 'px';
 
         // Add to body
         document.body.appendChild(tooltip);
-
-        // Force recalculation for proper positioning
-        const actualRect = tooltip.getBoundingClientRect();
-        tooltip.style.left = (rect.left + rect.width / 2 - actualRect.width / 2) + 'px';
-        tooltip.style.top = (rect.top - actualRect.height - 10) + 'px';
-
-        // Add click outside listener to close tooltip
-        function closeTooltipOnClickOutside(event) {
-            if (!tooltip.contains(event.target) && !element.contains(event.target)) {
-                tooltip.remove();
-                document.removeEventListener('click', closeTooltipOnClickOutside);
-            }
-        }
-
-        // Add listener after a short delay to avoid immediate closing
-        setTimeout(() => {
-            document.addEventListener('click', closeTooltipOnClickOutside);
-        }, 10);
 
         // Auto-remove after 5 seconds
         setTimeout(() => {
             if (tooltip.parentElement) {
                 tooltip.remove();
-                document.removeEventListener('click', closeTooltipOnClickOutside);
             }
         }, 5000);
     }

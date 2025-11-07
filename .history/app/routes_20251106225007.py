@@ -522,7 +522,6 @@ def escenarios_sensibilidad():
     return render_template('escenarios_sensibilidad.html')
 
 @main.route('/modulo-inflacion')
-@login_required
 def modulo_inflacion():
     """Módulo E: Inflación y Ajustes Automáticos"""
     # Check if portfolio data exists in session
@@ -533,7 +532,6 @@ def modulo_inflacion():
     return render_template('modulo_inflacion.html')
 
 @main.route('/comparador-estrategias')
-@login_required
 def comparador_estrategias():
     """Módulo F: Comparador de Estrategias de Inversión"""
     # Check if portfolio data exists in session
@@ -1369,19 +1367,16 @@ def get_social_comparison():
 # ===== USER INTERFACE ROUTES =====
 
 @main.route('/perfil/dashboard')
-@login_required
 def user_dashboard():
     """User dashboard with overview of activity"""
     return render_template('user/dashboard.html')
 
 @main.route('/perfil/simulaciones')
-@login_required
 def user_simulations():
     """User's saved simulations page"""
     return render_template('user/simulations.html')
 
 @main.route('/perfil/logros')
-@login_required
 def user_achievements():
     """User achievements page"""
     return render_template('user/achievements.html')
@@ -1389,7 +1384,6 @@ def user_achievements():
 
 
 @main.route('/perfil/comparacion-social')
-@login_required
 def social_comparison():
     """Social comparison page"""
     return render_template('user/social_comparison.html')

@@ -1389,7 +1389,6 @@ def user_achievements():
 
 
 @main.route('/perfil/comparacion-social')
-@login_required
 def social_comparison():
     """Social comparison page"""
     return render_template('user/social_comparison.html')

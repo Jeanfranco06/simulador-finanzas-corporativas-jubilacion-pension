@@ -51,7 +51,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-secondary-700 mb-2">
                                     <i class="fas fa-birthday-cake mr-1"></i>Edad Actual
-                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors help-btn" data-help="Tu edad actual en años. Se usa para calcular la edad de jubilación.">
+                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors" title="Tu edad actual en años. Se usa para calcular la edad de jubilación.">
                                         <i class="fas fa-question-circle text-xs"></i>
                                     </button>
                                 </label>
@@ -116,7 +116,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-secondary-700 mb-2">
                                     <i class="fas fa-piggy-bank mr-1"></i>Monto Inicial (USD)
-                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors help-btn" data-help="Capital inicial que tienes disponible para invertir. Puede ser $0 si solo harás aportes periódicos.">
+                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors" title="Capital inicial que tienes disponible para invertir. Puede ser $0 si solo harás aportes periódicos.">
                                         <i class="fas fa-question-circle text-xs"></i>
                                     </button>
                                 </label>
@@ -134,7 +134,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-secondary-700 mb-2">
                                     <i class="fas fa-plus-circle mr-1"></i>Aporte Periódico (USD)
-                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors help-btn" data-help="Monto que aportarás periódicamente según la frecuencia seleccionada. Puede ser $0 si solo tienes capital inicial.">
+                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors" title="Monto que aportarás periódicamente según la frecuencia seleccionada. Puede ser $0 si solo tienes capital inicial.">
                                         <i class="fas fa-question-circle text-xs"></i>
                                     </button>
                                 </label>
@@ -152,7 +152,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-secondary-700 mb-2">
                                     <i class="fas fa-sync-alt mr-1"></i>Frecuencia de Aportes
-                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors help-btn" data-help="Frecuencia con la que harás los aportes periódicos. El sistema convertirá automáticamente la TEA según esta frecuencia.">
+                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors" title="Frecuencia con la que harás los aportes periódicos. El sistema convertirá automáticamente la TEA según esta frecuencia.">
                                         <i class="fas fa-question-circle text-xs"></i>
                                     </button>
                                 </label>
@@ -162,7 +162,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-secondary-700 mb-2">
                                     <i class="fas fa-percentage mr-1"></i>TEA (%)
-                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors help-btn" data-help="Tasa Efectiva Anual esperada de retorno de tu inversión. El sistema convertirá automáticamente esta tasa según la frecuencia de aportes.">
+                                    <button type="button" class="ml-1 text-secondary-400 hover:text-secondary-600 transition-colors" title="Tasa Efectiva Anual esperada de retorno de tu inversión. El sistema convertirá automáticamente esta tasa según la frecuencia de aportes.">
                                         <i class="fas fa-question-circle text-xs"></i>
                                     </button>
                                 </label>
@@ -494,56 +494,21 @@
             </div>
         `;
 
-        // Position tooltip above the button
+        // Position tooltip
         const rect = element.getBoundingClientRect();
-        const tooltipRect = tooltip.getBoundingClientRect();
-        tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
-        tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+        tooltip.style.left = rect.left + 'px';
+        tooltip.style.top = (rect.top - 10) + 'px';
 
         // Add to body
         document.body.appendChild(tooltip);
-
-        // Force recalculation for proper positioning
-        const actualRect = tooltip.getBoundingClientRect();
-        tooltip.style.left = (rect.left + rect.width / 2 - actualRect.width / 2) + 'px';
-        tooltip.style.top = (rect.top - actualRect.height - 10) + 'px';
-
-        // Add click outside listener to close tooltip
-        function closeTooltipOnClickOutside(event) {
-            if (!tooltip.contains(event.target) && !element.contains(event.target)) {
-                tooltip.remove();
-                document.removeEventListener('click', closeTooltipOnClickOutside);
-            }
-        }
-
-        // Add listener after a short delay to avoid immediate closing
-        setTimeout(() => {
-            document.addEventListener('click', closeTooltipOnClickOutside);
-        }, 10);
 
         // Auto-remove after 5 seconds
         setTimeout(() => {
             if (tooltip.parentElement) {
                 tooltip.remove();
-                document.removeEventListener('click', closeTooltipOnClickOutside);
             }
         }, 5000);
     }
-
-    // Help button event listeners
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add event listeners to all help buttons
-        const helpButtons = document.querySelectorAll('.help-btn');
-        helpButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const helpText = this.getAttribute('data-help');
-                if (helpText) {
-                    showHelpTooltip(helpText, this);
-                }
-            });
-        });
-    });
 
     // Enhanced real-time validation for portfolio growth form
     document.addEventListener('DOMContentLoaded', function() {
