@@ -176,12 +176,13 @@ def crear_manual_usuario():
     content = []
 
     # ==================== PORTADA ====================
+    content.append(Spacer(1, 3*cm))
     
     # Logo universidad
-    logo_path = os.path.join(images_dir, 'logount.png')
+    logo_path = os.path.join(images_dir, 'logo_universidad.png')
     if os.path.exists(logo_path):
         try:
-            logo = Image(logo_path, width=7*cm, height=5*cm)
+            logo = Image(logo_path, width=4*cm, height=4*cm)
             logo.hAlign = 'CENTER'
             content.append(logo)
             content.append(Spacer(1, 1*cm))
@@ -192,12 +193,13 @@ def crear_manual_usuario():
     content.append(Spacer(1, 0.3*cm))
     content.append(Paragraph("Manual de Usuario", subtitle_style))
     content.append(Paragraph("Simulador Financiero de Jubilación", subtitle_style))
+    content.append(Spacer(1, 3*cm))
 
     # Imagen principal
     dashboard_path = os.path.join(images_dir, 'dashboard_principal.jpeg')
     if os.path.exists(dashboard_path):
         try:
-            dashboard = Image(dashboard_path, width=16*cm, height=9*cm)
+            dashboard = Image(dashboard_path,)
             dashboard.hAlign = 'CENTER'
             content.append(dashboard)
             content.append(Spacer(1, 0.3*cm))
@@ -272,7 +274,7 @@ def crear_manual_usuario():
     modulo_img = os.path.join(images_dir, 'moduloA.jpeg')
     if os.path.exists(modulo_img):
         try:
-            img = Image(modulo_img, width=16*cm, height=9*cm)
+            img = Image(modulo_img, width=14*cm, height=8*cm)
             img.hAlign = 'CENTER'
             content.append(img)
             content.append(Spacer(1, 0.3*cm))
@@ -394,7 +396,7 @@ def crear_manual_usuario():
 
     pasos_acceso = [
         "Abra su navegador web preferido (Chrome, Firefox, Safari o Edge).",
-        "Ingrese la URL: https://simulador-finanzas-corporativas-am1t.onrender.com/.",
+        "Ingrese la URL de la aplicación proporcionada por su institución.",
         "Espere a que cargue la interfaz principal del sistema.",
         "Elija entre crear una cuenta o continuar como usuario anónimo."
     ]
@@ -406,10 +408,10 @@ def crear_manual_usuario():
     content.append(Spacer(1, 0.5*cm))
 
     # Imagen formulario
-    form_img = os.path.join(images_dir, 'formulario_captura.jpeg')
+    form_img = os.path.join(images_dir, 'formulario_captura.png')
     if os.path.exists(form_img):
         try:
-            img = Image(form_img, width=14*cm, height=8*cm)
+            img = Image(form_img, width=13*cm, height=9*cm)
             img.hAlign = 'CENTER'
             content.append(img)
             content.append(Spacer(1, 0.3*cm))
@@ -560,7 +562,7 @@ def crear_manual_usuario():
     content.append(Spacer(1, 0.5*cm))
 
     # Imagen resultados módulo A
-    results_img = os.path.join(images_dir, 'modulo_a_resultados.jpeg')
+    results_img = os.path.join(images_dir, 'modulo_a_resultados.png')
     if os.path.exists(results_img):
         try:
             img = Image(results_img, width=14*cm, height=9*cm)
@@ -574,27 +576,16 @@ def crear_manual_usuario():
 
     content.append(Paragraph("4.1 Fundamentos Teóricos", section_style))
 
-    fundamentos_a1 = """
+    fundamentos_a = """
     Este módulo se basa en los principios del valor del dinero en el tiempo y el interés compuesto. 
     La fórmula fundamental utilizada es la del valor futuro de una anualidad:<br/><br/>
-    """
-    content.append(Paragraph(fundamentos_a1, normal_style))
-    modulo_b_img = os.path.join(images_dir, 'formulavf.jpeg')
-    if os.path.exists(modulo_b_img):
-        try:
-            img = Image(modulo_b_img, width=10*cm, height=1*cm)
-            img.hAlign = 'CENTER'
-            content.append(img)
-            content.append(Spacer(1, 0.3*cm))
-            content.append(Paragraph("Fórmula 1. Fórmula de valor futuro", caption_style))
-            content.append(Spacer(1, 0.5*cm))
-        except:
-            pass
-    fundamentos_a2 = """
+    
+    VF = VA(1+i)^n + PMT[((1+i)^n - 1)/i]<br/><br/>
+    
     Donde VF es el valor futuro, VA es el valor actual o capital inicial, i es la tasa de 
     interés por período, n es el número de períodos, y PMT es el pago o aporte periódico.
     """
-    content.append(Paragraph(fundamentos_a2, normal_style))
+    content.append(Paragraph(fundamentos_a, normal_style))
     content.append(Spacer(1, 0.5*cm))
 
     content.append(Paragraph("4.2 Parámetros de Entrada", section_style))
@@ -671,7 +662,7 @@ def crear_manual_usuario():
     content.append(Spacer(1, 0.5*cm))
 
     # Imagen módulo B
-    modulo_b_img = os.path.join(images_dir, 'modulo_b_captura.jpeg')
+    modulo_b_img = os.path.join(images_dir, 'modulo_b_captura.png')
     if os.path.exists(modulo_b_img):
         try:
             img = Image(modulo_b_img, width=14*cm, height=9*cm)
@@ -762,28 +753,17 @@ def crear_manual_usuario():
 
     content.append(Paragraph("6.1 Fundamentos de Valoración de Bonos", section_style))
 
-    fundamentos_bonos1 = """
+    fundamentos_bonos = """
     Un bono es un instrumento de deuda donde el emisor se compromete a pagar intereses periódicos 
     (cupones) y devolver el capital (valor nominal) al vencimiento. El valor presente del bono 
     se calcula descontando estos flujos futuros a la tasa de mercado:<br/><br/>
-    """
-    content.append(Paragraph(fundamentos_bonos1, normal_style))
-    modulo_b_img = os.path.join(images_dir, 'formulacupon.jpeg')
-    if os.path.exists(modulo_b_img):
-        try:
-            img = Image(modulo_b_img, width=10*cm, height=2*cm)
-            img.hAlign = 'CENTER'
-            content.append(img)
-            content.append(Spacer(1, 0.3*cm))
-            content.append(Paragraph("Fórmula 2. Fórmula de valor presente de un cupón", caption_style))
-            content.append(Spacer(1, 0.5*cm))
-        except:
-            pass
-    fundamentos_bonos2 = """
+    
+    VP = Σ(Cupón/(1+i)^t) + VN/(1+i)^n<br/><br/>
+    
     Donde VP es el valor presente, VN es el valor nominal, i es la tasa de descuento (TEA de mercado), 
     t es cada período de pago de cupón, y n es el número total de períodos hasta el vencimiento.
     """
-    content.append(Paragraph(fundamentos_bonos2, normal_style))
+    content.append(Paragraph(fundamentos_bonos, normal_style))
     content.append(Spacer(1, 0.5*cm))
 
     content.append(Paragraph("6.2 Parámetros del Bono", section_style))

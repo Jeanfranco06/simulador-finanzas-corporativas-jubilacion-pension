@@ -579,10 +579,11 @@ def crear_manual_usuario():
     La fórmula fundamental utilizada es la del valor futuro de una anualidad:<br/><br/>
     """
     content.append(Paragraph(fundamentos_a1, normal_style))
+    content.append(Spacer(1, 0.5*cm))
     modulo_b_img = os.path.join(images_dir, 'formulavf.jpeg')
     if os.path.exists(modulo_b_img):
         try:
-            img = Image(modulo_b_img, width=10*cm, height=1*cm)
+            img = Image(modulo_b_img, width=16*cm, height=4*cm)
             img.hAlign = 'CENTER'
             content.append(img)
             content.append(Spacer(1, 0.3*cm))
@@ -762,28 +763,28 @@ def crear_manual_usuario():
 
     content.append(Paragraph("6.1 Fundamentos de Valoración de Bonos", section_style))
 
-    fundamentos_bonos1 = """
+    fundamentos_bonos = """
     Un bono es un instrumento de deuda donde el emisor se compromete a pagar intereses periódicos 
     (cupones) y devolver el capital (valor nominal) al vencimiento. El valor presente del bono 
     se calcula descontando estos flujos futuros a la tasa de mercado:<br/><br/>
     """
-    content.append(Paragraph(fundamentos_bonos1, normal_style))
-    modulo_b_img = os.path.join(images_dir, 'formulacupon.jpeg')
+    content.append(Spacer(1, 0.5*cm))
+    modulo_b_img = os.path.join(images_dir, 'formulavf.jpeg')
     if os.path.exists(modulo_b_img):
         try:
-            img = Image(modulo_b_img, width=10*cm, height=2*cm)
+            img = Image(modulo_b_img, width=16*cm, height=4*cm)
             img.hAlign = 'CENTER'
             content.append(img)
             content.append(Spacer(1, 0.3*cm))
-            content.append(Paragraph("Fórmula 2. Fórmula de valor presente de un cupón", caption_style))
+            content.append(Paragraph("Fórmula 1. Fórmula de valor futuro", caption_style))
             content.append(Spacer(1, 0.5*cm))
         except:
             pass
-    fundamentos_bonos2 = """
+    """"""
     Donde VP es el valor presente, VN es el valor nominal, i es la tasa de descuento (TEA de mercado), 
     t es cada período de pago de cupón, y n es el número total de períodos hasta el vencimiento.
     """
-    content.append(Paragraph(fundamentos_bonos2, normal_style))
+    content.append(Paragraph(fundamentos_bonos, normal_style))
     content.append(Spacer(1, 0.5*cm))
 
     content.append(Paragraph("6.2 Parámetros del Bono", section_style))

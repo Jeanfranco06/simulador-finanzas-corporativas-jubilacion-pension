@@ -582,7 +582,7 @@ def crear_manual_usuario():
     modulo_b_img = os.path.join(images_dir, 'formulavf.jpeg')
     if os.path.exists(modulo_b_img):
         try:
-            img = Image(modulo_b_img, width=10*cm, height=1*cm)
+            img = Image(modulo_b_img, width=14*cm, height=1*cm)
             img.hAlign = 'CENTER'
             content.append(img)
             content.append(Spacer(1, 0.3*cm))
@@ -768,10 +768,12 @@ def crear_manual_usuario():
     se calcula descontando estos flujos futuros a la tasa de mercado:<br/><br/>
     """
     content.append(Paragraph(fundamentos_bonos1, normal_style))
+    content.append(Spacer(1, 0.5*cm))
+    content.append(Spacer(1, 0.5*cm))
     modulo_b_img = os.path.join(images_dir, 'formulacupon.jpeg')
     if os.path.exists(modulo_b_img):
         try:
-            img = Image(modulo_b_img, width=10*cm, height=2*cm)
+            img = Image(modulo_b_img, width=14*cm, height=2*cm)
             img.hAlign = 'CENTER'
             content.append(img)
             content.append(Spacer(1, 0.3*cm))
