@@ -25,7 +25,7 @@ def create_app(config_name=None):
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'main.login'
-    login_manager.login_message = None  # Deshabilitar completamente el mensaje flash
+    # No mostrar mensaje flash en la página de login - es redundante
 
     @login_manager.user_loader
     def load_user(user_id):
