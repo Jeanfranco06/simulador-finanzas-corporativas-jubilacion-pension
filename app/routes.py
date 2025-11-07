@@ -14,6 +14,7 @@ from utils.calculos_financieros import (
     calcular_benchmarking,
     simular_rebalanceo_automatico
 )
+from utils.validaciones import validar_datos_cartera
 from datetime import datetime
 import numpy as np
 import uuid
@@ -66,21 +67,29 @@ def generate_cartera_summary_html(dataframe):
     if total_rows == 0:
         return ""
 
-    # Get key periods: start, middle, end
+    # Get key periods: start (period 1), middle, end
     periods_to_show = []
     if total_rows >= 3:
-        periods_to_show = [0, total_rows // 2, total_rows - 1]  # First, middle, last
+        periods_to_show = [1, total_rows // 2, total_rows - 1]  # Period 1, middle, last
     else:
-        periods_to_show = list(range(total_rows))  # Show all if less than 3
+        periods_to_show = list(range(1, total_rows))  # Show from period 1 onwards if less than 3
 
     html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">'
 
     period_names = ['Inicio', 'Mitad del Periodo', 'Final']
-    period_labels = ['Periodo 1', f'Periodo {(total_rows // 2) + 1}', f'Periodo {total_rows}']
+    period_labels = ['Periodo 1', f'Periodo {total_rows // 2}', f'Periodo {total_rows - 1}']
 
     for i, period_idx in enumerate(periods_to_show):
         if period_idx < total_rows:
             row = dataframe.iloc[period_idx]
+            # For period 1 (start), use initial values; for others, use accumulated values
+            if i == 0:  # Period 1 - Inicio
+                capital_value = row['Saldo Inicial']
+                aportes_value = row['Aportes']
+            else:  # Other periods - use final/accumulated values
+                capital_value = row['Saldo Final']
+                aportes_value = row['Aportes Acumulados']
+
             html += f'''
                 <div class="bg-gradient-to-br from-primary-50 to-primary-100 p-6 rounded-xl border border-primary-200">
                     <div class="flex items-center mb-4">
@@ -95,11 +104,11 @@ def generate_cartera_summary_html(dataframe):
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
                             <span class="text-primary-700">Capital:</span>
-                            <span class="font-semibold">${row['Saldo Final']:.2f}</span>
+                            <span class="font-semibold">${capital_value:.2f}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-primary-700">Aportes:</span>
-                            <span class="font-semibold">${row['Aportes Acumulados']:.2f}</span>
+                            <span class="font-semibold">${aportes_value:.2f}</span>
                         </div>
                     </div>
                 </div>
@@ -228,7 +237,9 @@ def index():
 @main.route('/cartera', methods=['GET', 'POST'])
 def cartera():
     """Módulo A: Crecimiento de Cartera"""
-    form = CarteraForm()
+    # Pre-fill form with session data if available (for editing from other modules)
+    session_data = session.get('cartera_datos', {})
+    form = CarteraForm(data=session_data) if session_data else CarteraForm()
     resultado = None
     errors = []
 
@@ -249,6 +260,22 @@ def cartera():
                 'edad_retiro': edad_retiro_data if tipo_plazo == 'edad' and edad_retiro_data is not None else None,
                 'tea': form.tea.data
             }
+
+            # Validate data using validation function
+            años_calculo = datos['años'] if datos['tipo_plazo'] == 'años' else (datos['edad_retiro'] - datos['edad_actual'])
+            es_valido, mensaje_error = validar_datos_cartera(
+                monto_inicial=datos['monto_inicial'],
+                aporte_periodico=datos['aporte_periodico'],
+                tea=datos['tea'],
+                años=años_calculo
+            )
+
+            if not es_valido:
+                error_msg = mensaje_error
+                if is_ajax_request():
+                    return jsonify({'success': False, 'error': error_msg})
+                flash(error_msg, 'error')
+                return render_template('cartera.html', form=form, resultado=None, errors=[error_msg])
 
             try:
                 resultado = calcular_cartera(datos)
@@ -292,7 +319,10 @@ def cartera():
                         'resultado': {
                             'resumen': resultado['resumen'],
                             'dataframe_html': table_html,
-                            'summary_html': summary_html
+                            'summary_html': summary_html,
+                            'tea_equivalente': resultado['resumen'].get('tea_equivalente', 0),
+                            'tea_ingresada': resultado['resumen'].get('tea_ingresada', 0),
+                            'frecuencia': resultado['resumen'].get('frecuencia', 'N/A')
                         },
                         'awarded_achievements': [a.to_dict() for a in awarded_achievements] if awarded_achievements else []
                     })
@@ -313,10 +343,31 @@ def cartera():
 @main.route('/jubilacion', methods=['GET', 'POST'])
 def jubilacion():
     """Módulo B: Proyección de Jubilación"""
-    form = JubilacionForm()
-    resultado = None
+    # Pre-fill edad_jubilacion based on portfolio data
+    form_data = {}
     modulo_a_completado = 'cartera_resumen' in session
+
+    if modulo_a_completado and 'cartera_datos' in session:
+        cartera_datos = session['cartera_datos']
+        edad_actual = cartera_datos.get('edad_actual', 30)
+        tipo_plazo = cartera_datos.get('tipo_plazo')
+
+        if tipo_plazo == 'años':
+            # If portfolio was specified by years, calculate retirement age
+            años = cartera_datos.get('años', 35)
+            form_data['edad_jubilacion'] = edad_actual + años
+        elif tipo_plazo == 'edad':
+            # If portfolio was specified by retirement age, use that value
+            form_data['edad_jubilacion'] = cartera_datos.get('edad_retiro', 65)
+
+    form = JubilacionForm(data=form_data) if form_data else JubilacionForm()
+    resultado = None
     errors = []
+
+    # Check if we should show results from session
+    show_results = request.args.get('show_results') == '1'
+    if show_results and 'jubilacion_resultado' in session:
+        resultado = session['jubilacion_resultado']
 
     if request.method == 'POST':
         if form.validate():
@@ -331,7 +382,9 @@ def jubilacion():
             datos = {
                 'tipo_retiro': form.tipo_retiro.data,
                 'tipo_impuesto': form.tipo_impuesto.data,
-                'años_retiro': form.años_retiro.data if form.tipo_retiro.data == 'pension' else None,
+                'ingresos_adicionales': form.ingresos_adicionales.data,
+                'costos_mensuales': form.costos_mensuales.data,
+                'edad_jubilacion': form.edad_jubilacion.data,
                 'tea_retiro': form.tea_retiro.data if form.usar_misma_tea.data == False else None,
                 'usar_misma_tea': form.usar_misma_tea.data
             }
@@ -348,6 +401,9 @@ def jubilacion():
                         'resultado': resultado,
                         'modulo_a_completado': modulo_a_completado
                     })
+                else:
+                    # For regular POST, redirect with show_results parameter
+                    return redirect(url_for('main.jubilacion', show_results='1'))
             except Exception as e:
                 error_msg = f'Error en el cálculo: {str(e)}'
                 if is_ajax_request():
@@ -361,6 +417,100 @@ def jubilacion():
 
     # Return HTML for regular requests
     return render_template('jubilacion.html', form=form, resultado=resultado, modulo_a_completado=modulo_a_completado, errors=errors)
+
+@main.route('/jubilacion/preview', methods=['POST'])
+def jubilacion_preview():
+    """AJAX endpoint for retirement type preview calculations"""
+    try:
+        if not is_ajax_request():
+            return jsonify({'success': False, 'error': 'Invalid request'})
+
+        # Check if module A is completed
+        modulo_a_completado = 'cartera_resumen' in session
+        if not modulo_a_completado:
+            return jsonify({'success': False, 'error': 'Módulo A requerido'})
+
+        # Get form data
+        tipo_retiro = request.form.get('tipo_retiro', 'pension')
+        tipo_impuesto = request.form.get('tipo_impuesto', 'local')
+        ingresos_adicionales = float(request.form.get('ingresos_adicionales', 0))
+        costos_mensuales = float(request.form.get('costos_mensuales', 0))
+        edad_jubilacion = int(request.form.get('edad_jubilacion', 65))
+        usar_misma_tea = request.form.get('usar_misma_tea') == 'y'
+        tea_retiro = float(request.form.get('tea_retiro', 5.0)) if not usar_misma_tea else None
+
+        # Get data from session
+        cartera_datos = session.get('cartera_datos', {})
+        capital_final = session.get('cartera_resumen', {}).get('capital_final', 0)
+        tea_base = session.get('cartera_resumen', {}).get('tea_equivalente', 5.0)
+
+        # Calculate preview based on retirement type
+        if tipo_retiro == 'pension':
+            # Monthly pension calculation
+            años_retiro = max(1, 90 - edad_jubilacion)  # Assume life expectancy of 90
+            meses_totales = años_retiro * 12
+
+            # Use specified TEA or base TEA
+            tea_usar = tea_retiro if tea_retiro is not None else tea_base
+
+            # Calculate monthly pension (simplified)
+            pension_mensual_bruta = capital_final / meses_totales if meses_totales > 0 else 0
+
+            # Apply TEA growth (simplified calculation)
+            if tea_usar > 0:
+                # This is a simplified calculation - in reality it would be more complex
+                factor_crecimiento = (1 + tea_usar / 100) ** (años_retiro / 2)  # Average growth
+                pension_mensual_bruta *= factor_crecimiento
+
+        elif tipo_retiro == 'dividendos':
+            # Dividend income calculation (50% of TEA on capital)
+            tea_usar = tea_retiro if tea_retiro is not None else tea_base
+            pension_mensual_bruta = (capital_final * (tea_usar / 100) * 0.5) / 12  # 50% of annual TEA
+
+        else:  # 'total' or other
+            # Total withdrawal - one-time payment
+            pension_mensual_bruta = capital_final
+
+        # Calculate taxes
+        if tipo_impuesto == 'extranjera':
+            tasa_impuesto = 0.295  # 29.5%
+        else:
+            tasa_impuesto = 0.05  # 5%
+
+        if tipo_retiro == 'pension':
+            impuesto_mensual = pension_mensual_bruta * tasa_impuesto
+            pension_mensual_neta = pension_mensual_bruta - impuesto_mensual
+        else:
+            # For lump sum or dividends, calculate total tax
+            impuesto_mensual = pension_mensual_bruta * tasa_impuesto
+            pension_mensual_neta = pension_mensual_bruta - impuesto_mensual
+
+        # Calculate available income
+        renta_disponible = capital_final + (ingresos_adicionales * 12) - (costos_mensuales * 12)
+        if tipo_retiro == 'pension':
+            renta_disponible = (pension_mensual_neta + ingresos_adicionales - costos_mensuales)
+        elif tipo_retiro == 'dividendos':
+            renta_disponible = (pension_mensual_neta + ingresos_adicionales - costos_mensuales)
+
+        # Return preview data
+        preview_data = {
+            'tipo_retiro': tipo_retiro,
+            'pension_mensual_bruta': round(pension_mensual_bruta, 2),
+            'impuesto_mensual': round(impuesto_mensual, 2),
+            'pension_mensual_neta': round(pension_mensual_neta, 2),
+            'renta_disponible': round(renta_disponible, 2),
+            'tea_retiro': tea_usar,
+            'edad_jubilacion': edad_jubilacion
+        }
+
+        return jsonify({
+            'success': True,
+            'preview': preview_data
+        })
+
+    except Exception as e:
+        print(f"Error in jubilacion_preview: {str(e)}")
+        return jsonify({'success': False, 'error': f'Error en cálculo de preview: {str(e)}'})
 
 @main.route('/bonos', methods=['GET', 'POST'])
 def bonos():

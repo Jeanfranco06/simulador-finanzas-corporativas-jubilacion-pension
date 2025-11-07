@@ -10,8 +10,8 @@ class CarteraForm(FlaskForm):
                               default=30)
 
     monto_inicial = FloatField('Monto Inicial (USD)',
-                              validators=[DataRequired(), NumberRange(min=0)],
-                              default=5000.0)
+                              validators=[NumberRange(min=0)],
+                              default=0.0)
 
     aporte_periodico = FloatField('Aporte Periódico (USD)',
                                  validators=[NumberRange(min=0)],
@@ -45,7 +45,7 @@ class CarteraForm(FlaskForm):
     submit = SubmitField('Calcular Proyección')
 
     def validate(self, extra_validators=None):
-        """Custom validation for the portfolio form - Allow any values for experimentation"""
+        """Custom validation for the portfolio form"""
         if not super().validate(extra_validators):
             return False
 
@@ -54,18 +54,33 @@ class CarteraForm(FlaskForm):
             if self.años.data is None or self.años.data <= 0:
                 self.años.errors.append('Debe especificar un número válido de años.')
                 return False
+            # Validate that retirement age equals current age + years
+            expected_retirement_age = self.edad_actual.data + self.años.data
+            if self.edad_retiro.data != expected_retirement_age:
+                self.edad_retiro.errors.append(f'La edad de jubilación debe ser {expected_retirement_age} años (edad actual {self.edad_actual.data} + {self.años.data} años).')
+                return False
         elif self.tipo_plazo.data == 'edad':
             if self.edad_retiro.data is None or self.edad_retiro.data <= 0:
                 self.edad_retiro.errors.append('Debe especificar una edad de jubilación válida.')
                 return False
+            # Validate that retirement age is at least 1 year greater than current age
+            if self.edad_retiro.data < self.edad_actual.data + 1:
+                self.edad_retiro.errors.append('La edad de jubilación debe ser al menos 1 año mayor que la edad actual.')
+                return False
+            # Validate that years equals retirement age - current age
+            expected_years = self.edad_retiro.data - self.edad_actual.data
+            if self.años.data != expected_years:
+                self.años.errors.append(f'El plazo debe ser {expected_years} años (edad de jubilación {self.edad_retiro.data} - edad actual {self.edad_actual.data}).')
+                return False
 
-        # Allow any values for experimentation - no strict business logic validation
         return True
 
 class JubilacionForm(FlaskForm):
     """Form for Módulo B: Proyección de Jubilación"""
     tipo_retiro = RadioField('Tipo de Retiro',
-                            choices=[('pension', 'Pensión Mensual'), ('total', 'Cobro Total')],
+                            choices=[('pension', 'Pensión Mensual'),
+                                   ('total', 'Cobro Total'),
+                                   ('dividendos', 'Renta vía Dividendos')],
                             default='pension')
 
     tipo_impuesto = SelectField('Tipo de Impuesto sobre Ganancia',
@@ -73,9 +88,17 @@ class JubilacionForm(FlaskForm):
                                       ('5', '5% Bolsa Local')],
                                default='29.5')
 
-    años_retiro = IntegerField('Años Esperados de Retiro',
-                              validators=[Optional(), NumberRange(min=1, max=50)],
-                              default=25)
+    ingresos_adicionales = FloatField('Ingresos Adicionales Mensuales (USD)',
+                                     validators=[NumberRange(min=0)],
+                                     default=0.0)
+
+    costos_mensuales = FloatField('Costos Mensuales (USD)',
+                                 validators=[NumberRange(min=0)],
+                                 default=0.0)
+
+    edad_jubilacion = IntegerField('Edad de Jubilación',
+                                  validators=[Optional(), NumberRange(min=18, max=120)],
+                                  default=65)
 
     usar_misma_tea = BooleanField('Usar la misma TEA del Módulo A',
                                  default=True)

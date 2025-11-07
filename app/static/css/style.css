@@ -562,3 +562,114 @@ html {
     background-repeat: no-repeat;
     background-size: cover;
 }
+
+/* Force black text for period highlights in dark mode */
+.force-black-text {
+    color: #000000 !important;
+}
+
+.dark .force-black-text {
+    color: #000000 !important;
+}
+
+/* More specific rule to override any other color rules */
+span.force-black-text,
+.font-semibold.force-black-text {
+    color: #000000 !important;
+}
+
+.dark span.force-black-text,
+.dark .font-semibold.force-black-text {
+    color: #000000 !important;
+}
+
+/* Ultra-specific rule for period highlight values */
+.bg-gradient-to-br span.force-black-text,
+.bg-gradient-to-br .font-semibold.force-black-text {
+    color: #000000 !important;
+}
+
+.dark .bg-gradient-to-br span.force-black-text,
+.dark .bg-gradient-to-br .font-semibold.force-black-text {
+    color: #000000 !important;
+}
+
+/* Nuclear option - highest specificity possible */
+html.dark .bg-gradient-to-br span.force-black-text,
+html.dark .bg-gradient-to-br .font-semibold.force-black-text,
+html.dark span.force-black-text,
+html.dark .font-semibold.force-black-text,
+.dark .bg-gradient-to-br span.force-black-text,
+.dark .bg-gradient-to-br .font-semibold.force-black-text,
+.dark span.force-black-text,
+.dark .font-semibold.force-black-text {
+    color: #000000 !important;
+}
+
+/* Ensure proper text colors inside gradient background cards */
+.bg-gradient-to-br .text-primary-700,
+.bg-gradient-to-br .text-green-700,
+.bg-gradient-to-br .text-yellow-700,
+.bg-gradient-to-br .text-blue-700,
+.bg-gradient-to-br .text-purple-700,
+.bg-gradient-to-br .text-cyan-700,
+.bg-gradient-to-br .text-orange-700 {
+    color: #374151 !important; /* Dark gray for light backgrounds */
+}
+
+.dark .bg-gradient-to-br .text-primary-700,
+.dark .bg-gradient-to-br .text-green-700,
+.dark .bg-gradient-to-br .text-yellow-700,
+.dark .bg-gradient-to-br .text-blue-700,
+.dark .bg-gradient-to-br .text-purple-700,
+.dark .bg-gradient-to-br .text-cyan-700,
+.dark .bg-gradient-to-br .text-orange-700 {
+    color: #374151 !important; /* Keep dark gray even in dark mode for contrast */
+}
+
+/* Force black text for period values in gradient backgrounds */
+.period-value {
+    color: #000000 !important;
+}
+
+.dark .period-value {
+    color: #000000 !important;
+}
+
+/* Nuclear option - force black text on all spans in gradient backgrounds */
+.bg-gradient-to-br span {
+    color: #000000 !important;
+}
+
+.dark .bg-gradient-to-br span {
+    color: #000000 !important;
+}
+
+html.dark .bg-gradient-to-br span {
+    color: #000000 !important;
+}
+
+html.dark body .bg-gradient-to-br span {
+    color: #000000 !important;
+}
+
+/* Absolute nuclear option - prevent dark mode inheritance entirely */
+.bg-gradient-to-br span {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+.dark .bg-gradient-to-br span {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+html.dark .bg-gradient-to-br span {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+html.dark body .bg-gradient-to-br span {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}

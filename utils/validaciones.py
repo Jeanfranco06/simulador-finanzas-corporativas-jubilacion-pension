@@ -109,9 +109,7 @@ def validar_datos_cartera(
     if not es_valido:
         return False, mensaje
     
-    # Validar que al menos uno sea mayor a 0
-    if monto_inicial == 0 and aporte_periodico == 0:
-        return False, "❌ Debe ingresar un monto inicial o un aporte periódico"
+    # Allow zero values for both fields - users can calculate scenarios with no investment
     
     # Validar TEA
     es_valido, mensaje = validar_tea(tea)

@@ -196,7 +196,8 @@ class PDFGenerator:
             ["Frecuencia de Aportes", resumen['frecuencia']],
             ["Monto Inicial", f"${resumen.get('monto_inicial', 0):,.2f}"],
             ["Aporte Periódico", f"${resumen.get('aporte_periodico', 0):,.2f}"],
-            ["TEA", f"{resumen.get('tea', 0):.2f}%"]
+            ["TEA Ingresada", f"{resumen.get('tea_ingresada', resumen.get('tea', 0)):.2f}%"],
+            ["TEA Equivalente", f"{resumen.get('tea_equivalente', resumen.get('tea', 0)):.2f}%"]
         ]
 
         params_table = Table(params_data, colWidths=[5*cm, 11*cm])

@@ -408,12 +408,22 @@ def calcular_cartera(datos):
     aportes_acumulados = monto_inicial
     resultados = []
 
-    # Calculate growth period by period
+    # Add period 0 (initial balance)
+    resultados.append({
+        'Periodo': 0,
+        'Saldo Inicial': 0,
+        'Aportes': monto_inicial,
+        'Interés': 0,
+        'Saldo Final': monto_inicial,
+        'Aportes Acumulados': monto_inicial
+    })
+
+    # Calculate growth period by period (starting from period 1)
     for periodo in range(1, total_periodos + 1):
-        # Add periodic contribution (except first period for initial amount)
-        if periodo > 1:
-            saldo += aporte_periodico
-            aportes_acumulados += aporte_periodico
+        # Add periodic contribution
+        saldo_anterior = saldo
+        saldo += aporte_periodico
+        aportes_acumulados += aporte_periodico
 
         # Apply interest
         interes = saldo * tasa_periodica
@@ -422,8 +432,8 @@ def calcular_cartera(datos):
         # Record results
         resultados.append({
             'Periodo': periodo,
-            'Saldo Inicial': saldo - interes - (aporte_periodico if periodo > 1 else 0),
-            'Aportes': aporte_periodico if periodo > 1 else 0,
+            'Saldo Inicial': saldo_anterior,
+            'Aportes': aporte_periodico,
             'Interés': interes,
             'Saldo Final': saldo,
             'Aportes Acumulados': aportes_acumulados
@@ -438,6 +448,10 @@ def calcular_cartera(datos):
     ganancia_bruta = capital_final - aportes_totales
     rentabilidad = (ganancia_bruta / aportes_totales * 100) if aportes_totales > 0 else 0
 
+    # Calculate equivalent TEA (periodic rate for the selected frequency)
+    # This shows the periodic rate that gets applied according to contribution frequency
+    tea_equivalente = tasa_periodica
+
     return {
         'dataframe': df,
         'resumen': {
@@ -447,7 +461,9 @@ def calcular_cartera(datos):
             'rentabilidad': rentabilidad,
             'edad_retiro': edad_retiro,
             'años': años,
-            'frecuencia': frecuencia
+            'frecuencia': frecuencia,
+            'tea_ingresada': tea * 100,  # TEA entered by user
+            'tea_equivalente': tea_equivalente * 100  # Equivalent TEA considering compounding
         }
     }
 
@@ -476,29 +492,54 @@ def calcular_jubilacion(datos):
 
     # Extract portfolio summary
     capital_final = resumen_cartera['capital_final']
-    tea_cartera = cartera_datos['tea'] / 100  # Convert back to decimal
+    # Use the original TEA from portfolio divided by 12 for monthly pension rate
+    tea_cartera = cartera_datos['tea'] / 100 / 12  # Monthly rate from annual TEA
 
     # Extract retirement parameters
     tipo_retiro = datos['tipo_retiro']
     tipo_impuesto = datos['tipo_impuesto']
-    años_retiro = datos.get('años_retiro', 25)  # Default 25 years if not specified
+    ingresos_adicionales = datos.get('ingresos_adicionales', 0.0)
+    costos_mensuales = datos.get('costos_mensuales', 0.0)
+    edad_jubilacion = datos.get('edad_jubilacion', 65)
+
+    # Calculate years of retirement from current age and retirement age
+    edad_actual = cartera_datos['edad_actual']
+    años_retiro = max(1, edad_jubilacion - edad_actual)  # Ensure at least 1 year
+
     usar_misma_tea = datos.get('usar_misma_tea', True)
     tea_retiro = datos.get('tea_retiro', tea_cartera * 100) / 100 if not usar_misma_tea else tea_cartera
 
-    # Calculate monthly pension based on retirement type
+    # Calculate RENTA DISPONIBLE: Capital acumulado + Ingresos adicionales - Costos mensuales
+    renta_disponible = capital_final + ingresos_adicionales - costos_mensuales
+
+    # Calculate monthly pension based on retirement type and available income
     if tipo_retiro == 'pension':
         # Calculate monthly pension that lasts for the specified years
         # Using annuity formula: PMT = PV / [(1 - (1+r)^-n)/r]
-        r_mensual = tea_retiro / 12
+        # tea_retiro is already monthly rate, so use it directly
+        r_mensual = tea_retiro
         n_meses = años_retiro * 12
 
         if r_mensual == 0:
-            pension_mensual = capital_final / n_meses
+            pension_mensual = renta_disponible / n_meses
         else:
-            pension_mensual = capital_final * (r_mensual * (1 + r_mensual)**n_meses) / ((1 + r_mensual)**n_meses - 1)
+            pension_mensual = renta_disponible * (r_mensual * (1 + r_mensual)**n_meses) / ((1 + r_mensual)**n_meses - 1)
+    elif tipo_retiro == 'dividendos':
+        # Renta vía dividendos: solo dividendos sin tocar capital
+        # Paso 1: Determinar el capital acumulado (capital_final)
+        # Paso 2: Definir el porcentaje de la tasa aplicada (50% de la TEA según ejemplo del profesor)
+        porcentaje_distribucion = 0.5  # 50% de la TEA se reparte como dividendo
+
+        # Paso 3: Calcular dividendos anuales
+        # Dividendos anuales = Capital acumulado × (TEA × porcentaje_distribucion)
+        dividendos_anuales = capital_final * (cartera_datos['tea'] / 100 * porcentaje_distribucion)
+
+        # Paso 4: Convertir a dividendos mensuales
+        # Dividendos mensuales = Dividendos anuales ÷ 12
+        pension_mensual = dividendos_anuales / 12
     else:
-        # Lump sum withdrawal
-        pension_mensual = capital_final  # One-time payment
+        # Lump sum withdrawal (tipo_retiro == 'total')
+        pension_mensual = renta_disponible  # One-time payment
 
     # Calculate taxes based on form choices
     if tipo_impuesto == '29.5':
@@ -528,6 +569,9 @@ def calcular_jubilacion(datos):
     return {
         'tipo_retiro': tipo_retiro,
         'tipo_impuesto': tipo_impuesto,
+        'ingresos_adicionales': ingresos_adicionales,
+        'costos_mensuales': costos_mensuales,
+        'renta_disponible': renta_disponible,
         'capital_inicial': capital_final,
         'pension_mensual_bruta': pension_mensual,
         'impuesto_mensual': impuesto_mensual,
